@@ -1,8 +1,8 @@
-# AMARE
+# Maréa
 
-Projeto digital desenvolvido para a Clínica Amare.
+Projeto digital Maréa desenvolvido para a Clínica Amare.
 
-Este repositório concentra a visão do projeto, os aprendizados da pesquisa e o direcionamento do MVP criado pelo grupo para uma cliente real: a Clínica Amare. A proposta é reduzir confusão, ansiedade e risco de erro ao longo da jornada de fertilização, oferecendo uma experiência mais clara, organizada e humana para pacientes em acompanhamento.
+Este repositório concentra a visão do projeto, os aprendizados da pesquisa e o direcionamento do MVP Maréa, criado pelo grupo para uma cliente real: a Clínica Amare. A proposta é reduzir confusão, ansiedade e risco de erro ao longo da jornada de fertilização, oferecendo uma experiência mais clara, organizada e humana para pacientes em acompanhamento.
 
 ## Sobre a clínica parceira
 
@@ -24,16 +24,16 @@ As três médicas donas da Clínica Amare são:
 
 ## Sobre o projeto do grupo
 
-O projeto também recebeu o nome `AMARE`, mas aqui ele representa a solução digital proposta pelo grupo para a clínica parceira, e não a clínica em si.
+O projeto recebeu o nome `Maréa` e representa a solução digital proposta pelo grupo para a clínica parceira, e não a clínica em si.
 
 Em outras palavras:
 
 - a Clínica Amare é a organização real atendida pelo projeto;
-- o projeto AMARE é o produto digital concebido para melhorar a experiência das pacientes dessa clínica.
+- a Maréa é o produto digital concebido para melhorar a experiência das pacientes dessa clínica.
 
 ## Integrantes do grupo
 
-O projeto é desenvolvido pelo Grupo 08 do segundo período da CESAR School. A equipe é formada por:
+O projeto é desenvolvido pelo grupo `Maréa`, Grupo 08 do segundo período da CESAR School. A equipe é formada por:
 
 - Anita de Arruda Santana — Designer;
 - Arthur de Almeida Oliveira — Cientista da Computação;
@@ -72,7 +72,7 @@ Na prática, o problema não está na existência da clínica, que já é real e
 
 ## Objetivo da plataforma
 
-O objetivo da AMARE é funcionar como um ponto de apoio digital para pessoas em tratamento de fertilidade, ajudando a:
+O objetivo da Maréa é funcionar como um ponto de apoio digital para pessoas em tratamento de fertilidade, ajudando a:
 
 - organizar etapas, datas e orientações do tratamento;
 - reduzir o risco de esquecimento de medicações e procedimentos;
@@ -144,7 +144,7 @@ Essas prioridades vieram tanto da pesquisa quanto do benchmark, e foram escolhid
 | Clue | Visualização clara de dados, organização de informações, design confiável | curva de aprendizado maior e sensação menos acolhedora |
 | Apple Health | privacidade, consistência e registro simples | baixa personalização e pouca especialização para fertilidade |
 
-Aprendizado prático: a AMARE não deve competir em volume de funcionalidades. Deve competir em clareza, foco no contexto de fertilização e utilidade real na rotina.
+Aprendizado prático: a Maréa não deve competir em volume de funcionalidades. Deve competir em clareza, foco no contexto de fertilização e utilidade real na rotina.
 
 ## Artefatos e links do projeto
 
