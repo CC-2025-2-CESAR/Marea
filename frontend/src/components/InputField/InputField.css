@@ -10,21 +10,33 @@
   color: var(--cor-texto);
 }
 
+.campo-label--oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .campo-controle {
   display: flex;
   align-items: center;
   background-color: #fff;
   border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-medio);
-  padding: 0 var(--espaco-sm);
+  border-radius: var(--raio-campo);
+  padding: 0 var(--espaco-md);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
 
 .campo-controle:focus-within {
-  border-color: var(--cor-bege);
-  box-shadow: 0 0 0 4px rgba(213, 184, 163, 0.25);
+  border-color: var(--cor-caramelo);
+  box-shadow: 0 0 0 4px rgba(212, 150, 104, 0.18);
 }
 
 .campo-controle--erro {
@@ -32,7 +44,7 @@
 }
 
 .campo-controle--erro:focus-within {
-  box-shadow: 0 0 0 4px rgba(209, 29, 70, 0.18);
+  box-shadow: 0 0 0 4px rgba(209, 29, 70, 0.16);
 }
 
 .campo-input {
@@ -40,7 +52,7 @@
   border: none;
   outline: none;
   background: transparent;
-  padding: 14px 4px;
+  padding: 15px 4px;
   font-size: 1rem;
   color: var(--cor-texto);
 }

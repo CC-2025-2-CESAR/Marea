@@ -11,11 +11,15 @@ function InputField({
   autoComplete,
   error,
   trailing,
+  hideLabel = false,
   dataCy,
 }) {
   return (
     <div className="campo">
-      <label className="campo-label" htmlFor={id}>
+      <label
+        className={`campo-label${hideLabel ? ' campo-label--oculto' : ''}`}
+        htmlFor={id}
+      >
         {label}
       </label>
       <div className={`campo-controle${error ? ' campo-controle--erro' : ''}`}>

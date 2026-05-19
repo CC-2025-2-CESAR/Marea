@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import logoMarea from '../../assets/marea-logo.svg'
+import logoMarea from '../../assets/marea-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
 import './Login.css'
@@ -76,20 +76,20 @@ function Login() {
           alt="Maréa"
           data-cy="marea-logo"
         />
-        <p className="login-subtitulo">Bem-vinda à sua jornada de cuidado</p>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
           <InputField
             id="usuario"
             name="usuario"
             label="Usuário ou e-mail"
+            hideLabel
             type="text"
             value={usuario}
             onChange={(e) => {
               setUsuario(e.target.value)
               setFeedback(null)
             }}
-            placeholder="Digite seu usuário ou e-mail"
+            placeholder="usuário ou e-mail"
             autoComplete="username"
             error={usuarioInvalido}
             dataCy="login-username"
@@ -99,13 +99,14 @@ function Login() {
             id="senha"
             name="senha"
             label="Senha"
+            hideLabel
             type={mostrarSenha ? 'text' : 'password'}
             value={senha}
             onChange={(e) => {
               setSenha(e.target.value)
               setFeedback(null)
             }}
-            placeholder="Digite sua senha"
+            placeholder="senha"
             autoComplete="current-password"
             error={senhaInvalida}
             dataCy="login-password"

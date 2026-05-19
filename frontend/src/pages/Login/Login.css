@@ -4,51 +4,33 @@
   align-items: center;
   justify-content: center;
   padding: var(--espaco-md);
-  background:
-    radial-gradient(
-      circle at 18% 18%,
-      rgba(193, 211, 222, 0.45),
-      transparent 42%
-    ),
-    radial-gradient(
-      circle at 82% 78%,
-      rgba(219, 183, 185, 0.45),
-      transparent 45%
-    ),
-    var(--cor-fundo);
+  background-color: var(--cor-fundo);
 }
 
 .login-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background-color: var(--cor-card);
-  border-radius: var(--raio-grande);
+  border-radius: 36px;
   box-shadow: var(--sombra-suave);
-  padding: var(--espaco-xl) var(--espaco-lg);
+  padding: 56px 44px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--espaco-md);
+  gap: var(--espaco-lg);
 }
 
 .login-logo {
-  width: 220px;
-  max-width: 70%;
+  width: 210px;
+  max-width: 68%;
   height: auto;
-}
-
-.login-subtitulo {
-  margin-top: -8px;
-  color: var(--cor-texto-suave);
-  font-size: 0.98rem;
-  text-align: center;
 }
 
 .login-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-md);
+  gap: var(--espaco-lg);
 }
 
 .login-olho {
@@ -57,24 +39,24 @@
   justify-content: center;
   border: none;
   background: transparent;
-  color: var(--cor-texto-suave);
+  color: var(--cor-caramelo);
   padding: 4px;
   border-radius: var(--raio-pequeno);
 }
 
 .login-olho:hover {
-  color: var(--cor-marrom);
+  color: var(--cor-terracota);
 }
 
 .login-esqueceu {
-  align-self: flex-end;
-  margin-top: -6px;
-  font-size: 0.88rem;
-  color: var(--cor-marrom);
+  align-self: center;
+  margin-top: -14px;
+  font-size: 0.9rem;
+  color: var(--cor-azul-link);
 }
 
 .login-feedback {
-  margin: -4px 0;
+  margin: -8px 0;
   padding: 10px 14px;
   border-radius: var(--raio-pequeno);
   font-size: 0.9rem;
@@ -93,11 +75,11 @@
 
 @media (max-width: 480px) {
   .login-card {
-    padding: var(--espaco-lg) var(--espaco-md);
-    border-radius: var(--raio-medio);
+    padding: 40px 24px;
+    border-radius: 28px;
   }
 
   .login-logo {
-    width: 180px;
+    width: 150px;
   }
 }

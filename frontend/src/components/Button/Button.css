@@ -1,10 +1,11 @@
 .botao {
   width: 100%;
   border: none;
-  border-radius: var(--raio-grande);
-  padding: 14px 24px;
-  font-size: 1rem;
+  border-radius: 999px;
+  padding: 15px 24px;
+  font-size: 1.02rem;
   font-weight: 600;
+  letter-spacing: 0.3px;
   transition:
     transform 0.15s ease,
     box-shadow 0.2s ease,
@@ -17,13 +18,13 @@
 }
 
 .botao--primary {
-  background-color: var(--cor-bege);
+  background-color: var(--cor-caramelo);
   color: #fff;
-  box-shadow: 0 10px 22px rgba(213, 184, 163, 0.45);
+  box-shadow: 0 12px 24px rgba(212, 150, 104, 0.4);
 }
 
 .botao--primary:hover:not(:disabled) {
-  background-color: var(--cor-caramelo);
+  background-color: var(--cor-terracota);
   transform: translateY(-1px);
 }
 

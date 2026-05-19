@@ -18,10 +18,11 @@
 
   /* Tokens semânticos */
   --cor-texto: #34333e;
-  --cor-texto-suave: #6b6a73;
-  --cor-fundo: #fef6e4;
-  --cor-card: #fffaf0;
-  --cor-borda: #e3d5c4;
+  --cor-texto-suave: #8a7f73;
+  --cor-fundo: #f7ede3;
+  --cor-card: #fdf5ea;
+  --cor-borda: #e0c7b3;
+  --cor-azul-link: #6f97a8;
   --cor-erro: #d11d46;
   --cor-sucesso: #729368;
 
@@ -29,6 +30,7 @@
   --raio-pequeno: 10px;
   --raio-medio: 16px;
   --raio-grande: 28px;
+  --raio-campo: 26px;
   --sombra-suave: 0 18px 40px rgba(128, 82, 53, 0.12);
   --espaco-xs: 8px;
   --espaco-sm: 12px;
