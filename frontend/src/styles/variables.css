@@ -1,0 +1,41 @@
+:root {
+  /* Paleta principal */
+  --cor-rosa-principal: #dbb7b9;
+  --cor-verde-suave: #cacdab;
+  --cor-creme: #fef6e4;
+  --cor-azul-suave: #c1d3de;
+  --cor-bege: #d5b8a3;
+
+  /* Cores auxiliares */
+  --cor-creme-claro: #f7ede3;
+  --cor-caramelo: #d49668;
+  --cor-terracota: #af5a3f;
+  --cor-marrom: #805235;
+  --cor-grafite: #34333e;
+  --cor-rosa-secundario: #dc97a4;
+  --cor-vermelho-alerta: #d11d46;
+  --cor-verde-confirmacao: #729368;
+
+  /* Tokens semânticos */
+  --cor-texto: #34333e;
+  --cor-texto-suave: #6b6a73;
+  --cor-fundo: #fef6e4;
+  --cor-card: #fffaf0;
+  --cor-borda: #e3d5c4;
+  --cor-erro: #d11d46;
+  --cor-sucesso: #729368;
+
+  /* Forma e espaçamento */
+  --raio-pequeno: 10px;
+  --raio-medio: 16px;
+  --raio-grande: 28px;
+  --sombra-suave: 0 18px 40px rgba(128, 82, 53, 0.12);
+  --espaco-xs: 8px;
+  --espaco-sm: 12px;
+  --espaco-md: 20px;
+  --espaco-lg: 32px;
+  --espaco-xl: 48px;
+
+  /* Tipografia */
+  --fonte-base: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+}
