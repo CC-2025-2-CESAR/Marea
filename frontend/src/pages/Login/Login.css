@@ -1,0 +1,85 @@
+.login-tela {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-md);
+  background:
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(193, 211, 222, 0.45),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 82% 78%,
+      rgba(219, 183, 185, 0.45),
+      transparent 45%
+    ),
+    var(--cor-fundo);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--cor-card);
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-xl) var(--espaco-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-md);
+}
+
+.login-logo {
+  width: 220px;
+  max-width: 70%;
+  height: auto;
+}
+
+.login-subtitulo {
+  margin-top: -8px;
+  color: var(--cor-texto-suave);
+  font-size: 0.98rem;
+  text-align: center;
+}
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.login-olho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  padding: 4px;
+  border-radius: var(--raio-pequeno);
+}
+
+.login-olho:hover {
+  color: var(--cor-marrom);
+}
+
+.login-esqueceu {
+  align-self: flex-end;
+  margin-top: -6px;
+  font-size: 0.88rem;
+  color: var(--cor-marrom);
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: var(--espaco-lg) var(--espaco-md);
+    border-radius: var(--raio-medio);
+  }
+
+  .login-logo {
+    width: 180px;
+  }
+}

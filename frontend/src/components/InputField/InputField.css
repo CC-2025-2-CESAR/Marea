@@ -1,0 +1,55 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.campo-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.campo-controle {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  padding: 0 var(--espaco-sm);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.campo-controle:focus-within {
+  border-color: var(--cor-bege);
+  box-shadow: 0 0 0 4px rgba(213, 184, 163, 0.25);
+}
+
+.campo-controle--erro {
+  border-color: var(--cor-erro);
+}
+
+.campo-controle--erro:focus-within {
+  box-shadow: 0 0 0 4px rgba(209, 29, 70, 0.18);
+}
+
+.campo-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 14px 4px;
+  font-size: 1rem;
+  color: var(--cor-texto);
+}
+
+.campo-input::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+.campo-adorno {
+  display: flex;
+  align-items: center;
+}
