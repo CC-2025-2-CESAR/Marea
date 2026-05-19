@@ -73,6 +73,24 @@
   color: var(--cor-marrom);
 }
 
+.login-feedback {
+  margin: -4px 0;
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-feedback--erro {
+  color: var(--cor-erro);
+  background-color: rgba(209, 29, 70, 0.08);
+}
+
+.login-feedback--sucesso {
+  color: var(--cor-sucesso);
+  background-color: rgba(114, 147, 104, 0.12);
+}
+
 @media (max-width: 480px) {
   .login-card {
     padding: var(--espaco-lg) var(--espaco-md);

@@ -48,10 +48,24 @@ function Login() {
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
+  const [feedback, setFeedback] = useState(null)
 
   function handleSubmit(evento) {
     evento.preventDefault()
+
+    if (!usuario.trim() || !senha.trim()) {
+      setFeedback({
+        tipo: 'erro',
+        texto: 'Preencha usuário/e-mail e senha para continuar.',
+      })
+      return
+    }
+
+    setFeedback({ tipo: 'sucesso', texto: 'Login simulado com sucesso.' })
   }
+
+  const usuarioInvalido = feedback?.tipo === 'erro' && !usuario.trim()
+  const senhaInvalida = feedback?.tipo === 'erro' && !senha.trim()
 
   return (
     <main className="login-tela">
@@ -71,9 +85,13 @@ function Login() {
             label="Usuário ou e-mail"
             type="text"
             value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
+            onChange={(e) => {
+              setUsuario(e.target.value)
+              setFeedback(null)
+            }}
             placeholder="Digite seu usuário ou e-mail"
             autoComplete="username"
+            error={usuarioInvalido}
             dataCy="login-username"
           />
 
@@ -83,9 +101,13 @@ function Login() {
             label="Senha"
             type={mostrarSenha ? 'text' : 'password'}
             value={senha}
-            onChange={(e) => setSenha(e.target.value)}
+            onChange={(e) => {
+              setSenha(e.target.value)
+              setFeedback(null)
+            }}
             placeholder="Digite sua senha"
             autoComplete="current-password"
+            error={senhaInvalida}
             dataCy="login-password"
             trailing={
               <button
@@ -103,6 +125,16 @@ function Login() {
           <a className="login-esqueceu" href="#" data-cy="login-forgot">
             Esqueceu a senha?
           </a>
+
+          {feedback ? (
+            <p
+              className={`login-feedback login-feedback--${feedback.tipo}`}
+              role="alert"
+              data-cy="login-feedback"
+            >
+              {feedback.texto}
+            </p>
+          ) : null}
 
           <Button type="submit" dataCy="login-submit">
             Entrar
