@@ -1,6 +1,110 @@
 # Maréa
 
-Projeto digital Maréa desenvolvido para a Clínica Amare.
+Maréa é uma plataforma web desenvolvida para apoiar a experiência de pacientes da Clínica
+AMARE, reunindo recursos digitais voltados ao acompanhamento, organização e compreensão de
+informações relacionadas aos tratamentos.
+
+Nesta etapa inicial, o projeto contém a estrutura base da aplicação e a primeira versão da
+tela de login.
+
+## Status atual
+
+- Tela de login em desenvolvimento.
+- Estrutura de backend e frontend preparada para as próximas páginas (perfil, calendário,
+  ciclo, dicionário, bot, página inicial, tratamentos, especialidades, área administrativa,
+  consultas e pacientes).
+
+## Tecnologias
+
+- Backend: Django (Python)
+- API: Django REST Framework
+- Frontend: React (JavaScript)
+- Build do frontend: Vite
+- Testes E2E: Cypress
+- Padronização: ESLint e Prettier
+- Banco local: SQLite (recomendado PostgreSQL no futuro)
+
+## Como rodar o backend
+
+```
+cd backend
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Backend em `http://127.0.0.1:8000/`.
+
+## Como rodar o frontend
+
+```
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend em `http://localhost:5173/`.
+
+## Como rodar o Cypress
+
+Com o frontend rodando, em outro terminal:
+
+```
+cd frontend
+npm run cypress:open
+```
+
+Para rodar os testes no terminal:
+
+```
+npm run cypress:run
+```
+
+## Documentação
+
+- [Configuração do ambiente](docs/configuracao-do-ambiente.md)
+- [Guia do Django](docs/guia-django.md)
+- [Guia do React](docs/guia-react.md)
+- [Guia do Cypress](docs/guia-cypress.md)
+- [Guia do ESLint e Prettier](docs/guia-eslint-prettier.md)
+- [Fluxo de Git](docs/fluxo-git.md)
+- [Como contribuir](CONTRIBUTING.md)
+
+## Estrutura inicial do projeto
+
+```
+backend/
+├── manage.py
+├── marea_api/
+├── requirements.txt
+└── README.md
+frontend/
+├── src/
+│   ├── assets/
+│   ├── components/
+│   │   ├── Button/
+│   │   └── InputField/
+│   ├── pages/
+│   │   └── Login/
+│   ├── styles/
+│   ├── App.jsx
+│   └── main.jsx
+├── cypress/
+│   └── e2e/
+├── cypress.config.js
+├── package.json
+└── vite.config.js
+docs/
+.gitignore
+README.md
+CONTRIBUTING.md
+```
+
+---
+
+## Contexto e pesquisa do projeto
 
 Este repositório concentra a visão do projeto, os aprendizados da pesquisa e o direcionamento do MVP Maréa, criado pelo grupo para uma cliente real: a Clínica Amare. A proposta é reduzir confusão, ansiedade e risco de erro ao longo da jornada de fertilização, oferecendo uma experiência mais clara, organizada e humana para pacientes em acompanhamento.
 
