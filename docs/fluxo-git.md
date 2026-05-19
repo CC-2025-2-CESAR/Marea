@@ -74,6 +74,9 @@ Use nomes curtos, em português, sem espaços:
 - `validacao-login`
 - `testes-login`
 - `ajustes-documentacao`
+- `estrutura-layout-rotas`
+- `testes-rotas-layout`
+- `docs-rotas-layout`
 
 ## Como escrever commits
 
@@ -93,4 +96,33 @@ docs: adicionar guia de Cypress
 feat: criar página de login
 test: adicionar testes da tela de login
 style: ajustar identidade visual da tela de login
+```
+
+## Exemplo desta etapa
+
+Para criar a base de rotas e layout:
+
+```
+git checkout -b estrutura-layout-rotas
+git add .
+git commit -m "feat: criar estrutura de rotas e layout base"
+```
+
+Depois, crie branches separadas para testes e documentação:
+
+```
+git checkout -b testes-rotas-layout
+git commit -m "test: adicionar testes de rotas e layout"
+
+git checkout -b docs-rotas-layout
+git commit -m "docs: documentar rotas e layout base"
+```
+
+Antes de abrir pull request ou fazer merge, rode:
+
+```
+cd frontend
+npm run lint
+npm run build
+npm run cypress:run
 ```

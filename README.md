@@ -4,15 +4,15 @@ Maréa é uma plataforma web desenvolvida para apoiar a experiência de paciente
 AMARE, reunindo recursos digitais voltados ao acompanhamento, organização e compreensão de
 informações relacionadas aos tratamentos.
 
-Nesta etapa inicial, o projeto contém a estrutura base da aplicação e a primeira versão da
-tela de login.
+Nesta etapa inicial, o projeto contém a estrutura base da aplicação, a primeira versão da
+tela de login e o layout base de navegação para páginas internas.
 
 ## Status atual
 
-- Tela de login em desenvolvimento.
-- Estrutura de backend e frontend preparada para as próximas páginas (perfil, calendário,
-  ciclo, dicionário, bot, página inicial, tratamentos, especialidades, área administrativa,
-  consultas e pacientes).
+- Tela de login pronta com validação simples e simulação de sucesso.
+- Rotas principais configuradas com React Router.
+- Layout público para login e layout interno com sidebar, header e busca visual.
+- Páginas internas criadas como placeholders para evolução futura.
 
 ## Tecnologias
 
@@ -23,6 +23,27 @@ tela de login.
 - Testes E2E: Cypress
 - Padronização: ESLint e Prettier
 - Banco local: SQLite (recomendado PostgreSQL no futuro)
+
+## Rotas atuais
+
+- `/login`: tela de login, sem sidebar, header ou busca.
+- `/`: página inicial da plataforma.
+- `/perfil`: placeholder de perfil.
+- `/calendario`: placeholder de calendário.
+- `/ciclo`: placeholder de ciclo.
+- `/dicionario`: placeholder de dicionário.
+- `/bot`: placeholder de bot.
+- `/tratamentos`: placeholder de tratamentos.
+- `/especialidades`: placeholder de especialidades.
+
+## Layouts
+
+- `AuthLayout`: usado em rotas públicas, como `/login`.
+- `AppLayout`: usado nas rotas internas, com sidebar, header, busca e área principal de
+  conteúdo.
+
+As páginas internas ainda não possuem funcionalidades reais. Elas mostram apenas título e
+texto básico enquanto a navegação e a estrutura visual são preparadas.
 
 ## Como rodar o backend
 

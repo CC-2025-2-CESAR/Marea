@@ -20,7 +20,9 @@ modo local com recarga automática e gera a versão final para produção.
 src/
 ├── assets/        imagens e o logo
 ├── components/    componentes reutilizáveis
+├── layouts/       estruturas visuais compartilhadas
 ├── pages/         páginas da aplicação
+├── routes/        configuração das rotas
 ├── styles/        estilos globais e variáveis de cor
 ├── App.jsx        componente raiz
 └── main.jsx       ponto de entrada
@@ -49,6 +51,41 @@ Guarda as telas completas. A página de login fica em:
 src/pages/Login/Login.jsx
 src/pages/Login/Login.css
 ```
+
+As páginas internas atuais ficam em pastas próprias, como `Home`, `Calendario`,
+`Dicionario` e `Bot`. Nesta etapa, elas são placeholders.
+
+## A pasta `layouts`
+
+Guarda estruturas visuais reutilizadas por grupos de páginas.
+
+- `AuthLayout`: usado no login, sem sidebar, header ou busca.
+- `AppLayout`: usado nas páginas internas, com sidebar, header, busca e área de conteúdo.
+
+Os layouts usam `Outlet` para indicar onde a página da rota atual será renderizada.
+
+## A pasta `routes`
+
+Guarda a configuração de navegação da aplicação.
+
+O arquivo principal é:
+
+```
+src/routes/AppRoutes.jsx
+```
+
+Ele usa React Router com `BrowserRouter`, `Routes`, `Route` e `Outlet`.
+
+Exemplo simplificado:
+
+```jsx
+<Route element={<AppLayout />}>
+  <Route path="/" element={<Home />} />
+  <Route path="/dicionario" element={<Dicionario />} />
+</Route>
+```
+
+O componente `App.jsx` apenas chama `AppRoutes`, deixando as rotas centralizadas.
 
 ## Como criar um componente
 
