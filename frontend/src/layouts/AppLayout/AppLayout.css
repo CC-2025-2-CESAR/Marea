@@ -1,0 +1,35 @@
+.app-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  background:
+    radial-gradient(
+      circle at 88% 10%,
+      rgba(193, 211, 222, 0.34),
+      transparent 28%
+    ),
+    var(--cor-fundo);
+}
+
+.app-layout__conteudo {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-layout__principal {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+}
+
+@media (max-width: 860px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .app-layout__principal {
+    padding: 20px 16px 36px;
+  }
+}

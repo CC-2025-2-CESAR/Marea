@@ -1,0 +1,47 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import AuthLayout from '../layouts/AuthLayout/AuthLayout'
+import AppLayout from '../layouts/AppLayout/AppLayout'
+import Login from '../pages/Login/Login'
+import Home from '../pages/Home/Home'
+import Perfil from '../pages/Perfil/Perfil'
+import Calendario from '../pages/Calendario/Calendario'
+import Ciclo from '../pages/Ciclo/Ciclo'
+import Dicionario from '../pages/Dicionario/Dicionario'
+import Bot from '../pages/Bot/Bot'
+import Tratamentos from '../pages/Tratamentos/Tratamentos'
+import Especialidades from '../pages/Especialidades/Especialidades'
+import EmBreve from '../pages/EmBreve/EmBreve'
+
+function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+        </Route>
+
+        <Route element={<AppLayout />}>
+          <Route index element={<Home />} />
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/calendario" element={<Calendario />} />
+          <Route path="/ciclo" element={<Ciclo />} />
+          <Route path="/dicionario" element={<Dicionario />} />
+          <Route path="/bot" element={<Bot />} />
+          <Route path="/tratamentos" element={<Tratamentos />} />
+          <Route path="/especialidades" element={<Especialidades />} />
+          <Route
+            path="*"
+            element={
+              <EmBreve
+                titulo="Página não encontrada"
+                descricao="Esta página será desenvolvida em uma próxima etapa."
+              />
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+export default AppRoutes

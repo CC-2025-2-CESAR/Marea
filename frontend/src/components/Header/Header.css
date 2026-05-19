@@ -1,0 +1,36 @@
+.app-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-md);
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(128, 82, 53, 0.12);
+  background-color: rgba(253, 245, 234, 0.72);
+  backdrop-filter: blur(16px);
+}
+
+.app-header__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-header__marca {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.app-header__texto p {
+  color: var(--cor-texto-suave);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 18px 16px;
+  }
+}

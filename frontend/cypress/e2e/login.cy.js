@@ -1,6 +1,6 @@
 describe('Tela de login do Maréa', () => {
   beforeEach(() => {
-    cy.visit('/')
+    cy.visit('/login')
   })
 
   it('carrega a página de login corretamente', () => {
