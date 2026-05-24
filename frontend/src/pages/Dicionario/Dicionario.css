@@ -1,3 +1,187 @@
 .dicionario-pagina {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.dicionario-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 1.75rem;
+}
+
+.dicionario-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+.dicionario-busca {
+  display: flex;
+  gap: var(--espaco-sm);
+  align-items: center;
+}
+
+.dicionario-busca__input {
+  flex: 1;
+  padding: 12px 18px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-campo);
+  background: var(--cor-card);
+  font-size: 1rem;
+  color: var(--cor-texto);
+  font-family: inherit;
+}
+
+.dicionario-busca__input:focus {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.dicionario-busca__submit {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--raio-campo);
+  background: var(--cor-terracota);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.dicionario-busca__submit:hover {
+  background: var(--cor-marrom);
+}
+
+.dicionario-conteudo {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--espaco-md);
+  align-items: start;
+}
+
+.dicionario-lista__itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.dicionario-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px;
+  border: 2px solid transparent;
+  border-radius: var(--raio-medio);
+  background: var(--cor-card);
+  box-shadow: var(--sombra-suave);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--cor-texto);
+  transition: border-color 0.15s ease-out;
+}
+
+.dicionario-card:hover {
+  border-color: var(--cor-rosa-principal);
+}
+
+.dicionario-card:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.dicionario-card--ativo {
+  border-color: var(--cor-rosa-secundario);
+}
+
+.dicionario-card__termo {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.dicionario-card__categoria {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.dicionario-detalhes {
+  background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-md);
+  min-height: 220px;
+}
+
+.dicionario-detalhes__titulo {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 1.5rem;
+}
+
+.dicionario-detalhes__categoria {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--cor-rosa-principal);
+  color: var(--cor-marrom);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: var(--espaco-sm);
+}
+
+.dicionario-detalhes__definicao {
+  margin: 0 0 var(--espaco-md);
+  line-height: 1.55;
+}
+
+.dicionario-detalhes__exemplo h3 {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 1rem;
+  color: var(--cor-marrom);
+}
+
+.dicionario-detalhes__exemplo p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  line-height: 1.5;
+}
+
+.dicionario-mensagem {
+  margin: 0;
+  padding: var(--espaco-md);
+  color: var(--cor-texto-suave);
+  text-align: center;
+  font-style: italic;
+}
+
+.dicionario-mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+.dicionario-mensagem--placeholder {
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .dicionario-conteudo {
+    grid-template-columns: 1fr;
+  }
+
+  .dicionario-busca {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dicionario-busca__submit {
+    width: 100%;
+  }
 }
