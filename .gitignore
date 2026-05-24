@@ -214,6 +214,7 @@ cypress/downloads/
 # Variáveis de ambiente
 .env
 .env.*
+!.env.example
 
 # Arquivos temporários do sistema
 .DS_Store
