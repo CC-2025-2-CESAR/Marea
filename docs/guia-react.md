@@ -115,6 +115,27 @@ function App() {
 - As cores ficam em `src/styles/variables.css` como variáveis (ex.: `var(--cor-creme)`).
 - Estilos gerais (fundo, fonte, reset) ficam em `src/styles/global.css`.
 
+## Animações com Motion
+
+A biblioteca [Motion](https://motion.dev/) é usada para microinterações e
+transições suaves. O import canônico é:
+
+```jsx
+import { motion, AnimatePresence } from 'motion/react'
+```
+
+Uso atual no Maréa:
+
+- `src/pages/Login/Login.jsx`: entrada suave do card, do logo e do bloco de
+  feedback (com `AnimatePresence` para animação de saída).
+- `src/components/Button/Button.jsx`: microinterações de `whileHover` e
+  `whileTap` no botão.
+
+Regra geral: usar Motion com moderação. Animações curtas (até 0,35 s) e
+discretas ajudam a leitura. Animações longas ou exageradas atrapalham,
+sobretudo em campos de formulário e listas. Mais detalhes no
+[guia da Motion](guia-motion.md).
+
 ## Camada de serviços HTTP
 
 Toda chamada à API do Maréa passa pela pasta `src/services/`:

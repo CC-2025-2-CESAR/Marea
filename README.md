@@ -21,6 +21,7 @@ tela de login e o layout base de navegação para páginas internas.
 - API: Django REST Framework
 - Frontend: React (JavaScript)
 - Build do frontend: Vite
+- Animações: Motion (microinterações e transições suaves)
 - Testes E2E: Cypress
 - Padronização: ESLint e Prettier
 - Banco local: SQLite (recomendado PostgreSQL no futuro)

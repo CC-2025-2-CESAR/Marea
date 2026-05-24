@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import logoMarea from '../../assets/marea-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
@@ -69,12 +70,20 @@ function Login() {
 
   return (
     <main className="login-tela">
-      <section className="login-card">
-        <img
+      <motion.section
+        className="login-card"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        <motion.img
           className="login-logo"
           src={logoMarea}
           alt="Maréa"
           data-cy="marea-logo"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: 'easeOut', delay: 0.05 }}
         />
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
@@ -127,21 +136,28 @@ function Login() {
             Esqueceu a senha?
           </a>
 
-          {feedback ? (
-            <p
-              className={`login-feedback login-feedback--${feedback.tipo}`}
-              role="alert"
-              data-cy="login-feedback"
-            >
-              {feedback.texto}
-            </p>
-          ) : null}
+          <AnimatePresence>
+            {feedback ? (
+              <motion.p
+                key={`${feedback.tipo}-${feedback.texto}`}
+                className={`login-feedback login-feedback--${feedback.tipo}`}
+                role="alert"
+                data-cy="login-feedback"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2 }}
+              >
+                {feedback.texto}
+              </motion.p>
+            ) : null}
+          </AnimatePresence>
 
           <Button type="submit" dataCy="login-submit">
             Entrar
           </Button>
         </form>
-      </section>
+      </motion.section>
     </main>
   )
 }
