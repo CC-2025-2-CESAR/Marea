@@ -114,3 +114,36 @@ function App() {
 - Cada componente importa o seu próprio `.css`.
 - As cores ficam em `src/styles/variables.css` como variáveis (ex.: `var(--cor-creme)`).
 - Estilos gerais (fundo, fonte, reset) ficam em `src/styles/global.css`.
+
+## Camada de serviços HTTP
+
+Toda chamada à API do Maréa passa pela pasta `src/services/`:
+
+```
+src/services/
+├── api.js                  wrapper de fetch com URL base e tratamento de erro
+└── dicionarioService.js    chamadas específicas do dicionário
+```
+
+A URL base é lida da variável de ambiente `VITE_API_BASE_URL`, com fallback para
+`http://localhost:8000/api`. O arquivo `frontend/.env.example` mostra o formato.
+Crie um `frontend/.env` local com o valor que você quiser usar — esse arquivo é
+ignorado pelo Git.
+
+Uso típico em uma página:
+
+```jsx
+import { listarTermos } from '../../services/dicionarioService'
+
+const dados = await listarTermos('fiv')
+```
+
+Para criar um novo serviço, reuse `requisicao` de `api.js`:
+
+```js
+import { requisicao } from './api'
+
+function listarConsultas() {
+  return requisicao('/consultas/')
+}
+```

@@ -12,7 +12,8 @@ tela de login e o layout base de navegação para páginas internas.
 - Tela de login pronta com validação simples e simulação de sucesso.
 - Rotas principais configuradas com React Router.
 - Layout público para login e layout interno com sidebar, header e busca visual.
-- Páginas internas criadas como placeholders para evolução futura.
+- Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
+- Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
 
@@ -31,7 +32,7 @@ tela de login e o layout base de navegação para páginas internas.
 - `/perfil`: placeholder de perfil.
 - `/calendario`: placeholder de calendário.
 - `/ciclo`: placeholder de ciclo.
-- `/dicionario`: placeholder de dicionário.
+- `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
 - `/tratamentos`: placeholder de tratamentos.
 - `/especialidades`: placeholder de especialidades.
@@ -83,6 +84,39 @@ Para rodar os testes no terminal:
 npm run cypress:run
 ```
 
+## Dicionário de termos médicos (PROJ-3 e PROJ-4)
+
+Primeira feature do projeto com persistência real. Disponível em
+[`/dicionario`](http://localhost:5173/dicionario).
+
+Endpoints do backend:
+
+- `GET /api/dicionario/termos/` — lista termos ativos
+- `GET /api/dicionario/termos/?busca=fiv` — filtra por nome, definição ou categoria
+- `GET /api/dicionario/termos/<id>/` — detalhe do termo
+
+Como subir o ambiente completo:
+
+```
+# backend (uma vez)
+cd backend
+python manage.py migrate
+python manage.py loaddata termos_iniciais
+python manage.py runserver
+
+# frontend (em outro terminal)
+cd frontend
+cp .env.example .env       # opcional: aponta para outro backend
+npm install
+npm run dev
+```
+
+Para cadastrar novos termos sem migrations, use o Django Admin em
+`http://localhost:8000/admin/dicionario/termodicionario/` (precisa de um superusuário,
+criado com `python manage.py createsuperuser`).
+
+Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias-de-usuario.md).
+
 ## Documentação
 
 - [Configuração do ambiente](docs/configuracao-do-ambiente.md)
@@ -91,6 +125,7 @@ npm run cypress:run
 - [Guia do Cypress](docs/guia-cypress.md)
 - [Guia do ESLint e Prettier](docs/guia-eslint-prettier.md)
 - [Fluxo de Git](docs/fluxo-git.md)
+- [Histórias de usuário](docs/historias-de-usuario.md)
 - [Como contribuir](CONTRIBUTING.md)
 
 ## Estrutura inicial do projeto

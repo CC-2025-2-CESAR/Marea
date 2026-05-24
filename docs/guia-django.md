@@ -2,8 +2,9 @@
 
 Estrutura básica do backend do Maréa.
 
-> Nesta etapa o backend está apenas preparado para evoluções futuras. Ainda não há rotas
-> de API nem autenticação implementadas.
+> A primeira app real do backend é a `dicionario`, que expõe os termos médicos via API REST
+> (PROJ-3 e PROJ-4). O restante das funcionalidades segue como preparação para evoluções
+> futuras.
 
 ## Para que serve o Django
 
@@ -55,10 +56,60 @@ Quando existir a área administrativa, crie um usuário admin com:
 python manage.py createsuperuser
 ```
 
-## Onde ficarão as rotas da API
+## Onde ficam as rotas da API
 
-As rotas serão registradas em `backend/marea_api/urls.py`, sob o prefixo `api/`.
+As rotas são registradas em `backend/marea_api/urls.py`, sob o prefixo `api/`.
 A configuração do projeto (apps instalados, banco, idioma) fica em
 `backend/marea_api/settings.py`.
 
 O banco local é SQLite. Para produção, recomenda-se migrar para PostgreSQL no futuro.
+
+## App `dicionario`
+
+Primeira app real do backend, responsável pelos termos médicos do glossário.
+
+Arquivos relevantes:
+
+- `backend/dicionario/models.py` — define o model `TermoDicionario` com `termo` único,
+  `definicao`, `categoria`, `exemplo`, `ativo` e timestamps.
+- `backend/dicionario/admin.py` — registra o model no Django Admin com filtros e busca.
+- `backend/dicionario/serializers.py` — `TermoDicionarioSerializer` (ModelSerializer).
+- `backend/dicionario/views.py` — views baseadas em função (`@api_view`), sem usar
+  Generic Views, para deixar o fluxo explícito.
+- `backend/dicionario/urls.py` — rotas internas da app.
+- `backend/dicionario/fixtures/termos_iniciais.json` — sete termos prontos para semear o
+  ambiente de desenvolvimento.
+
+Endpoints:
+
+```
+GET  /api/dicionario/termos/                lista termos ativos
+GET  /api/dicionario/termos/?busca=fiv      filtra por termo, definição ou categoria
+GET  /api/dicionario/termos/<id>/           detalhe de um termo (404 se inativo/inexistente)
+```
+
+Para carregar os termos iniciais:
+
+```
+python manage.py migrate
+python manage.py loaddata termos_iniciais
+```
+
+Para cadastrar novos termos sem migrations, use o Django Admin em
+`http://localhost:8000/admin/dicionario/termodicionario/` (precisa de um superusuário,
+criado com `python manage.py createsuperuser`).
+
+## CORS
+
+A app `corsheaders` (django-cors-headers) está habilitada para liberar o frontend
+(Vite em `http://localhost:5173`) a chamar os endpoints. A configuração fica em
+`backend/marea_api/settings.py`:
+
+```python
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+```
+
+Em produção, ampliar essa lista para o domínio real.
