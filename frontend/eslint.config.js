@@ -28,6 +28,9 @@ export default defineConfig([
         ...globals.mocha,
         cy: 'readonly',
         Cypress: 'readonly',
+        // Chai é injetado globalmente pelo Cypress.
+        expect: 'readonly',
+        assert: 'readonly',
       },
     },
   },
