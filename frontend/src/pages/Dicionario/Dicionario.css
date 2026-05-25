@@ -15,7 +15,7 @@
 .dicionario-cabecalho p {
   margin: 0;
   color: var(--cor-texto-suave);
-  max-width: 60ch;
+  max-width: 65ch;
 }
 
 .dicionario-busca {
@@ -24,9 +24,24 @@
   align-items: center;
 }
 
+.dicionario-busca__campo {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dicionario-busca__icone {
+  position: absolute;
+  left: 16px;
+  color: var(--cor-texto-suave);
+  pointer-events: none;
+}
+
 .dicionario-busca__input {
   flex: 1;
-  padding: 12px 18px;
+  width: 100%;
+  padding: 12px 18px 12px 46px;
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-campo);
   background: var(--cor-card);
@@ -57,101 +72,106 @@
   background: var(--cor-marrom);
 }
 
-.dicionario-conteudo {
+.dicionario-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--espaco-md);
   align-items: start;
 }
 
-.dicionario-lista__itens {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-xs);
-}
-
 .dicionario-card {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 18px;
-  border: 2px solid transparent;
+  gap: var(--espaco-sm);
+  padding: var(--espaco-md);
   border-radius: var(--raio-medio);
   background: var(--cor-card);
   box-shadow: var(--sombra-suave);
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
+  border-top: 4px solid var(--cor-borda);
+}
+
+.dicionario-card__titulo {
+  margin: 0;
+  font-size: 1.15rem;
   color: var(--cor-texto);
-  transition: border-color 0.15s ease-out;
 }
 
-.dicionario-card:hover {
-  border-color: var(--cor-rosa-principal);
+.dicionario-card__definicao {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--cor-texto);
 }
 
-.dicionario-card:focus-visible {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 2px;
-}
-
-.dicionario-card--ativo {
-  border-color: var(--cor-rosa-secundario);
-}
-
-.dicionario-card__termo {
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-
-.dicionario-card__categoria {
-  font-size: 0.85rem;
+.dicionario-card__artigos {
+  margin: 0;
+  font-size: 0.9rem;
   color: var(--cor-texto-suave);
 }
 
-.dicionario-detalhes {
-  background: var(--cor-card);
-  border-radius: var(--raio-medio);
-  box-shadow: var(--sombra-suave);
-  padding: var(--espaco-md);
-  min-height: 220px;
+.dicionario-card__artigo {
+  color: var(--cor-azul-link);
+  text-decoration: underline;
 }
 
-.dicionario-detalhes__titulo {
-  margin: 0 0 var(--espaco-xs);
-  font-size: 1.5rem;
-}
-
-.dicionario-detalhes__categoria {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: var(--cor-rosa-principal);
+.dicionario-card__artigo:hover {
   color: var(--cor-marrom);
+}
+
+.dicionario-card__tag {
+  align-self: flex-start;
+  padding: 4px 14px;
+  border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 600;
-  margin-bottom: var(--espaco-sm);
-}
-
-.dicionario-detalhes__definicao {
-  margin: 0 0 var(--espaco-md);
-  line-height: 1.55;
-}
-
-.dicionario-detalhes__exemplo h3 {
-  margin: 0 0 var(--espaco-xs);
-  font-size: 1rem;
   color: var(--cor-marrom);
+  background: var(--cor-borda);
 }
 
-.dicionario-detalhes__exemplo p {
-  margin: 0;
-  color: var(--cor-texto-suave);
-  line-height: 1.5;
+/* Variações por categoria — borda superior + cor da tag */
+.dicionario-card--doenca {
+  border-top-color: var(--cor-verde-suave);
+}
+.dicionario-card__tag--doenca {
+  background: var(--cor-verde-suave);
+}
+
+.dicionario-card--remedio {
+  border-top-color: var(--cor-rosa-principal);
+}
+.dicionario-card__tag--remedio {
+  background: var(--cor-rosa-principal);
+}
+
+.dicionario-card--exame {
+  border-top-color: var(--cor-azul-suave);
+}
+.dicionario-card__tag--exame {
+  background: var(--cor-azul-suave);
+}
+
+.dicionario-card--instrumento {
+  border-top-color: var(--cor-azul-suave);
+}
+.dicionario-card__tag--instrumento {
+  background: var(--cor-azul-suave);
+}
+
+.dicionario-card--procedimento {
+  border-top-color: var(--cor-caramelo);
+}
+.dicionario-card__tag--procedimento {
+  background: var(--cor-caramelo);
+  color: #fff;
+}
+
+.dicionario-card--biologia {
+  border-top-color: var(--cor-bege);
+}
+.dicionario-card__tag--biologia {
+  background: var(--cor-bege);
 }
 
 .dicionario-mensagem {
@@ -167,15 +187,7 @@
   font-style: normal;
 }
 
-.dicionario-mensagem--placeholder {
-  font-style: italic;
-}
-
-@media (max-width: 768px) {
-  .dicionario-conteudo {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 640px) {
   .dicionario-busca {
     flex-direction: column;
     align-items: stretch;
