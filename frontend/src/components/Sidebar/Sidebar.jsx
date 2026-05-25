@@ -1,5 +1,7 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import logoAmare from '../../assets/amare-logo.png'
+import IconeLogout from '../IconeLogout/IconeLogout'
+import { useAuth } from '../../contexts/useAuth'
 import './Sidebar.css'
 
 const links = [
@@ -18,6 +20,14 @@ const links = [
 ]
 
 function Sidebar() {
+  const { logout } = useAuth()
+  const navegar = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navegar('/login', { replace: true })
+  }
+
   return (
     <aside
       className="sidebar"
@@ -42,6 +52,18 @@ function Sidebar() {
           </NavLink>
         ))}
       </nav>
+      <div className="sidebar__rodape">
+        <button
+          type="button"
+          className="sidebar__logout"
+          onClick={handleLogout}
+          data-cy="nav-logout"
+          aria-label="Sair da conta"
+        >
+          <IconeLogout tamanho={22} className="sidebar__logout-icone" />
+          <span>Sair</span>
+        </button>
+      </div>
     </aside>
   )
 }
