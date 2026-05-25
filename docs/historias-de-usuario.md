@@ -6,6 +6,12 @@ história aponta para a issue correspondente no GitHub.
 
 ## Etapa atual — Dicionário de termos médicos (épico PROJ-9)
 
+> **Atualização**: as duas histórias evoluíram durante a sprint para refletir o
+> protótipo do grupo — grid de cards autocontidos com tag colorida por categoria,
+> lista de artigos relacionados e filtro por categoria. O backend ganhou o campo
+> `artigos_relacionados` (JSONField) para suportar a lista de links por termo.
+> A busca por texto continua via parâmetro `?busca=` na API.
+
 ### PROJ-3 — H2 Lista de termos médicos
 
 - Jira: [PROJ-3](https://afreis.atlassian.net/browse/PROJ-3)

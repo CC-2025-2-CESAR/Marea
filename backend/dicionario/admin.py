@@ -12,7 +12,14 @@ class TermoDicionarioAdmin(admin.ModelAdmin):
     readonly_fields = ('criado_em', 'atualizado_em')
     fieldsets = (
         (None, {
-            'fields': ('termo', 'definicao', 'categoria', 'exemplo', 'ativo'),
+            'fields': (
+                'termo',
+                'definicao',
+                'categoria',
+                'exemplo',
+                'artigos_relacionados',
+                'ativo',
+            ),
         }),
         ('Datas', {
             'fields': ('criado_em', 'atualizado_em'),

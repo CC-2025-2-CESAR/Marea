@@ -71,14 +71,32 @@ Primeira app real do backend, responsável pelos termos médicos do glossário.
 Arquivos relevantes:
 
 - `backend/dicionario/models.py` — define o model `TermoDicionario` com `termo` único,
-  `definicao`, `categoria`, `exemplo`, `ativo` e timestamps.
+  `definicao`, `categoria`, `exemplo`, `artigos_relacionados` (JSONField), `ativo`
+  e timestamps.
 - `backend/dicionario/admin.py` — registra o model no Django Admin com filtros e busca.
 - `backend/dicionario/serializers.py` — `TermoDicionarioSerializer` (ModelSerializer).
 - `backend/dicionario/views.py` — views baseadas em função (`@api_view`), sem usar
   Generic Views, para deixar o fluxo explícito.
 - `backend/dicionario/urls.py` — rotas internas da app.
-- `backend/dicionario/fixtures/termos_iniciais.json` — sete termos prontos para semear o
-  ambiente de desenvolvimento.
+- `backend/dicionario/fixtures/termos_iniciais.json` — 13 termos prontos para semear o
+  ambiente de desenvolvimento, distribuídos entre as categorias Doença, Remédio,
+  Exame, Instrumento, Procedimento e Biologia.
+
+### Campo `artigos_relacionados`
+
+JSONField que guarda uma lista de objetos com `titulo` e `url`:
+
+```json
+[
+  {"titulo": "Etapas da FIV passo a passo", "url": "https://exemplo.com/fiv"},
+  {"titulo": "Mitos comuns sobre FIV", "url": "#"}
+]
+```
+
+Pode ficar vazio (default `[]`). O serializer expõe o campo direto, e o
+frontend renderiza cada item como link na seção 'Artigos relacionados' do
+card. Para apontar para páginas reais no futuro, troque o `url` `#` pelo
+caminho final no banco (via Admin) — não exige migration.
 
 Endpoints:
 

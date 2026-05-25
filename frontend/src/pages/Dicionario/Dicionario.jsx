@@ -1,13 +1,31 @@
 import { useEffect, useState } from 'react'
+import IconeLupa from '../../components/IconeLupa/IconeLupa'
 import { listarTermos } from '../../services/dicionarioService'
 import './Dicionario.css'
 
+function slugCategoria(categoria) {
+  if (!categoria) {
+    return 'sem-categoria'
+  }
+  return (
+    categoria
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '') || 'sem-categoria'
+  )
+}
+
+const FILTRO_TODOS = '__todos__'
+
 function Dicionario() {
   const [termos, setTermos] = useState([])
-  const [termoSelecionado, setTermoSelecionado] = useState(null)
   const [busca, setBusca] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+  const [categoriaSelecionada, setCategoriaSelecionada] =
+    useState(FILTRO_TODOS)
 
   async function buscarTermos(termoBusca) {
     setCarregando(true)
@@ -15,12 +33,6 @@ function Dicionario() {
     try {
       const dados = await listarTermos(termoBusca)
       setTermos(dados)
-      setTermoSelecionado((atual) => {
-        if (!atual) {
-          return null
-        }
-        return dados.find((termo) => termo.id === atual.id) || null
-      })
     } catch {
       setTermos([])
       setErro('Não foi possível carregar os termos no momento.')
@@ -62,31 +74,40 @@ function Dicionario() {
     buscarTermos(busca)
   }
 
-  function handleSelecionar(termo) {
-    setTermoSelecionado(termo)
-  }
+  // Categorias presentes nos termos carregados, em ordem alfabética.
+  const categoriasDisponiveis = Array.from(
+    new Set(termos.map((t) => t.categoria).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+
+  const termosVisiveis =
+    categoriaSelecionada === FILTRO_TODOS
+      ? termos
+      : termos.filter((t) => t.categoria === categoriaSelecionada)
 
   return (
     <section className="dicionario-pagina" data-cy="page-dicionario">
       <header className="dicionario-cabecalho">
         <h1>Dicionário</h1>
         <p>
-          Encontre explicações simples de termos médicos usados ao longo do
-          tratamento.
+          Encontre explicações simples sobre termos médicos, exames,
+          procedimentos e remédios que aparecem ao longo do tratamento.
         </p>
       </header>
 
       <form className="dicionario-busca" onSubmit={handleBuscar} role="search">
-        <input
-          className="dicionario-busca__input"
-          type="search"
-          name="busca"
-          placeholder="Buscar termo..."
-          value={busca}
-          onChange={(evento) => setBusca(evento.target.value)}
-          aria-label="Buscar termo no dicionário"
-          data-cy="dicionario-busca-input"
-        />
+        <div className="dicionario-busca__campo">
+          <IconeLupa className="dicionario-busca__icone" />
+          <input
+            className="dicionario-busca__input"
+            type="search"
+            name="busca"
+            placeholder="Buscar termo..."
+            value={busca}
+            onChange={(evento) => setBusca(evento.target.value)}
+            aria-label="Buscar termo no dicionário"
+            data-cy="dicionario-busca-input"
+          />
+        </div>
         <button
           type="submit"
           className="dicionario-busca__submit"
@@ -96,100 +117,119 @@ function Dicionario() {
         </button>
       </form>
 
-      <div className="dicionario-conteudo">
-        <aside
-          className="dicionario-lista"
-          aria-label="Termos do dicionário"
-          data-cy="dicionario-lista"
+      {categoriasDisponiveis.length > 0 ? (
+        <div
+          className="dicionario-filtro"
+          role="group"
+          aria-label="Filtrar por categoria"
+          data-cy="dicionario-filtro"
         >
-          {carregando ? (
-            <p
-              className="dicionario-mensagem"
-              data-cy="dicionario-mensagem-carregando"
-            >
-              Carregando termos...
-            </p>
-          ) : erro ? (
-            <p
-              className="dicionario-mensagem dicionario-mensagem--erro"
-              role="alert"
-              data-cy="dicionario-mensagem-erro"
-            >
-              {erro}
-            </p>
-          ) : termos.length === 0 ? (
-            <p
-              className="dicionario-mensagem"
-              data-cy="dicionario-mensagem-vazia"
-            >
-              Nenhum termo encontrado.
-            </p>
-          ) : (
-            <ul className="dicionario-lista__itens">
-              {termos.map((termo) => {
-                const ativo = termoSelecionado?.id === termo.id
-                return (
-                  <li key={termo.id}>
-                    <button
-                      type="button"
-                      className={
-                        ativo
-                          ? 'dicionario-card dicionario-card--ativo'
-                          : 'dicionario-card'
-                      }
-                      onClick={() => handleSelecionar(termo)}
-                      data-cy="dicionario-card"
-                    >
-                      <span className="dicionario-card__termo">
-                        {termo.termo}
-                      </span>
-                      {termo.categoria ? (
-                        <span className="dicionario-card__categoria">
-                          {termo.categoria}
-                        </span>
-                      ) : null}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </aside>
+          <button
+            type="button"
+            className={
+              categoriaSelecionada === FILTRO_TODOS
+                ? 'dicionario-filtro__chip dicionario-filtro__chip--ativo'
+                : 'dicionario-filtro__chip'
+            }
+            onClick={() => setCategoriaSelecionada(FILTRO_TODOS)}
+            data-cy="dicionario-filtro-chip"
+            data-categoria="__todos__"
+            aria-pressed={categoriaSelecionada === FILTRO_TODOS}
+          >
+            Todos
+          </button>
+          {categoriasDisponiveis.map((categoria) => {
+            const slug = slugCategoria(categoria)
+            const ativo = categoriaSelecionada === categoria
+            return (
+              <button
+                key={categoria}
+                type="button"
+                className={
+                  ativo
+                    ? `dicionario-filtro__chip dicionario-filtro__chip--${slug} dicionario-filtro__chip--ativo`
+                    : `dicionario-filtro__chip dicionario-filtro__chip--${slug}`
+                }
+                onClick={() => setCategoriaSelecionada(categoria)}
+                data-cy="dicionario-filtro-chip"
+                data-categoria={categoria}
+                aria-pressed={ativo}
+              >
+                {categoria}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
 
-        <article
-          className="dicionario-detalhes"
-          data-cy="dicionario-detalhes"
+      {carregando ? (
+        <p
+          className="dicionario-mensagem"
+          data-cy="dicionario-mensagem-carregando"
         >
-          {termoSelecionado ? (
-            <>
-              <h2 className="dicionario-detalhes__titulo">
-                {termoSelecionado.termo}
-              </h2>
-              {termoSelecionado.categoria ? (
-                <span className="dicionario-detalhes__categoria">
-                  {termoSelecionado.categoria}
-                </span>
-              ) : null}
-              <p className="dicionario-detalhes__definicao">
-                {termoSelecionado.definicao}
-              </p>
-              {termoSelecionado.exemplo ? (
-                <div className="dicionario-detalhes__exemplo">
-                  <h3>Exemplo</h3>
-                  <p>{termoSelecionado.exemplo}</p>
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <p
-              className="dicionario-mensagem dicionario-mensagem--placeholder"
-              data-cy="dicionario-mensagem-selecione"
-            >
-              Selecione um termo para ver os detalhes.
-            </p>
-          )}
-        </article>
-      </div>
+          Carregando termos...
+        </p>
+      ) : erro ? (
+        <p
+          className="dicionario-mensagem dicionario-mensagem--erro"
+          role="alert"
+          data-cy="dicionario-mensagem-erro"
+        >
+          {erro}
+        </p>
+      ) : termosVisiveis.length === 0 ? (
+        <p
+          className="dicionario-mensagem"
+          data-cy="dicionario-mensagem-vazia"
+        >
+          Nenhum termo encontrado.
+        </p>
+      ) : (
+        <ul className="dicionario-grid" data-cy="dicionario-grid">
+          {termosVisiveis.map((termo) => {
+            const slug = slugCategoria(termo.categoria)
+            const artigos = termo.artigos_relacionados || []
+            return (
+              <li
+                key={termo.id}
+                className={`dicionario-card dicionario-card--${slug}`}
+                data-cy="dicionario-card"
+                data-categoria={termo.categoria || ''}
+              >
+                <h2 className="dicionario-card__titulo">{termo.termo}</h2>
+                <p className="dicionario-card__definicao">{termo.definicao}</p>
+                {artigos.length > 0 ? (
+                  <p
+                    className="dicionario-card__artigos"
+                    data-cy="dicionario-card-artigos"
+                  >
+                    Artigos relacionados:{' '}
+                    {artigos.map((artigo, indice) => (
+                      <span key={`${termo.id}-${artigo.titulo}`}>
+                        <a
+                          className="dicionario-card__artigo"
+                          href={artigo.url || '#'}
+                        >
+                          {artigo.titulo}
+                        </a>
+                        {indice < artigos.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
+                {termo.categoria ? (
+                  <span
+                    className={`dicionario-card__tag dicionario-card__tag--${slug}`}
+                    data-cy="dicionario-card-tag"
+                  >
+                    {termo.categoria}
+                  </span>
+                ) : null}
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </section>
   )
 }

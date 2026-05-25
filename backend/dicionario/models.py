@@ -6,6 +6,15 @@ class TermoDicionario(models.Model):
     definicao = models.TextField('Definição')
     categoria = models.CharField('Categoria', max_length=80, blank=True)
     exemplo = models.TextField('Exemplo de uso', blank=True)
+    artigos_relacionados = models.JSONField(
+        'Artigos relacionados',
+        default=list,
+        blank=True,
+        help_text=(
+            'Lista de objetos {"titulo": "...", "url": "..."} apontando para '
+            'artigos sobre o termo. Pode ficar vazia.'
+        ),
+    )
     ativo = models.BooleanField('Ativo', default=True)
     criado_em = models.DateTimeField('Criado em', auto_now_add=True)
     atualizado_em = models.DateTimeField('Atualizado em', auto_now=True)

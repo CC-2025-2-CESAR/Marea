@@ -5,22 +5,38 @@ const termosMock = [
     id: 1,
     termo: 'Beta hCG',
     definicao: 'Hormônio produzido durante a gravidez.',
-    categoria: 'Exames',
+    categoria: 'Exame',
     exemplo: 'Exame realizado após transferência de embriões.',
+    artigos_relacionados: [
+      { titulo: 'Como entender o resultado', url: '#' },
+    ],
+  },
+  {
+    id: 2,
+    termo: 'Endometriose',
+    definicao: 'Condição em que o tecido cresce fora do útero.',
+    categoria: 'Doença',
+    exemplo: '',
+    artigos_relacionados: [
+      { titulo: 'Endometriose e fertilidade', url: '#' },
+      { titulo: 'Sinais que merecem atenção', url: '#' },
+    ],
+  },
+  {
+    id: 3,
+    termo: 'FIV',
+    definicao: 'Sigla de Fertilização in Vitro.',
+    categoria: 'Procedimento',
+    exemplo: 'Tratamento oferecido pela clínica.',
+    artigos_relacionados: [],
   },
   {
     id: 4,
-    termo: 'FIV',
-    definicao: 'Sigla de Fertilização in Vitro.',
-    categoria: 'Procedimentos',
-    exemplo: 'Tratamento oferecido pela clínica.',
-  },
-  {
-    id: 7,
-    termo: 'Ovulação',
-    definicao: 'Momento em que o óvulo é liberado.',
-    categoria: 'Biologia',
-    exemplo: 'Ajuda a programar exames e consultas.',
+    termo: 'Progesterona',
+    definicao: 'Hormônio importante na fase final do ciclo.',
+    categoria: 'Remédio',
+    exemplo: '',
+    artigos_relacionados: [],
   },
 ]
 
@@ -33,15 +49,17 @@ describe('Dicionário do Maréa', () => {
     cy.contains('h1', 'Dicionário').should('be.visible')
   })
 
-  it('lista termos quando a API retorna dados', () => {
+  it('mostra o grid de termos quando a API retorna dados', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
     cy.visit('/dicionario')
     cy.wait('@listar')
-    cy.get('[data-cy=dicionario-lista]')
+    cy.get('[data-cy=dicionario-grid]').should('be.visible')
+    cy.get('[data-cy=dicionario-card]').should('have.length', 4)
+    cy.get('[data-cy=dicionario-grid]')
       .should('contain', 'Beta hCG')
+      .and('contain', 'Endometriose')
       .and('contain', 'FIV')
-      .and('contain', 'Ovulação')
-    cy.get('[data-cy=dicionario-card]').should('have.length', 3)
+      .and('contain', 'Progesterona')
   })
 
   it('exibe mensagem quando a API retorna lista vazia', () => {
@@ -53,13 +71,25 @@ describe('Dicionário do Maréa', () => {
       .and('contain', 'Nenhum termo encontrado.')
   })
 
-  it('mostra mensagem orientando a seleção quando nenhum termo está aberto', () => {
+  it('cada card mostra título, definição, artigos relacionados e tag', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
     cy.visit('/dicionario')
     cy.wait('@listar')
-    cy.get('[data-cy=dicionario-mensagem-selecione]')
-      .should('be.visible')
-      .and('contain', 'Selecione um termo')
+
+    cy.get('[data-cy=dicionario-card]')
+      .filter(':contains("Endometriose")')
+      .within(() => {
+        cy.contains('h2', 'Endometriose').should('be.visible')
+        cy.contains(
+          'Condição em que o tecido cresce fora do útero.',
+        ).should('be.visible')
+        cy.get('[data-cy=dicionario-card-artigos]')
+          .should('contain', 'Endometriose e fertilidade')
+          .and('contain', 'Sinais que merecem atenção')
+        cy.get('[data-cy=dicionario-card-tag]')
+          .should('be.visible')
+          .and('contain', 'Doença')
+      })
   })
 
   it('filtra termos ao enviar uma busca', () => {
@@ -70,7 +100,7 @@ describe('Dicionário do Maréa', () => {
     cy.wait('@listarInicial')
 
     cy.intercept('GET', '**/api/dicionario/termos/?busca=fiv', {
-      body: [termosMock[1]],
+      body: [termosMock[2]],
     }).as('buscar')
 
     cy.get('[data-cy=dicionario-busca-input]').type('fiv')
@@ -78,7 +108,7 @@ describe('Dicionário do Maréa', () => {
     cy.wait('@buscar')
 
     cy.get('[data-cy=dicionario-card]').should('have.length', 1)
-    cy.get('[data-cy=dicionario-lista]').should('contain', 'FIV')
+    cy.get('[data-cy=dicionario-grid]').should('contain', 'FIV')
   })
 
   it('exibe mensagem vazia quando a busca não tem resultados', () => {
@@ -88,9 +118,9 @@ describe('Dicionário do Maréa', () => {
     cy.visit('/dicionario')
     cy.wait('@listarInicial')
 
-    cy.intercept('GET', '**/api/dicionario/termos/?busca=xyz', { body: [] }).as(
-      'buscar',
-    )
+    cy.intercept('GET', '**/api/dicionario/termos/?busca=xyz', {
+      body: [],
+    }).as('buscar')
     cy.get('[data-cy=dicionario-busca-input]').type('xyz')
     cy.get('[data-cy=dicionario-busca-submit]').click()
     cy.wait('@buscar')
@@ -100,17 +130,31 @@ describe('Dicionário do Maréa', () => {
       .and('contain', 'Nenhum termo encontrado.')
   })
 
-  it('abre os detalhes ao clicar em um termo', () => {
+  it('filtra o grid ao selecionar uma categoria nos chips', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
     cy.visit('/dicionario')
     cy.wait('@listar')
 
-    cy.get('[data-cy=dicionario-card]').contains('FIV').click()
-    cy.get('[data-cy=dicionario-detalhes]')
-      .should('contain', 'FIV')
-      .and('contain', 'Sigla de Fertilização in Vitro.')
-      .and('contain', 'Procedimentos')
-      .and('contain', 'Exemplo')
+    cy.get('[data-cy=dicionario-filtro-chip][data-categoria="Doença"]').click()
+    cy.get('[data-cy=dicionario-card]').should('have.length', 1)
+    cy.get('[data-cy=dicionario-grid]').should('contain', 'Endometriose')
+    cy.get('[data-cy=dicionario-grid]').should('not.contain', 'FIV')
+  })
+
+  it('chip "Todos" remove o filtro de categoria', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
+    cy.visit('/dicionario')
+    cy.wait('@listar')
+
+    cy.get(
+      '[data-cy=dicionario-filtro-chip][data-categoria="Remédio"]',
+    ).click()
+    cy.get('[data-cy=dicionario-card]').should('have.length', 1)
+
+    cy.get(
+      '[data-cy=dicionario-filtro-chip][data-categoria="__todos__"]',
+    ).click()
+    cy.get('[data-cy=dicionario-card]').should('have.length', 4)
   })
 
   it('exibe mensagem de erro quando a API falha', () => {
