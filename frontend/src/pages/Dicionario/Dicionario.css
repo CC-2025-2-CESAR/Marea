@@ -243,12 +243,40 @@
 }
 
 @media (max-width: 767px) {
+  .dicionario-cabecalho h1 {
+    font-size: 1.5rem;
+  }
+
   .dicionario-busca {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .dicionario-busca__input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
   .dicionario-busca__submit {
     width: 100%;
+    min-height: 44px;
+  }
+
+  .dicionario-filtro {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dicionario-filtro__chip {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 8px 18px;
+  }
+
+  .dicionario-grid {
+    grid-template-columns: 1fr;
   }
 }
