@@ -1,9 +1,10 @@
 describe('Rotas e layout base da Amare', () => {
+  // Páginas ainda em placeholder. Dicionário foi removido daqui porque agora
+  // tem implementação real (ver dicionario.cy.js).
   const paginasPlaceholder = [
     { rota: '/perfil', titulo: 'Perfil', dataCy: 'nav-perfil' },
     { rota: '/calendario', titulo: 'Calendário', dataCy: 'nav-calendario' },
     { rota: '/ciclo', titulo: 'Ciclo', dataCy: 'nav-ciclo' },
-    { rota: '/dicionario', titulo: 'Dicionário', dataCy: 'nav-dicionario' },
     { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
     { rota: '/tratamentos', titulo: 'Tratamentos', dataCy: 'nav-tratamentos' },
     {
@@ -59,11 +60,22 @@ describe('Rotas e layout base da Amare', () => {
         'be.visible',
       )
     })
+
+    // Dicionário é uma rota real (não placeholder); a navegação ainda funciona,
+    // mas o conteúdo é a página de termos médicos.
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    cy.get('[data-cy=nav-dicionario]').should(
+      'have.attr',
+      'href',
+      '/dicionario',
+    )
+    cy.get('[data-cy=nav-dicionario]').click()
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.contains('h1', 'Dicionário').should('be.visible')
   })
 
-  it('abre Dicionário, Calendário e Bot corretamente por rota direta', () => {
+  it('abre Calendário e Bot corretamente por rota direta', () => {
     const rotasDiretas = [
-      { rota: '/dicionario', titulo: 'Dicionário' },
       { rota: '/calendario', titulo: 'Calendário' },
       { rota: '/bot', titulo: 'Bot' },
     ]

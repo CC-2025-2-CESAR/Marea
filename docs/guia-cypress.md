@@ -64,3 +64,37 @@ describe('Tela de login', () => {
   })
 })
 ```
+
+## O que os testes do Dicionário verificam
+
+`frontend/cypress/e2e/dicionario.cy.js` cobre oito cenários da página de termos
+médicos (PROJ-3 e PROJ-4):
+
+1. A página carrega com o título "Dicionário".
+2. A lista de termos aparece quando a API retorna dados.
+3. Lista vazia exibe "Nenhum termo encontrado."
+4. O painel de detalhes orienta a seleção quando nenhum termo está aberto.
+5. Buscar por um termo filtra a lista.
+6. Buscar por um termo inexistente exibe a mensagem vazia.
+7. Clicar em um termo abre o painel de detalhes.
+8. Erro da API exibe `dicionario-mensagem-erro`.
+
+## Mockando a API com `cy.intercept`
+
+Os testes do dicionário não dependem do backend rodando. Usam `cy.intercept` para
+responder às requisições HTTP com dados fixos:
+
+```js
+cy.intercept('GET', '**/api/dicionario/termos/**', { body: termosMock }).as('listar')
+cy.visit('/dicionario')
+cy.wait('@listar')
+```
+
+Para simular erro:
+
+```js
+cy.intercept('GET', '**/api/dicionario/termos/**', { statusCode: 500, body: {} })
+```
+
+Use `cy.wait('@alias')` antes de fazer asserções que dependem dos dados da resposta —
+isso evita flakiness por timing.

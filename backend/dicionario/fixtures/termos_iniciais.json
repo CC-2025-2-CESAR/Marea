@@ -1,0 +1,214 @@
+[
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 1,
+    "fields": {
+      "termo": "Beta hCG",
+      "definicao": "Hormônio produzido durante a gravidez. O exame de sangue que mede a Beta hCG é usado para confirmar a gestação e acompanhar sua evolução nas primeiras semanas.",
+      "categoria": "Exame",
+      "exemplo": "Após a transferência de embriões, a paciente costuma realizar o exame de Beta hCG para confirmar se houve implantação.",
+      "artigos_relacionados": [
+        {"titulo": "Como entender o resultado da Beta hCG", "url": "#"},
+        {"titulo": "Beta hCG quantitativo vs qualitativo", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 2,
+    "fields": {
+      "termo": "Embrião",
+      "definicao": "Estágio inicial do desenvolvimento após a fecundação do óvulo pelo espermatozoide. Nos tratamentos de fertilização in vitro, o embrião é acompanhado em laboratório antes de ser transferido para o útero.",
+      "categoria": "Biologia",
+      "exemplo": "Em geral, o embrião é transferido para o útero entre o terceiro e o quinto dia após a fecundação em laboratório.",
+      "artigos_relacionados": [
+        {"titulo": "Etapas do desenvolvimento embrionário", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 3,
+    "fields": {
+      "termo": "Endometriose",
+      "definicao": "Condição em que o tecido semelhante ao endométrio cresce fora do útero. Pode causar dor pélvica, alterações menstruais e impacto na fertilidade. O diagnóstico e o tratamento são feitos pela equipe médica.",
+      "categoria": "Doença",
+      "exemplo": "Mulheres com endometriose costumam ser acompanhadas por ginecologistas especializados em reprodução assistida.",
+      "artigos_relacionados": [
+        {"titulo": "Endometriose e fertilidade", "url": "#"},
+        {"titulo": "Sinais que merecem atenção", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 4,
+    "fields": {
+      "termo": "Endométrio",
+      "definicao": "Camada interna do útero que se prepara mensalmente para receber um embrião. Sua espessura e qualidade são acompanhadas em vários momentos do tratamento.",
+      "categoria": "Biologia",
+      "exemplo": "Antes da transferência de embriões, o endométrio costuma ser avaliado por ultrassom para verificar se está em condição adequada.",
+      "artigos_relacionados": [
+        {"titulo": "Como o endométrio se prepara para a gestação", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 5,
+    "fields": {
+      "termo": "FIV",
+      "definicao": "Sigla de Fertilização in Vitro, um tratamento em que óvulos e espermatozoides são unidos em laboratório. Os embriões formados podem ser transferidos para o útero ou congelados para uso futuro.",
+      "categoria": "Procedimento",
+      "exemplo": "A FIV é um dos tratamentos oferecidos por clínicas de reprodução humana quando outras abordagens não foram bem-sucedidas.",
+      "artigos_relacionados": [
+        {"titulo": "Etapas da FIV passo a passo", "url": "#"},
+        {"titulo": "Mitos comuns sobre fertilização in vitro", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 6,
+    "fields": {
+      "termo": "Folículo",
+      "definicao": "Pequena estrutura presente no ovário que contém um óvulo em desenvolvimento. Durante o tratamento, o crescimento dos folículos é acompanhado por ultrassom.",
+      "categoria": "Biologia",
+      "exemplo": "No acompanhamento da estimulação ovariana, a equipe médica observa o tamanho e a quantidade de folículos antes de programar a próxima etapa.",
+      "artigos_relacionados": [
+        {"titulo": "Quantos folículos são esperados em cada ciclo", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 7,
+    "fields": {
+      "termo": "Gonadotrofina",
+      "definicao": "Tipo de medicamento usado em alguns tratamentos de fertilidade para estimular os ovários a produzirem óvulos. A dose e o tempo de uso são definidos pela equipe médica.",
+      "categoria": "Remédio",
+      "exemplo": "A paciente pode usar gonadotrofina por alguns dias durante o estímulo ovariano, com acompanhamento por ultrassom.",
+      "artigos_relacionados": [
+        {"titulo": "Como aplicar medicações injetáveis em casa", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 8,
+    "fields": {
+      "termo": "Histeroscópio",
+      "definicao": "Equipamento usado em exames e procedimentos que avaliam a parte interna do útero. Possui uma câmera fina que permite à equipe médica observar a cavidade uterina.",
+      "categoria": "Instrumento",
+      "exemplo": "O histeroscópio é introduzido por via vaginal e permite examinar o útero por imagem em tempo real.",
+      "artigos_relacionados": [
+        {"titulo": "O que esperar de uma histeroscopia", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 9,
+    "fields": {
+      "termo": "Indução da ovulação",
+      "definicao": "Uso de medicamentos para estimular os ovários a produzirem óvulos em determinado momento do ciclo. Pode ser usada em diferentes tipos de tratamento de fertilidade.",
+      "categoria": "Procedimento",
+      "exemplo": "A indução da ovulação costuma ser acompanhada por consultas frequentes para ajustar a dose dos medicamentos.",
+      "artigos_relacionados": [
+        {"titulo": "Diferença entre indução e estimulação ovariana", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 10,
+    "fields": {
+      "termo": "Miomas",
+      "definicao": "Crescimentos não cancerosos que podem aparecer no útero. Em alguns casos influenciam o ciclo, geram desconforto ou impactam a fertilidade. O acompanhamento é feito pela equipe médica.",
+      "categoria": "Doença",
+      "exemplo": "A presença de miomas pode ser identificada em exames de ultrassom de rotina.",
+      "artigos_relacionados": [
+        {"titulo": "Tipos de miomas e quando preocupar", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 11,
+    "fields": {
+      "termo": "Ovulação",
+      "definicao": "Momento do ciclo em que um óvulo maduro é liberado pelo ovário. É uma das informações mais importantes para planejar tentativas de gravidez, espontâneas ou assistidas.",
+      "categoria": "Biologia",
+      "exemplo": "Conhecer o período aproximado da ovulação ajuda a programar consultas, exames e relações no momento de maior fertilidade.",
+      "artigos_relacionados": [
+        {"titulo": "Como identificar sinais da ovulação", "url": "#"},
+        {"titulo": "Ovulação e janela fértil", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 12,
+    "fields": {
+      "termo": "Progesterona",
+      "definicao": "Hormônio importante na fase final do ciclo e nas primeiras semanas de gestação. Em tratamentos de reprodução assistida, pode ser usado como medicamento para apoiar a fase de implantação.",
+      "categoria": "Remédio",
+      "exemplo": "Após a transferência de embriões, é comum o uso de progesterona conforme orientação médica.",
+      "artigos_relacionados": [
+        {"titulo": "Por que a progesterona é importante", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  },
+  {
+    "model": "dicionario.termodicionario",
+    "pk": 13,
+    "fields": {
+      "termo": "Ultrassom transvaginal",
+      "definicao": "Exame de imagem que avalia o útero, os ovários e o endométrio com uma sonda fina inserida pela vagina. É bastante usado durante o acompanhamento dos tratamentos.",
+      "categoria": "Exame",
+      "exemplo": "O ultrassom transvaginal é feito várias vezes ao longo do ciclo para acompanhar folículos e endométrio.",
+      "artigos_relacionados": [
+        {"titulo": "Como se preparar para o ultrassom transvaginal", "url": "#"}
+      ],
+      "ativo": true,
+      "criado_em": "2026-05-24T10:00:00Z",
+      "atualizado_em": "2026-05-24T10:00:00Z"
+    }
+  }
+]
