@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
+import { useAuth } from '../../contexts/useAuth'
 import './Login.css'
 
 function IconeOlho({ aberto }) {
@@ -50,8 +52,11 @@ function Login() {
   const [senha, setSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [enviando, setEnviando] = useState(false)
+  const { login } = useAuth()
+  const navegar = useNavigate()
 
-  function handleSubmit(evento) {
+  async function handleSubmit(evento) {
     evento.preventDefault()
 
     if (!usuario.trim() || !senha.trim()) {
@@ -62,7 +67,33 @@ function Login() {
       return
     }
 
-    setFeedback({ tipo: 'sucesso', texto: 'Login simulado com sucesso.' })
+    setEnviando(true)
+    setFeedback(null)
+    try {
+      await login(usuario.trim(), senha)
+      setFeedback({ tipo: 'sucesso', texto: 'Login realizado com sucesso.' })
+      navegar('/perfil')
+    } catch (erro) {
+      if (erro?.status === 401) {
+        setFeedback({
+          tipo: 'erro',
+          texto: 'Usuário ou senha inválidos.',
+        })
+      } else if (erro?.status === 400) {
+        setFeedback({
+          tipo: 'erro',
+          texto: 'Preencha usuário/e-mail e senha para continuar.',
+        })
+      } else {
+        setFeedback({
+          tipo: 'erro',
+          texto:
+            'Não foi possível entrar agora. Verifique sua conexão e tente novamente.',
+        })
+      }
+    } finally {
+      setEnviando(false)
+    }
   }
 
   const usuarioInvalido = feedback?.tipo === 'erro' && !usuario.trim()
@@ -153,8 +184,8 @@ function Login() {
             ) : null}
           </AnimatePresence>
 
-          <Button type="submit" dataCy="login-submit">
-            Entrar
+          <Button type="submit" dataCy="login-submit" disabled={enviando}>
+            {enviando ? 'Entrando…' : 'Entrar'}
           </Button>
         </form>
       </motion.section>
