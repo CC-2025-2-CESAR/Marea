@@ -1,4 +1,4 @@
-describe('Tela de login do Maréa', () => {
+describe('Tela de login da Amare', () => {
   beforeEach(() => {
     cy.visit('/login')
   })
@@ -7,8 +7,8 @@ describe('Tela de login do Maréa', () => {
     cy.get('.login-card').should('be.visible')
   })
 
-  it('exibe o logo do Maréa', () => {
-    cy.get('[data-cy=marea-logo]').should('be.visible')
+  it('exibe o logo da Amare', () => {
+    cy.get('[data-cy=amare-logo]').should('be.visible')
   })
 
   it('exibe o campo de usuário/e-mail', () => {
