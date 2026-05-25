@@ -14,6 +14,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .app-header__marca {
@@ -27,10 +29,41 @@
   font-size: 0.92rem;
 }
 
-@media (max-width: 720px) {
+.app-header__menu {
+  display: none;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--cor-texto);
+  border-radius: var(--raio-pequeno);
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.app-header__menu:hover {
+  background-color: rgba(128, 82, 53, 0.08);
+}
+
+@media (max-width: 767px) {
   .app-header {
-    align-items: stretch;
-    flex-direction: column;
-    padding: 18px 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espaco-sm);
+    padding: 14px 16px;
+  }
+
+  .app-header__menu {
+    display: inline-flex;
+  }
+
+  .app-header__marca {
+    font-size: 1.06rem;
+  }
+
+  .app-header__texto p {
+    display: none;
   }
 }

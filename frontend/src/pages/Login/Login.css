@@ -77,9 +77,27 @@
   .login-card {
     padding: 40px 24px;
     border-radius: 28px;
+    gap: var(--espaco-md);
   }
 
   .login-logo {
     width: 150px;
+  }
+}
+
+/* Telas pequenas em retrato (iPhone SE/12 mini): reduz logo e gaps para
+   evitar scroll vertical do form. */
+@media (max-height: 700px) and (orientation: portrait) {
+  .login-card {
+    padding: 28px 24px;
+    gap: var(--espaco-sm);
+  }
+
+  .login-logo {
+    width: 132px;
+  }
+
+  .login-form {
+    gap: var(--espaco-md);
   }
 }
