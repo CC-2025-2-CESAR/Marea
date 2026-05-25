@@ -40,7 +40,7 @@ const termosMock = [
   },
 ]
 
-describe('Dicionário do Maréa', () => {
+describe('Dicionário da Amare', () => {
   it('exibe o título da página', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
     cy.visit('/dicionario')

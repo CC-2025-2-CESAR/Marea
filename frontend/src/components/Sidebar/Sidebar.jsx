@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import logoMarea from '../../assets/marea-logo.png'
+import logoAmare from '../../assets/amare-logo.png'
 import './Sidebar.css'
 
 const links = [
@@ -25,7 +25,7 @@ function Sidebar() {
       aria-label="Navegação principal"
     >
       <div className="sidebar__topo">
-        <img src={logoMarea} alt="Maréa" className="sidebar__logo" />
+        <img src={logoAmare} alt="Amare" className="sidebar__logo" />
       </div>
       <nav className="sidebar__nav">
         {links.map((link) => (

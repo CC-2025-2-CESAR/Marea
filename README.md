@@ -1,8 +1,14 @@
-# Maréa
+# Amare (projeto do grupo Maréa)
 
-Maréa é uma plataforma web desenvolvida para apoiar a experiência de pacientes da Clínica
-AMARE, reunindo recursos digitais voltados ao acompanhamento, organização e compreensão de
-informações relacionadas aos tratamentos.
+> **Plataforma**: Amare (mesmo nome da Clínica parceira).
+> **Grupo**: Maréa — Grupo 08 da CESAR School. O repositório no GitHub e algumas
+> referências internas (módulo `marea_api`, pacote `marea-frontend`) preservam o
+> nome do grupo.
+
+A **Amare** é uma plataforma web desenvolvida pelo grupo Maréa para apoiar a experiência
+das pacientes da Clínica Amare (Recife/PE), reunindo recursos digitais voltados ao
+acompanhamento, organização e compreensão de informações relacionadas aos tratamentos
+de fertilidade e reprodução humana.
 
 Nesta etapa inicial, o projeto contém a estrutura base da aplicação, a primeira versão da
 tela de login e o layout base de navegação para páginas internas.
@@ -170,7 +176,7 @@ CONTRIBUTING.md
 
 ## Contexto e pesquisa do projeto
 
-Este repositório concentra a visão do projeto, os aprendizados da pesquisa e o direcionamento do MVP Maréa, criado pelo grupo para uma cliente real: a Clínica Amare. A proposta é reduzir confusão, ansiedade e risco de erro ao longo da jornada de fertilização, oferecendo uma experiência mais clara, organizada e humana para pacientes em acompanhamento.
+Este repositório concentra a visão do projeto, os aprendizados da pesquisa e o direcionamento do MVP da plataforma Amare, criada pelo grupo Maréa para uma cliente real: a Clínica Amare. A proposta é reduzir confusão, ansiedade e risco de erro ao longo da jornada de fertilização, oferecendo uma experiência mais clara, organizada e humana para pacientes em acompanhamento.
 
 ## Sobre a clínica parceira
 
@@ -192,12 +198,12 @@ As três médicas donas da Clínica Amare são:
 
 ## Sobre o projeto do grupo
 
-O projeto recebeu o nome `Maréa` e representa a solução digital proposta pelo grupo para a clínica parceira, e não a clínica em si.
+A plataforma se chama **Amare**, o mesmo nome da clínica parceira, reforçando a conexão entre o produto digital e o atendimento real. O **grupo** que desenvolve a plataforma se chama **Maréa** (Grupo 08 da CESAR School).
 
 Em outras palavras:
 
-- a Clínica Amare é a organização real atendida pelo projeto;
-- a Maréa é o produto digital concebido para melhorar a experiência das pacientes dessa clínica.
+- a **Clínica Amare** é a organização real atendida pelo projeto;
+- a **plataforma Amare** é o produto digital concebido pelo grupo Maréa para melhorar a experiência das pacientes dessa clínica.
 
 ## Integrantes do grupo
 
@@ -240,7 +246,7 @@ Na prática, o problema não está na existência da clínica, que já é real e
 
 ## Objetivo da plataforma
 
-O objetivo da Maréa é funcionar como um ponto de apoio digital para pessoas em tratamento de fertilidade, ajudando a:
+O objetivo da Amare é funcionar como um ponto de apoio digital para pessoas em tratamento de fertilidade, ajudando a:
 
 - organizar etapas, datas e orientações do tratamento;
 - reduzir o risco de esquecimento de medicações e procedimentos;
@@ -312,7 +318,7 @@ Essas prioridades vieram tanto da pesquisa quanto do benchmark, e foram escolhid
 | Clue | Visualização clara de dados, organização de informações, design confiável | curva de aprendizado maior e sensação menos acolhedora |
 | Apple Health | privacidade, consistência e registro simples | baixa personalização e pouca especialização para fertilidade |
 
-Aprendizado prático: a Maréa não deve competir em volume de funcionalidades. Deve competir em clareza, foco no contexto de fertilização e utilidade real na rotina.
+Aprendizado prático: a Amare não deve competir em volume de funcionalidades. Deve competir em clareza, foco no contexto de fertilização e utilidade real na rotina.
 
 ## Artefatos e links do projeto
 

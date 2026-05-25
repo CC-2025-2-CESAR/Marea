@@ -28,7 +28,7 @@ function Home() {
   return (
     <section className="home" data-cy="home-page">
       <div className="home__intro">
-        <h1>Bem-vinda ao Maréa</h1>
+        <h1>Bem-vinda à Amare</h1>
         <p>
           A plataforma reunirá recursos para acompanhamento, organização e
           compreensão das informações relacionadas aos tratamentos.
