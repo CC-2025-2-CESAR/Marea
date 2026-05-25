@@ -38,10 +38,15 @@ components/
 ├── Button/
 │   ├── Button.jsx
 │   └── Button.css
+├── IconeLupa/
+│   └── IconeLupa.jsx
 └── InputField/
     ├── InputField.jsx
     └── InputField.css
 ```
+
+`IconeLupa` é um SVG inline reutilizável (props: `tamanho`, `className`). É usado pela
+busca do header global (`SearchBar`) e pela busca interna da página do Dicionário.
 
 ## A pasta `pages`
 

@@ -90,11 +90,18 @@ npm run cypress:run
 Primeira feature do projeto com persistência real. Disponível em
 [`/dicionario`](http://localhost:5173/dicionario).
 
+A página segue o protótipo do grupo: grid responsivo de cards autocontidos
+(título, definição, artigos relacionados e tag colorida por categoria),
+busca com ícone de lupa e filtro por categoria via chips.
+
 Endpoints do backend:
 
 - `GET /api/dicionario/termos/` — lista termos ativos
 - `GET /api/dicionario/termos/?busca=fiv` — filtra por nome, definição ou categoria
 - `GET /api/dicionario/termos/<id>/` — detalhe do termo
+
+Cada termo expõe os campos `id`, `termo`, `definicao`, `categoria`,
+`exemplo` e `artigos_relacionados` (lista de `{titulo, url}`).
 
 Como subir o ambiente completo:
 
