@@ -6,4 +6,11 @@ from .models import TermoDicionario
 class TermoDicionarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = TermoDicionario
-        fields = ('id', 'termo', 'definicao', 'categoria', 'exemplo')
+        fields = (
+            'id',
+            'termo',
+            'definicao',
+            'categoria',
+            'exemplo',
+            'artigos_relacionados',
+        )
