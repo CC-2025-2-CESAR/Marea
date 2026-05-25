@@ -1,18 +1,102 @@
+/**
+ * Wrapper de `fetch` para a API da Amare.
+ *
+ * Lê a URL base de `VITE_API_BASE_URL` (com fallback para localhost) e
+ * injeta automaticamente o cabeçalho `Authorization: Bearer <access>` quando
+ * há um token no `localStorage` (chave `marea_auth`).
+ *
+ * Em 401 com token presente, tenta uma vez renovar o access via
+ * `POST /auth/refresh/` e repete a chamada. Se o refresh falhar, limpa o
+ * `localStorage` e dispara o evento `marea:logout` para o `AuthContext`
+ * derrubar a sessão no frontend.
+ */
+
+import { CHAVE_STORAGE } from '../contexts/authStorage'
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
 
-async function requisicao(caminho, opcoes = {}) {
-  const resposta = await fetch(`${API_BASE_URL}${caminho}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(opcoes.headers || {}),
-    },
-    ...opcoes,
+function lerSessao() {
+  try {
+    const cru = window.localStorage.getItem(CHAVE_STORAGE)
+    if (!cru) return null
+    return JSON.parse(cru)
+  } catch {
+    return null
+  }
+}
+
+function salvarSessao(sessao) {
+  window.localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sessao))
+}
+
+function limparSessao() {
+  window.localStorage.removeItem(CHAVE_STORAGE)
+}
+
+function dispararLogout() {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('marea:logout'))
+  }
+}
+
+async function tentarRefresh() {
+  const sessao = lerSessao()
+  if (!sessao?.refresh) return null
+
+  const resposta = await fetch(`${API_BASE_URL}/auth/refresh/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh: sessao.refresh }),
   })
 
+  if (!resposta.ok) return null
+
+  const dados = await resposta.json()
+  if (!dados?.access) return null
+
+  const novaSessao = { ...sessao, access: dados.access }
+  salvarSessao(novaSessao)
+  return novaSessao
+}
+
+async function executar(caminho, opcoes) {
+  const sessao = lerSessao()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(opcoes.headers || {}),
+  }
+  if (sessao?.access) {
+    headers.Authorization = `Bearer ${sessao.access}`
+  }
+
+  return fetch(`${API_BASE_URL}${caminho}`, { ...opcoes, headers })
+}
+
+async function requisicao(caminho, opcoes = {}) {
+  let resposta = await executar(caminho, opcoes)
+
+  if (resposta.status === 401 && !opcoes._jaTentouRefresh) {
+    const novaSessao = await tentarRefresh()
+    if (novaSessao) {
+      resposta = await executar(caminho, { ...opcoes, _jaTentouRefresh: true })
+    } else if (lerSessao()) {
+      // Tinha sessão mas o refresh falhou — força logout.
+      limparSessao()
+      dispararLogout()
+    }
+  }
+
   if (!resposta.ok) {
+    let detalhe
+    try {
+      detalhe = await resposta.json()
+    } catch {
+      detalhe = undefined
+    }
     const erro = new Error(`Falha ${resposta.status} ao chamar ${caminho}`)
     erro.status = resposta.status
+    erro.detalhe = detalhe
     throw erro
   }
 

@@ -1,3 +1,239 @@
 .perfil-pagina {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.perfil-pagina--mensagem {
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-xl) var(--espaco-md);
+}
+
+.perfil-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 1.75rem;
+}
+
+.perfil-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+.perfil-grade {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--espaco-md);
+  align-items: start;
+}
+
+.perfil-cartao {
+  background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-md);
+  box-shadow: var(--sombra-suave);
+}
+
+.perfil-cartao h2 {
+  margin: 0 0 var(--espaco-sm);
+  font-size: 1.15rem;
+  color: var(--cor-marrom);
+}
+
+.perfil-cartao--foto {
+  background: var(--cor-creme);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-md);
+}
+
+.perfil-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--cor-rosa-principal),
+    var(--cor-rosa-secundario)
+  );
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: var(--sombra-suave);
+}
+
+.perfil-botoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  width: 100%;
+}
+
+.perfil-botao-secundario {
+  width: 100%;
+  padding: 10px 18px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-campo);
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+.perfil-botao-secundario:hover:not(:disabled) {
+  border-color: var(--cor-rosa-secundario);
+}
+
+.perfil-botao-secundario:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.perfil-direita {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.perfil-cartao--dados,
+.perfil-cartao--clinico {
+  background: var(--cor-azul-suave);
+}
+
+.perfil-cartao--dados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.perfil-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.95rem;
+}
+
+.perfil-campo > span {
+  color: var(--cor-marrom);
+  font-weight: 600;
+}
+
+.perfil-campo input,
+.perfil-campo select {
+  padding: 10px 16px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-campo);
+  background: var(--cor-card);
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--cor-texto);
+}
+
+.perfil-campo input:focus,
+.perfil-campo select:focus {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.perfil-campo input[readonly] {
+  background: var(--cor-creme-claro);
+  color: var(--cor-texto-suave);
+  cursor: default;
+}
+
+.perfil-dica {
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+}
+
+.perfil-grupo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco-sm);
+}
+
+.perfil-feedback {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno);
+  font-size: 0.95rem;
+}
+
+.perfil-feedback--sucesso {
+  background: rgba(114, 147, 104, 0.15);
+  color: var(--cor-sucesso);
+}
+
+.perfil-feedback--erro {
+  background: rgba(209, 29, 70, 0.12);
+  color: var(--cor-erro);
+}
+
+.perfil-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--espaco-xs);
+}
+
+.perfil-clinico {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--espaco-sm);
+}
+
+.perfil-clinico p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.perfil-rotulo {
+  color: var(--cor-marrom);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.perfil-clinico-aviso {
+  margin: var(--espaco-xs) 0 0;
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
+
+.perfil-mensagem {
+  margin: 0;
+  padding: var(--espaco-md);
+  color: var(--cor-texto-suave);
+  text-align: center;
+  font-style: italic;
+}
+
+.perfil-mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+@media (max-width: 900px) {
+  .perfil-grade {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-grupo {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,6 +1,7 @@
 from django.db.models import Q
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import TermoDicionario
@@ -8,8 +9,12 @@ from .serializers import TermoDicionarioSerializer
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def listar_termos(request):
-    """Lista os termos ativos, com filtro opcional pelo parâmetro `busca`."""
+    """Lista os termos ativos, com filtro opcional pelo parâmetro `busca`.
+
+    O dicionário é público: qualquer pessoa pode consultar, mesmo sem login.
+    """
     busca = request.query_params.get('busca', '').strip()
     queryset = TermoDicionario.objects.filter(ativo=True)
     if busca:
@@ -23,6 +28,7 @@ def listar_termos(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def detalhar_termo(request, pk):
     """Retorna os detalhes de um termo ativo. 404 se não existir."""
     try:

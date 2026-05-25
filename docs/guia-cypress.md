@@ -98,3 +98,82 @@ cy.intercept('GET', '**/api/dicionario/termos/**', { statusCode: 500, body: {} }
 
 Use `cy.wait('@alias')` antes de fazer asserções que dependem dos dados da resposta —
 isso evita flakiness por timing.
+
+## Testando rotas protegidas e fluxo JWT
+
+A partir da etapa de autenticação, todas as rotas internas (`/`, `/perfil`,
+`/dicionario` etc.) vivem dentro de `<ProtectedRoute>`. Sem sessão no
+`localStorage`, qualquer `cy.visit` para essas rotas redireciona para
+`/login` — e o teste falha.
+
+Padrão usado no projeto: setar a sessão fake via `onBeforeLoad` no `cy.visit`:
+
+```js
+const SESSAO_FAKE = {
+  access: 'token-de-acesso-fake',
+  refresh: 'token-de-refresh-fake',
+  usuario: {
+    id: 1,
+    username: 'paciente_teste',
+    email: 'paciente@amare.test',
+    tipo_usuario: 'paciente',
+    nome_completo: 'Júlia Pereira',
+  },
+}
+
+function visitarAutenticado(rota) {
+  return cy.visit(rota, {
+    onBeforeLoad(janela) {
+      janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))
+    },
+  })
+}
+```
+
+Cada `*.cy.js` que toca rotas internas tem o seu próprio helper inline —
+mais simples que comandos globais. Antes do `visit`, sempre chame
+`cy.clearLocalStorage()` no `beforeEach` para isolar os testes entre si.
+
+Para testar o fluxo real de login (sem hardcode da sessão), mocke
+`POST /api/auth/login/` e use o componente normalmente:
+
+```js
+cy.intercept('POST', '**/api/auth/login/', {
+  statusCode: 200,
+  body: {
+    access: 'token-de-acesso-fake',
+    refresh: 'token-de-refresh-fake',
+    usuario: { id: 1, username: 'paciente_teste', ... },
+  },
+}).as('login')
+
+cy.visit('/login')
+cy.get('[data-cy=login-username]').type('paciente_teste')
+cy.get('[data-cy=login-password]').type('amare123')
+cy.get('[data-cy=login-submit]').click()
+cy.wait('@login')
+cy.location('pathname').should('eq', '/perfil')
+```
+
+Para validar erro:
+
+```js
+cy.intercept('POST', '**/api/auth/login/', {
+  statusCode: 401,
+  body: { detail: 'Usuário ou senha inválidos.' },
+}).as('login')
+```
+
+Ou simular indisponibilidade de rede:
+
+```js
+cy.intercept('POST', '**/api/auth/login/', { forceNetworkError: true })
+```
+
+O teste do botão Sair lê `localStorage` direto:
+
+```js
+cy.get('[data-cy=nav-logout]').click()
+cy.location('pathname').should('eq', '/login')
+cy.window().its('localStorage.marea_auth').should('be.undefined')
+```
