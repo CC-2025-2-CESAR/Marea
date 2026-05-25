@@ -131,3 +131,95 @@ CORS_ALLOWED_ORIGINS = [
 ```
 
 Em produção, ampliar essa lista para o domínio real.
+
+## App `usuarios` (autenticação e perfis)
+
+Segunda app real do backend. Cuida da autenticação (JWT) e dos dados de
+perfil dos três tipos de usuário previstos: paciente, médica e administradora.
+
+Arquivos relevantes:
+
+- `backend/usuarios/models.py` — três models:
+  - `PerfilUsuario` (OneToOne com o `User` padrão do Django) com `tipo_usuario`,
+    `nome_completo`, `telefone`, `foto_url`, `criado_em`, `atualizado_em`.
+  - `Paciente` (OneToOne com `PerfilUsuario`) com `data_nascimento`,
+    `tipo_sanguineo` (choices), `medicamentos_em_uso`, `observacoes_medicas`.
+  - `Medica` (OneToOne com `PerfilUsuario`) com `crm` e `especialidade`.
+- `backend/usuarios/serializers.py` — `UsuarioBasicoSerializer` (id/username/
+  email/tipo/nome) e `PerfilPacienteSerializer` (perfil completo, com `update`
+  que aceita apenas os campos editáveis pela paciente).
+- `backend/usuarios/views.py` — `login_view`, `refresh_view`, `me_view` e
+  `perfil_view`. Todas com `@api_view` (sem Generic Views, sem `ModelViewSet`).
+- `backend/usuarios/urls.py` — rotas locais da app.
+- `backend/usuarios/admin.py` — registra os três models com inlines de
+  Paciente e Medica dentro de PerfilUsuario.
+
+### Por que `User` padrão + `PerfilUsuario` em vez de `AUTH_USER_MODEL` custom
+
+`AUTH_USER_MODEL` precisa ser definido antes da primeira migration; trocar
+depois é caro. Como o projeto já tinha migrations rodadas, o caminho mais
+seguro foi manter o `User` padrão e pendurar um `OneToOne` para os dados
+específicos. O Django Admin lida com isso naturalmente.
+
+A criação do `PerfilUsuario` é explícita — não há `post_save` signal. Fica
+mais fácil de seguir o código e evita "mágica" silenciosa.
+
+### Endpoints
+
+```
+POST /api/auth/login/      {username, password}  →  {access, refresh, usuario}
+POST /api/auth/refresh/    {refresh}             →  {access}
+GET  /api/auth/me/                               →  dados do usuário autenticado
+GET  /api/perfil/                                →  perfil completo da paciente
+PATCH /api/perfil/         {nome, telefone, ...} →  perfil atualizado
+```
+
+Os campos editáveis pela paciente são `nome_completo`, `telefone`,
+`data_nascimento` e `tipo_sanguineo`. Email vem do `User.email` e fica
+read-only no serializer. Medicamentos e observações são read-only também
+(atualização passa pelo Django Admin).
+
+### JWT com `djangorestframework-simplejwt`
+
+A autenticação usa JSON Web Tokens via o pacote `djangorestframework-simplejwt`.
+Configuração em `backend/marea_api/settings.py`:
+
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+```
+
+`IsAuthenticated` é o padrão — para deixar um endpoint público (como o
+dicionário), adicione `@permission_classes([AllowAny])` na view.
+
+A view de login não usa `TokenObtainPairView` da biblioteca: ela é
+function-based e gera o par diretamente com `RefreshToken.for_user(user)`,
+mantendo a regra do projeto de não usar Generic Views.
+
+### Dívida técnica conhecida
+
+O frontend guarda `access` + `refresh` em `localStorage`. Em projeto
+acadêmico isso é aceitável e simplifica o fluxo. Em produção, o refresh
+token deveria ficar em cookie `httpOnly` para reduzir o risco de XSS.
+
+### Management command `criar_usuarios_teste`
+
+```
+python manage.py criar_usuarios_teste
+```
+
+Cria `paciente_teste`, `medica_teste` e `admin_teste` com senha `amare123`
+e dados fictícios. É idempotente — pode rodar várias vezes sem duplicar
+registros. Apenas para desenvolvimento local; nunca usar em produção.

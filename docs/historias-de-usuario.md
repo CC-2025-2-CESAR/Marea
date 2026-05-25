@@ -89,6 +89,72 @@ Cenário: Pesquisar termo inexistente
 
 **Dados envolvidos**: `TermoDicionario`.
 
+## Etapa atual — Autenticação e perfil
+
+### H5 — Login e perfil de usuário
+
+- Jira: ainda a registrar (sugestão de identificador: PROJ-15).
+- GitHub: ainda a registrar.
+- Épico sugerido: **Acesso e identidade** (a criar).
+
+**História**: Como paciente, quero acessar minha conta e visualizar/atualizar
+meus dados de perfil para acompanhar minhas informações dentro da plataforma
+Amare.
+
+**Objetivo**: Estabelecer a base de autenticação real e o cadastro de perfil
+da paciente, preparando o sistema para diferenciar pacientes, médicas e
+administradoras.
+
+**Critérios de aceitação**:
+
+- O usuário deve conseguir fazer login com credenciais válidas.
+- O sistema deve identificar o tipo de usuário (paciente, médica ou admin).
+- O usuário autenticado deve conseguir acessar a página de perfil.
+- O perfil deve carregar dados vindos do banco.
+- A paciente deve conseguir atualizar nome completo, telefone, data de
+  nascimento e tipo sanguíneo do seu perfil.
+- O e-mail e os dados clínicos (medicamentos, observações) aparecem como
+  visualização — atualização pelo Django Admin.
+- Usuários não autenticados não devem acessar páginas internas.
+- O botão "Sair" deve limpar a sessão e voltar para a tela de login.
+
+**Cenários BDD**:
+
+```
+Cenário: Login com credenciais válidas
+  Dado que existe uma paciente cadastrada no sistema
+  Quando ela informa usuário e senha válidos
+  Então o sistema deve autenticá-la e redirecioná-la para a página de perfil
+
+Cenário: Login com credenciais inválidas
+  Dado que existe uma paciente cadastrada no sistema
+  Quando ela informa um usuário ou senha incorreto
+  Então o sistema deve exibir a mensagem "Usuário ou senha inválidos."
+
+Cenário: Acessar perfil autenticado
+  Dado que a paciente está autenticada
+  Quando ela acessa a página de perfil
+  Então o sistema deve exibir seus dados cadastrados
+
+Cenário: Atualizar perfil
+  Dado que a paciente está na página de perfil
+  Quando ela altera o telefone e clica em Salvar
+  Então o sistema deve atualizar o perfil no banco e exibir mensagem de sucesso
+
+Cenário: Bloquear acesso sem login
+  Dado que uma pessoa não está autenticada
+  Quando tenta acessar a página de perfil
+  Então o sistema deve redirecioná-la para a página de login
+
+Cenário: Logout
+  Dado que a paciente está autenticada
+  Quando ela clica em Sair
+  Então o sistema deve limpar a sessão e redirecioná-la para /login
+```
+
+**Dados envolvidos**: `User` (Django padrão), `PerfilUsuario`, `Paciente`,
+`Medica`.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Gestão de Consultas, Calendário e Lembretes** (épico [PROJ-8](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1))

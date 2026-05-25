@@ -10,14 +10,16 @@ das pacientes da Clínica Amare (Recife/PE), reunindo recursos digitais voltados
 acompanhamento, organização e compreensão de informações relacionadas aos tratamentos
 de fertilidade e reprodução humana.
 
-Nesta etapa inicial, o projeto contém a estrutura base da aplicação, a primeira versão da
-tela de login e o layout base de navegação para páginas internas.
+Nesta etapa, o projeto já conta com autenticação real, perfil de paciente persistido em
+banco e base preparada para diferenciar pacientes, médicas e administradoras.
 
 ## Status atual
 
-- Tela de login pronta com validação simples e simulação de sucesso.
-- Rotas principais configuradas com React Router.
-- Layout público para login e layout interno com sidebar, header e busca visual.
+- Login real com JWT contra o backend Django.
+- Página de perfil consumindo a API (`GET` e `PATCH /api/perfil/`).
+- Tipos de usuário: paciente, médica e administradora (gerenciados pelo Django Admin).
+- Rotas internas protegidas: sem sessão, qualquer acesso volta para `/login`.
+- Botão de logout funcional na sidebar.
 - Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
 - Demais páginas internas seguem como placeholders para evolução futura.
 
@@ -25,6 +27,7 @@ tela de login e o layout base de navegação para páginas internas.
 
 - Backend: Django (Python)
 - API: Django REST Framework
+- Autenticação: JSON Web Tokens (`djangorestframework-simplejwt`)
 - Frontend: React (JavaScript)
 - Build do frontend: Vite
 - Animações: Motion (microinterações e transições suaves)
@@ -34,9 +37,9 @@ tela de login e o layout base de navegação para páginas internas.
 
 ## Rotas atuais
 
-- `/login`: tela de login, sem sidebar, header ou busca.
-- `/`: página inicial da plataforma.
-- `/perfil`: placeholder de perfil.
+- `/login`: tela de login pública, sem sidebar, header ou busca.
+- `/`: página inicial da plataforma (requer login).
+- `/perfil`: perfil da paciente com formulário editável (requer login).
 - `/calendario`: placeholder de calendário.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
@@ -61,10 +64,23 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py loaddata termos_iniciais
+python manage.py criar_usuarios_teste
 python manage.py runserver
 ```
 
 Backend em `http://127.0.0.1:8000/`.
+
+O command `criar_usuarios_teste` é idempotente — pode rodar mais de uma vez sem
+duplicar registros. Ele cria três usuários fictícios com senha `amare123`:
+
+| Usuário | Tipo | Para que serve |
+|---|---|---|
+| `paciente_teste` | Paciente | Login da paciente, fluxo principal do app. |
+| `medica_teste` | Médica | Reservado para futuro fluxo da médica. |
+| `admin_teste` | Administradora (superuser) | Acesso ao Django Admin em `http://localhost:8000/admin/`. |
+
+Use esses dados apenas em ambiente local — eles não devem ir para produção.
 
 ## Como rodar o frontend
 
@@ -90,6 +106,41 @@ Para rodar os testes no terminal:
 ```
 npm run cypress:run
 ```
+
+## Login e perfil (H5)
+
+Autenticação real via JWT. O `User` padrão do Django é mantido; um modelo
+`PerfilUsuario` (com `OneToOne` para `User`) carrega os dados comuns e os
+modelos `Paciente` e `Medica` carregam os dados específicos de cada papel.
+
+Endpoints novos:
+
+- `POST /api/auth/login/` — recebe `{username, password}` e devolve
+  `{access, refresh, usuario}`.
+- `POST /api/auth/refresh/` — troca um `refresh` válido por um novo `access`.
+- `GET /api/auth/me/` — devolve os dados básicos do usuário autenticado.
+- `GET /api/perfil/` — devolve o perfil completo da paciente autenticada.
+- `PATCH /api/perfil/` — atualiza `nome_completo`, `telefone`,
+  `data_nascimento` e `tipo_sanguineo`. Email e dados clínicos
+  (medicamentos, observações) só são editáveis pelo Django Admin nesta etapa.
+
+Para testar o fluxo ponta-a-ponta:
+
+1. Backend rodando com `criar_usuarios_teste` já executado.
+2. Frontend rodando (`npm run dev`).
+3. Acesse `http://localhost:5173/login`, entre com `paciente_teste` / `amare123`.
+4. Você é redirecionada para `/perfil`. Edite o telefone, clique em Salvar.
+5. O botão "Sair" no rodapé da sidebar limpa a sessão e volta para `/login`.
+
+Para gerenciar usuários, médicas e dados clínicos:
+
+```
+http://localhost:8000/admin/
+```
+
+Use `admin_teste` / `amare123`. O Django Admin permite criar/editar perfis,
+ajustar tipo de usuário, preencher medicamentos e observações da paciente, e
+cadastrar dados profissionais das médicas.
 
 ## Dicionário de termos médicos (PROJ-3 e PROJ-4)
 

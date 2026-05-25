@@ -147,8 +147,10 @@ Toda chamada à API do Maréa passa pela pasta `src/services/`:
 
 ```
 src/services/
-├── api.js                  wrapper de fetch com URL base e tratamento de erro
-└── dicionarioService.js    chamadas específicas do dicionário
+├── api.js                  wrapper de fetch com URL base, auth e tratamento de erro
+├── authService.js          login, refresh e dados do usuário autenticado
+├── dicionarioService.js    chamadas específicas do dicionário
+└── perfilService.js        leitura e atualização do perfil
 ```
 
 A URL base é lida da variável de ambiente `VITE_API_BASE_URL`, com fallback para
@@ -173,3 +175,58 @@ function listarConsultas() {
   return requisicao('/consultas/')
 }
 ```
+
+## Autenticação e perfil
+
+O frontend usa JWT contra o backend (ver guia do Django). A infra-estrutura
+de auth vive em três lugares:
+
+```
+src/contexts/
+├── AuthContext.jsx         provider que guarda usuário e expõe login/logout
+├── authStorage.js          constante CHAVE_STORAGE compartilhada
+└── useAuth.js              hook useAuth para consumir o contexto
+
+src/components/ProtectedRoute/
+└── ProtectedRoute.jsx      redireciona para /login se não estiver autenticado
+```
+
+O `App.jsx` envolve toda a aplicação em `<AuthProvider>`. O `AppRoutes.jsx`
+embrulha o `AppLayout` em `<ProtectedRoute>` — todas as rotas internas ficam
+bloqueadas para quem não tem sessão.
+
+```jsx
+<Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+  <Route index element={<Home />} />
+  <Route path="/perfil" element={<Perfil />} />
+  ...
+</Route>
+```
+
+### Fluxo de login
+
+1. `Login.jsx` chama `useAuth().login(usuario, senha)`.
+2. O contexto chama `authService.login` (`POST /api/auth/login/`).
+3. A resposta `{access, refresh, usuario}` é salva em
+   `localStorage['marea_auth']` e no estado do provider.
+4. A página de login navega para `/perfil`.
+
+### Auto-refresh em 401
+
+`services/api.js` injeta `Authorization: Bearer <access>` em toda chamada
+quando há sessão salva. Se a resposta vier 401 com sessão presente, tenta
+uma vez `POST /api/auth/refresh/`. Se o refresh funcionar, refaz a chamada
+original. Se falhar, limpa o `localStorage` e dispara o evento
+`marea:logout` — o `AuthContext` escuta e o `ProtectedRoute` redireciona.
+
+### Logout
+
+A `Sidebar` tem um botão "Sair" (ícone `IconeLogout`) no rodapé. Ele chama
+`useAuth().logout()` e navega para `/login`.
+
+### Por que `useAuth.js` separado do `AuthContext.jsx`
+
+A regra ESLint `react-refresh/only-export-components` pede que arquivos
+`.jsx` exportem apenas componentes (para o Fast Refresh funcionar bem).
+Por isso o hook `useAuth` e a constante `CHAVE_STORAGE` ficam em arquivos
+`.js` próprios — o `.jsx` exporta só o `AuthProvider` e o `AuthContext`.
