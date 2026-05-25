@@ -69,13 +69,13 @@
   font-size: 0.95rem;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .home__cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .home__intro {
     padding: 34px 24px;
     border-radius: 28px;

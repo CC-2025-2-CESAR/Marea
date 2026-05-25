@@ -242,7 +242,7 @@
   font-style: normal;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   .dicionario-busca {
     flex-direction: column;
     align-items: stretch;
