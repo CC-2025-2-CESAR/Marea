@@ -1,5 +1,28 @@
 const ROTA_LISTA = '**/api/dicionario/termos/**'
 
+// Sessao fake para passar pela ProtectedRoute. O dicionario em si e publico
+// no backend, mas a rota /dicionario no frontend vive dentro do AppLayout
+// protegido — entao todo `cy.visit` precisa setar o localStorage primeiro.
+const SESSAO_FAKE = {
+  access: 'token-de-acesso-fake',
+  refresh: 'token-de-refresh-fake',
+  usuario: {
+    id: 1,
+    username: 'paciente_teste',
+    email: 'paciente@amare.test',
+    tipo_usuario: 'paciente',
+    nome_completo: 'Júlia Pereira',
+  },
+}
+
+function visitarDicionario(rota = '/dicionario') {
+  return cy.visit(rota, {
+    onBeforeLoad(janela) {
+      janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))
+    },
+  })
+}
+
 const termosMock = [
   {
     id: 1,
@@ -43,7 +66,7 @@ const termosMock = [
 describe('Dicionário da Amare', () => {
   it('exibe o título da página', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
     cy.get('[data-cy=page-dicionario]').should('be.visible')
     cy.contains('h1', 'Dicionário').should('be.visible')
@@ -51,7 +74,7 @@ describe('Dicionário da Amare', () => {
 
   it('mostra o grid de termos quando a API retorna dados', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
     cy.get('[data-cy=dicionario-grid]').should('be.visible')
     cy.get('[data-cy=dicionario-card]').should('have.length', 4)
@@ -64,7 +87,7 @@ describe('Dicionário da Amare', () => {
 
   it('exibe mensagem quando a API retorna lista vazia', () => {
     cy.intercept('GET', ROTA_LISTA, { body: [] }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
     cy.get('[data-cy=dicionario-mensagem-vazia]')
       .should('be.visible')
@@ -73,7 +96,7 @@ describe('Dicionário da Amare', () => {
 
   it('cada card mostra título, definição, artigos relacionados e tag', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
 
     cy.get('[data-cy=dicionario-card]')
@@ -96,7 +119,7 @@ describe('Dicionário da Amare', () => {
     cy.intercept('GET', '**/api/dicionario/termos/', { body: termosMock }).as(
       'listarInicial',
     )
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listarInicial')
 
     cy.intercept('GET', '**/api/dicionario/termos/?busca=fiv', {
@@ -115,7 +138,7 @@ describe('Dicionário da Amare', () => {
     cy.intercept('GET', '**/api/dicionario/termos/', { body: termosMock }).as(
       'listarInicial',
     )
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listarInicial')
 
     cy.intercept('GET', '**/api/dicionario/termos/?busca=xyz', {
@@ -132,7 +155,7 @@ describe('Dicionário da Amare', () => {
 
   it('filtra o grid ao selecionar uma categoria nos chips', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
 
     cy.get('[data-cy=dicionario-filtro-chip][data-categoria="Doença"]').click()
@@ -143,7 +166,7 @@ describe('Dicionário da Amare', () => {
 
   it('chip "Todos" remove o filtro de categoria', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@listar')
 
     cy.get(
@@ -159,7 +182,7 @@ describe('Dicionário da Amare', () => {
 
   it('exibe mensagem de erro quando a API falha', () => {
     cy.intercept('GET', ROTA_LISTA, { statusCode: 500, body: {} }).as('falha')
-    cy.visit('/dicionario')
+    visitarDicionario()
     cy.wait('@falha')
     cy.get('[data-cy=dicionario-mensagem-erro]')
       .should('be.visible')

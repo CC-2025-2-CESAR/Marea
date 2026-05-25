@@ -1,8 +1,7 @@
 describe('Rotas e layout base da Amare', () => {
-  // Páginas ainda em placeholder. Dicionário foi removido daqui porque agora
-  // tem implementação real (ver dicionario.cy.js).
+  // Páginas ainda em placeholder. Dicionário e Perfil foram removidos daqui
+  // porque agora têm implementação real (ver dicionario.cy.js e perfil.cy.js).
   const paginasPlaceholder = [
-    { rota: '/perfil', titulo: 'Perfil', dataCy: 'nav-perfil' },
     { rota: '/calendario', titulo: 'Calendário', dataCy: 'nav-calendario' },
     { rota: '/ciclo', titulo: 'Ciclo', dataCy: 'nav-ciclo' },
     { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
@@ -14,6 +13,47 @@ describe('Rotas e layout base da Amare', () => {
     },
   ]
 
+  // Sessão fake usada para passar pela ProtectedRoute durante os testes.
+  const SESSAO_FAKE = {
+    access: 'token-de-acesso-fake',
+    refresh: 'token-de-refresh-fake',
+    usuario: {
+      id: 1,
+      username: 'paciente_teste',
+      email: 'paciente@amare.test',
+      tipo_usuario: 'paciente',
+      nome_completo: 'Júlia Pereira',
+    },
+  }
+
+  function visitarAutenticado(rota) {
+    return cy.visit(rota, {
+      onBeforeLoad(janela) {
+        janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))
+      },
+    })
+  }
+
+  beforeEach(() => {
+    cy.clearLocalStorage()
+    // Mocks padrões para qualquer rota interna que dependa de API real.
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    cy.intercept('GET', '**/api/perfil/', {
+      body: {
+        username: 'paciente_teste',
+        email: 'paciente@amare.test',
+        tipo_usuario: 'paciente',
+        nome_completo: 'Júlia Pereira',
+        telefone: '(81) 91234-5678',
+        foto_url: '',
+        data_nascimento: '1993-04-12',
+        tipo_sanguineo: 'O+',
+        medicamentos_em_uso: '',
+        observacoes_medicas: '',
+      },
+    })
+  })
+
   it('carrega a tela de login na rota /login sem sidebar', () => {
     cy.visit('/login')
 
@@ -23,8 +63,8 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=app-header]').should('not.exist')
   })
 
-  it('carrega a Home com sidebar, header e busca', () => {
-    cy.visit('/')
+  it('carrega a Home com sidebar, header e busca quando autenticado', () => {
+    visitarAutenticado('/')
 
     cy.get('[data-cy=app-layout]').should('be.visible')
     cy.get('[data-cy=home-page]').should('be.visible')
@@ -39,8 +79,13 @@ describe('Rotas e layout base da Amare', () => {
     )
   })
 
-  it('navega pelos links da sidebar para as páginas corretas', () => {
+  it('redireciona para /login quando tenta acessar rota interna sem sessao', () => {
     cy.visit('/')
+    cy.location('pathname').should('eq', '/login')
+  })
+
+  it('navega pelos links da sidebar para as paginas corretas', () => {
+    visitarAutenticado('/')
 
     cy.get('[data-cy=nav-home]').should('have.attr', 'href', '/')
     cy.get('[data-cy=nav-home]').click()
@@ -61,9 +106,8 @@ describe('Rotas e layout base da Amare', () => {
       )
     })
 
-    // Dicionário é uma rota real (não placeholder); a navegação ainda funciona,
-    // mas o conteúdo é a página de termos médicos.
-    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    // Dicionário e Perfil são rotas reais; a navegação ainda funciona, mas o
+    // conteúdo é a página correspondente — não o placeholder.
     cy.get('[data-cy=nav-dicionario]').should(
       'have.attr',
       'href',
@@ -72,6 +116,11 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-dicionario]').click()
     cy.location('pathname').should('eq', '/dicionario')
     cy.contains('h1', 'Dicionário').should('be.visible')
+
+    cy.get('[data-cy=nav-perfil]').should('have.attr', 'href', '/perfil')
+    cy.get('[data-cy=nav-perfil]').click()
+    cy.location('pathname').should('eq', '/perfil')
+    cy.contains('h1', 'Perfil').should('be.visible')
   })
 
   it('abre Calendário e Bot corretamente por rota direta', () => {
@@ -81,7 +130,7 @@ describe('Rotas e layout base da Amare', () => {
     ]
 
     rotasDiretas.forEach((pagina) => {
-      cy.visit(pagina.rota)
+      visitarAutenticado(pagina.rota)
       cy.get('[data-cy=app-layout]').should('be.visible')
       cy.get('[data-cy=app-search]').should('be.visible')
       cy.contains('h1', pagina.titulo).should('be.visible')
@@ -93,7 +142,7 @@ describe('Rotas e layout base da Amare', () => {
 
   it('mostra título e texto básico nas páginas placeholder', () => {
     paginasPlaceholder.forEach((pagina) => {
-      cy.visit(pagina.rota)
+      visitarAutenticado(pagina.rota)
       cy.get('[data-cy=placeholder-page]').should('be.visible')
       cy.contains('h1', pagina.titulo).should('be.visible')
       cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
