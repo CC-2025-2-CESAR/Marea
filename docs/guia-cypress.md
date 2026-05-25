@@ -177,3 +177,61 @@ cy.get('[data-cy=nav-logout]').click()
 cy.location('pathname').should('eq', '/login')
 cy.window().its('localStorage.marea_auth').should('be.undefined')
 ```
+
+## Testes de viewport mobile
+
+`frontend/cypress/e2e/responsividade-mobile.cy.js` valida o comportamento
+mobile (drawer, tap targets, ausência de scroll horizontal) usando
+`cy.viewport()`. A suíte original (`login`, `perfil`, `dicionario`,
+`layout-rotas`) continua em 1280x720 — não foi necessário adaptá-la.
+
+### Viewports usados
+
+```js
+const VIEWPORT_IPHONE_12 = { largura: 390, altura: 844 }
+const VIEWPORT_PIXEL_7  = { largura: 412, altura: 915 }
+const VIEWPORT_IPAD_MINI = { largura: 768, altura: 1024 }
+```
+
+iPad Mini (768px) é o ponto de virada — testar nele garante que a sidebar
+desktop volta a aparecer assim que a viewport cresce além do drawer.
+
+### Helper de visita autenticada em mobile
+
+```js
+function visitarAutenticadoMobile(rota, viewport = VIEWPORT_IPHONE_12) {
+  cy.viewport(viewport.largura, viewport.altura)
+  cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
+  cy.intercept('GET', '**/api/dicionario/termos/**', { body: TERMOS_MOCK })
+    .as('termos')
+  return cy.visit(rota, {
+    onBeforeLoad(janela) {
+      janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))
+    },
+  })
+}
+```
+
+### Detectando scroll horizontal
+
+```js
+function semScrollHorizontal() {
+  cy.window().then((janela) => {
+    const documento = janela.document.documentElement
+    expect(documento.scrollWidth).to.be.lte(janela.innerWidth)
+  })
+}
+```
+
+### Cuidados
+
+- O drawer (`[data-cy=app-layout-drawer]`) só existe no DOM enquanto está
+  aberto. Use `should('not.exist')` para confirmar que fechou.
+- A sidebar desktop (`[data-cy=app-sidebar]`) **sempre** existe no DOM,
+  mas o CSS a esconde abaixo de 768px. Use `should('not.be.visible')` em
+  vez de `should('not.exist')`.
+- Com o drawer aberto, dois `[data-cy=nav-dicionario]` coexistem (sidebar
+  hidden + drawer visível). Filtre pelo container do drawer:
+  `cy.get('[data-cy=app-layout-drawer] [data-cy=nav-dicionario]')`.
+- O backdrop tem animação de entrada/saída. Para clicar imediatamente
+  após abrir, use `{ force: true }` ou aguarde a animação.

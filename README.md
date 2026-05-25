@@ -21,6 +21,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Rotas internas protegidas: sem sessão, qualquer acesso volta para `/login`.
 - Botão de logout funcional na sidebar.
 - Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
+- Interface adaptada para celular: menu lateral em drawer (hambúrguer) abaixo de
+  768px, breakpoints padronizados em 480/768/1024 e tap targets de pelo menos 44px.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias

@@ -230,3 +230,75 @@ A regra ESLint `react-refresh/only-export-components` pede que arquivos
 `.jsx` exportem apenas componentes (para o Fast Refresh funcionar bem).
 Por isso o hook `useAuth` e a constante `CHAVE_STORAGE` ficam em arquivos
 `.js` próprios — o `.jsx` exporta só o `AuthProvider` e o `AuthContext`.
+
+## Layout mobile
+
+O frontend é desktop-first, mas o `AppLayout` adapta a navegação para
+celular abaixo de 768px.
+
+### Breakpoints padronizados
+
+Os CSS do projeto usam três pontos de corte:
+
+- **480px**: ajustes para celulares pequenos (iPhone SE/12 mini).
+- **768px (`max-width: 767px`)**: transição entre mobile e tablet — é o
+  ponto onde a sidebar lateral desaparece e o drawer entra em cena.
+- **1024px**: transição entre tablet e desktop (afeta principalmente o
+  grid de cards da Home).
+
+Variáveis CSS não funcionam dentro de `@media`, então isso é uma
+convenção — siga os mesmos números em CSS novos.
+
+### Drawer no AppLayout
+
+`src/layouts/AppLayout/AppLayout.jsx` mantém um estado `menuAberto` e
+renderiza o drawer e o backdrop dentro de `<AnimatePresence>` quando ele
+está aberto. O drawer reutiliza o componente `<Sidebar>` em modo `drawer`
+(sem reescrever a estrutura).
+
+```jsx
+<AnimatePresence>
+  {menuAberto ? (
+    <>
+      <motion.div className="app-layout__backdrop" onClick={fecharMenu} />
+      <motion.div className="app-layout__drawer">
+        <Sidebar modoDrawer onFechar={fecharMenu} />
+      </motion.div>
+    </>
+  ) : null}
+</AnimatePresence>
+```
+
+O `Header` recebe `onAbrirMenu` por prop e mostra o botão hambúrguer
+(`IconeMenu`) à esquerda da marca. O botão tem `display: none` no
+desktop via CSS (`@media (min-width: 768px)`).
+
+### Sidebar reaproveitada
+
+`Sidebar.jsx` aceita props opcionais `modoDrawer` e `onFechar`. Sem props,
+funciona como sidebar lateral fixa do desktop. Com `modoDrawer`, ganha um
+botão "X" no topo (`IconeFechar`), e cada link da navegação chama
+`onFechar()` no `onClick` para fechar o drawer ao navegar.
+
+### Por que o estado fica no `AppLayout` e não em Context
+
+Apenas o `Header` (que dispara `onAbrirMenu`) e o `Sidebar` (que recebe
+`onFechar`) precisam saber do estado. Usar Context global seria overkill —
+duas props locais resolvem.
+
+### Fechamento automático
+
+- **Clique num link da navegação** → o `Sidebar` chama `onFechar` no
+  `onClick` do `NavLink`.
+- **Botão voltar do navegador** → o `AppLayout` escuta `popstate` num
+  `useEffect` (sem dependências) e fecha o drawer.
+- **Tecla Esc** → escutado em outro `useEffect` que só roda enquanto
+  `menuAberto` é `true`. O mesmo efeito trava o scroll do `<body>` para
+  evitar rolagem por baixo do overlay.
+
+### Tap targets e tipografia mínima
+
+Botões e links da navegação têm `min-height: 44px` (recomendação Apple
+HIG/WCAG). Inputs (`.campo-input` e os inputs das páginas de Perfil e
+Dicionário) usam `font-size: 16px` no mobile — abaixo disso, o Safari do
+iOS dá zoom automático ao focar.
