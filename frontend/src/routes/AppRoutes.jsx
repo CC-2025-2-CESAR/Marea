@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AuthLayout from '../layouts/AuthLayout/AuthLayout'
 import AppLayout from '../layouts/AppLayout/AppLayout'
+import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
 import Login from '../pages/Login/Login'
 import Home from '../pages/Home/Home'
 import Perfil from '../pages/Perfil/Perfil'
@@ -20,7 +21,13 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
         </Route>
 
-        <Route element={<AppLayout />}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Home />} />
           <Route path="/perfil" element={<Perfil />} />
           <Route path="/calendario" element={<Calendario />} />
