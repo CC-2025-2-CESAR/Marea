@@ -72,6 +72,61 @@
   background: var(--cor-marrom);
 }
 
+.dicionario-filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-xs);
+  align-items: center;
+}
+
+.dicionario-filtro__chip {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--cor-borda);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--cor-texto);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.dicionario-filtro__chip:hover {
+  border-color: var(--cor-rosa-secundario);
+}
+
+.dicionario-filtro__chip--ativo {
+  background: var(--cor-terracota);
+  border-color: var(--cor-terracota);
+  color: #fff;
+}
+
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--doenca {
+  background: var(--cor-verde-confirmacao);
+  border-color: var(--cor-verde-confirmacao);
+}
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--remedio {
+  background: var(--cor-rosa-secundario);
+  border-color: var(--cor-rosa-secundario);
+}
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--exame,
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--instrumento {
+  background: var(--cor-azul-link);
+  border-color: var(--cor-azul-link);
+}
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--procedimento {
+  background: var(--cor-caramelo);
+  border-color: var(--cor-caramelo);
+}
+.dicionario-filtro__chip--ativo.dicionario-filtro__chip--biologia {
+  background: var(--cor-marrom);
+  border-color: var(--cor-marrom);
+}
+
 .dicionario-grid {
   list-style: none;
   margin: 0;

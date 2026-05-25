@@ -17,11 +17,15 @@ function slugCategoria(categoria) {
   )
 }
 
+const FILTRO_TODOS = '__todos__'
+
 function Dicionario() {
   const [termos, setTermos] = useState([])
   const [busca, setBusca] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+  const [categoriaSelecionada, setCategoriaSelecionada] =
+    useState(FILTRO_TODOS)
 
   async function buscarTermos(termoBusca) {
     setCarregando(true)
@@ -70,6 +74,16 @@ function Dicionario() {
     buscarTermos(busca)
   }
 
+  // Categorias presentes nos termos carregados, em ordem alfabética.
+  const categoriasDisponiveis = Array.from(
+    new Set(termos.map((t) => t.categoria).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+
+  const termosVisiveis =
+    categoriaSelecionada === FILTRO_TODOS
+      ? termos
+      : termos.filter((t) => t.categoria === categoriaSelecionada)
+
   return (
     <section className="dicionario-pagina" data-cy="page-dicionario">
       <header className="dicionario-cabecalho">
@@ -103,6 +117,51 @@ function Dicionario() {
         </button>
       </form>
 
+      {categoriasDisponiveis.length > 0 ? (
+        <div
+          className="dicionario-filtro"
+          role="group"
+          aria-label="Filtrar por categoria"
+          data-cy="dicionario-filtro"
+        >
+          <button
+            type="button"
+            className={
+              categoriaSelecionada === FILTRO_TODOS
+                ? 'dicionario-filtro__chip dicionario-filtro__chip--ativo'
+                : 'dicionario-filtro__chip'
+            }
+            onClick={() => setCategoriaSelecionada(FILTRO_TODOS)}
+            data-cy="dicionario-filtro-chip"
+            data-categoria="__todos__"
+            aria-pressed={categoriaSelecionada === FILTRO_TODOS}
+          >
+            Todos
+          </button>
+          {categoriasDisponiveis.map((categoria) => {
+            const slug = slugCategoria(categoria)
+            const ativo = categoriaSelecionada === categoria
+            return (
+              <button
+                key={categoria}
+                type="button"
+                className={
+                  ativo
+                    ? `dicionario-filtro__chip dicionario-filtro__chip--${slug} dicionario-filtro__chip--ativo`
+                    : `dicionario-filtro__chip dicionario-filtro__chip--${slug}`
+                }
+                onClick={() => setCategoriaSelecionada(categoria)}
+                data-cy="dicionario-filtro-chip"
+                data-categoria={categoria}
+                aria-pressed={ativo}
+              >
+                {categoria}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
+
       {carregando ? (
         <p
           className="dicionario-mensagem"
@@ -118,7 +177,7 @@ function Dicionario() {
         >
           {erro}
         </p>
-      ) : termos.length === 0 ? (
+      ) : termosVisiveis.length === 0 ? (
         <p
           className="dicionario-mensagem"
           data-cy="dicionario-mensagem-vazia"
@@ -127,7 +186,7 @@ function Dicionario() {
         </p>
       ) : (
         <ul className="dicionario-grid" data-cy="dicionario-grid">
-          {termos.map((termo) => {
+          {termosVisiveis.map((termo) => {
             const slug = slugCategoria(termo.categoria)
             const artigos = termo.artigos_relacionados || []
             return (
