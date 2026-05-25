@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import logoMarea from '../../assets/marea-logo.png'
+import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
 import './Login.css'
@@ -78,9 +78,9 @@ function Login() {
       >
         <motion.img
           className="login-logo"
-          src={logoMarea}
-          alt="Maréa"
-          data-cy="marea-logo"
+          src={logoAmare}
+          alt="Amare"
+          data-cy="amare-logo"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: 'easeOut', delay: 0.05 }}

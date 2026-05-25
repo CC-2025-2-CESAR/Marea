@@ -1,4 +1,4 @@
-describe('Rotas e layout base do Maréa', () => {
+describe('Rotas e layout base da Amare', () => {
   const paginasPlaceholder = [
     { rota: '/perfil', titulo: 'Perfil', dataCy: 'nav-perfil' },
     { rota: '/calendario', titulo: 'Calendário', dataCy: 'nav-calendario' },
@@ -27,14 +27,14 @@ describe('Rotas e layout base do Maréa', () => {
 
     cy.get('[data-cy=app-layout]').should('be.visible')
     cy.get('[data-cy=home-page]').should('be.visible')
-    cy.contains('h1', 'Bem-vinda ao Maréa').should('be.visible')
+    cy.contains('h1', 'Bem-vinda à Amare').should('be.visible')
     cy.get('[data-cy=app-sidebar]').should('be.visible')
     cy.get('[data-cy=app-header]').should('be.visible')
     cy.get('[data-cy=app-search]').should('be.visible')
     cy.get('[data-cy=app-search] input').should(
       'have.attr',
       'placeholder',
-      'Buscar no Maréa',
+      'Buscar na Amare',
     )
   })
 
@@ -44,7 +44,7 @@ describe('Rotas e layout base do Maréa', () => {
     cy.get('[data-cy=nav-home]').should('have.attr', 'href', '/')
     cy.get('[data-cy=nav-home]').click()
     cy.location('pathname').should('eq', '/')
-    cy.contains('h1', 'Bem-vinda ao Maréa').should('be.visible')
+    cy.contains('h1', 'Bem-vinda à Amare').should('be.visible')
 
     paginasPlaceholder.forEach((pagina) => {
       cy.get(`[data-cy=${pagina.dataCy}]`).should(

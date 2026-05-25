@@ -25,8 +25,8 @@ function SearchBar() {
       <input
         id="busca-geral"
         type="search"
-        placeholder="Buscar no Maréa"
-        aria-label="Buscar no Maréa"
+        placeholder="Buscar na Amare"
+        aria-label="Buscar na Amare"
       />
     </form>
   )
