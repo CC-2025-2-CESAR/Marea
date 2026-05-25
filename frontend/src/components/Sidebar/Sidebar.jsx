@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import logoAmare from '../../assets/amare-logo.png'
+import IconeFechar from '../IconeFechar/IconeFechar'
 import IconeLogout from '../IconeLogout/IconeLogout'
 import { useAuth } from '../../contexts/useAuth'
 import './Sidebar.css'
@@ -19,21 +20,45 @@ const links = [
   },
 ]
 
-function Sidebar() {
+/**
+ * Sidebar usada em duas situações:
+ *   - sem props: barra lateral fixa do desktop (comportamento atual).
+ *   - com `modoDrawer`: dentro do drawer mobile, com botão de fechar no topo
+ *     e fechamento automático ao tocar num link.
+ */
+function Sidebar({ modoDrawer = false, onFechar }) {
   const { logout } = useAuth()
   const navegar = useNavigate()
 
   function handleLogout() {
+    if (onFechar) onFechar()
     logout()
     navegar('/login', { replace: true })
   }
 
+  function handleClicarLink() {
+    if (onFechar) onFechar()
+  }
+
+  const classeRaiz = modoDrawer ? 'sidebar sidebar--drawer' : 'sidebar'
+
   return (
     <aside
-      className="sidebar"
+      className={classeRaiz}
       data-cy="app-sidebar"
       aria-label="Navegação principal"
     >
+      {modoDrawer && onFechar ? (
+        <button
+          type="button"
+          className="sidebar__fechar"
+          onClick={onFechar}
+          aria-label="Fechar menu"
+          data-cy="nav-fechar-drawer"
+        >
+          <IconeFechar tamanho={22} />
+        </button>
+      ) : null}
       <div className="sidebar__topo">
         <img src={logoAmare} alt="Amare" className="sidebar__logo" />
       </div>
@@ -44,6 +69,7 @@ function Sidebar() {
             to={link.to}
             end={link.to === '/'}
             data-cy={link.dataCy}
+            onClick={handleClicarLink}
             className={({ isActive }) =>
               isActive ? 'sidebar__link sidebar__link--ativo' : 'sidebar__link'
             }

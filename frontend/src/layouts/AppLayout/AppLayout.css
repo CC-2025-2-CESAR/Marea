@@ -1,4 +1,5 @@
 .app-layout {
+  position: relative;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -9,6 +10,10 @@
       transparent 28%
     ),
     var(--cor-fundo);
+}
+
+.app-layout__sidebar-desktop {
+  display: contents;
 }
 
 .app-layout__conteudo {
@@ -24,9 +29,42 @@
   padding: 28px 32px 48px;
 }
 
-@media (max-width: 860px) {
+/* ---------- Drawer e backdrop (apenas mobile) ---------- */
+
+.app-layout__backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(52, 51, 62, 0.42);
+  z-index: 40;
+  cursor: pointer;
+}
+
+.app-layout__drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: min(300px, 84vw);
+  z-index: 50;
+  box-shadow: 0 12px 40px rgba(52, 51, 62, 0.28);
+  background-color: var(--cor-card);
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .app-layout__backdrop,
+  .app-layout__drawer {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
   .app-layout {
     grid-template-columns: 1fr;
+  }
+
+  .app-layout__sidebar-desktop {
+    display: none;
   }
 
   .app-layout__principal {
