@@ -155,10 +155,64 @@ Cenário: Logout
 **Dados envolvidos**: `User` (Django padrão), `PerfilUsuario`, `Paciente`,
 `Medica`.
 
+## Etapa atual — Consultas agendadas (épico PROJ-8)
+
+### PROJ-1 — Consultas agendadas
+
+- Jira: [PROJ-1](https://afreis.atlassian.net/browse/PROJ-1)
+- GitHub: [#4](https://github.com/CC-2025-2-CESAR/Marea/issues/4)
+- Épico: [PROJ-8 — Gestão de Consultas, Calendário e Lembretes](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1)
+
+**História**: Como paciente, quero visualizar minhas consultas agendadas e
+saber qual é a próxima para não esquecer compromissos importantes do
+tratamento.
+
+**Objetivo**: Centralizar agenda da paciente em uma visão de calendário
+mensal, com painel lateral de próximas consultas e lembretes, e dar
+visibilidade da próxima consulta diretamente na página inicial.
+
+**Critérios de aceitação**:
+
+- A página `/calendario` deve mostrar uma grade mensal com marcadores
+  visuais nos dias que têm consulta.
+- O painel lateral deve listar as próximas consultas e os lembretes
+  associados.
+- A página inicial deve exibir um banner com a próxima consulta agendada
+  da paciente nos próximos 7 dias.
+- Os dados devem vir do banco via API REST autenticada.
+- Quando não houver consultas agendadas, o banner some sem quebrar a
+  Home.
+- Pacientes só veem as próprias consultas.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar calendário com consultas
+  Dado que existem consultas agendadas para a paciente
+  Quando ela acessa /calendario
+  Então o sistema deve exibir a grade mensal com marcadores nos dias correspondentes
+
+Cenário: Próxima consulta na Home
+  Dado que a paciente tem ao menos uma consulta agendada nos próximos 7 dias
+  Quando ela acessa a página inicial
+  Então o sistema deve exibir um banner com a próxima consulta
+
+Cenário: Sem consultas agendadas
+  Dado que a paciente não tem consultas agendadas nos próximos 7 dias
+  Quando ela acessa a página inicial
+  Então o banner de próxima consulta não deve aparecer
+```
+
+**Dados envolvidos**: `Especialidade`, `Consulta` (FK para `Paciente`,
+`Medica`, `Especialidade`).
+
+**Notas de entrega**: 11 testes Cypress em `consultas.cy.js` cobrindo
+banner da Home, grade mensal, painel lateral, status das consultas e
+seleção de dia.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Gestão de Consultas, Calendário e Lembretes** (épico [PROJ-8](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1))
-  - PROJ-1 — Consultas agendadas — issue [#4](https://github.com/CC-2025-2-CESAR/Marea/issues/4)
   - PROJ-2 — Checklist de remédios — issue [#5](https://github.com/CC-2025-2-CESAR/Marea/issues/5)
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))
   - PROJ-5 — Registro e atualizações do ciclo — issue [#8](https://github.com/CC-2025-2-CESAR/Marea/issues/8)
