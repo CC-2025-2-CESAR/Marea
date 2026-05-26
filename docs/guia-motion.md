@@ -28,12 +28,70 @@ import { motion, AnimatePresence } from 'motion/react'
 
 ## Onde está sendo usada hoje
 
+- `src/App.jsx`:
+  - `<MotionConfig reducedMotion="user">` envolve o app inteiro. Todos os
+    componentes `motion.*` respeitam automaticamente
+    `prefers-reduced-motion` do sistema operacional.
 - `src/pages/Login/Login.jsx`:
   - `motion.section` no card do login (fade + slide curto na entrada).
   - `motion.img` no logo (fade + slide leve, com pequeno atraso).
   - `motion.p` dentro de `AnimatePresence` no bloco de feedback de erro/sucesso.
 - `src/components/Button/Button.jsx`:
   - `motion.button` com `whileHover` (escala 1.02) e `whileTap` (escala 0.98).
+- `src/components/PageTransition/PageTransition.jsx`:
+  - `<AnimatePresence mode="wait" initial={false}>` envolvendo `<motion.div>`
+    com `key={pathname}`. Cria fade + microdeslocamento entre rotas.
+  - Usa `useReducedMotion()` para devolver `children` direto quando o usuário
+    pede menos movimento (assim a página troca instantaneamente).
+- `src/components/SelectField/SelectField.jsx`:
+  - `<AnimatePresence>` em torno da `motion.ul` do listbox (opacity + scale
+    + y curto, 150 ms easeOut).
+- `src/layouts/AppLayout/AppLayout.jsx`:
+  - `<AnimatePresence>` envolvendo o `motion.aside` do drawer mobile e o
+    `motion.div` do backdrop.
+
+## Configuração global: `MotionConfig` + `useReducedMotion`
+
+`reducedMotion="user"` no `<MotionConfig>` raiz cobre os componentes Motion.
+Para CSS puro, há também uma media query global em
+`src/styles/global.css`:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+Componentes que querem comportamento ainda mais defensivo (devolver
+markup sem o wrapper Motion) usam `useReducedMotion()`:
+
+```jsx
+import { useReducedMotion } from 'motion/react'
+
+function PageTransition({ children }) {
+  const movimentoReduzido = useReducedMotion()
+  if (movimentoReduzido) return <>{children}</>
+  return <AnimatePresence mode="wait">...</AnimatePresence>
+}
+```
+
+## Variáveis CSS de duração e easing
+
+Padronizadas em `src/styles/variables.css`:
+
+```css
+--duracao-rapida: 0.15s;
+--duracao-media: 0.2s;
+--duracao-lenta: 0.35s;
+--easing-saida: ease-out;
+```
+
+Use essas variáveis em transições CSS (hover, focus, sidebar, cards). Nos
+componentes Motion, mantenha os mesmos números literais (`0.15`, `0.2`,
+`0.35`) — a biblioteca não lê variáveis CSS.
 
 ## Padrões adotados
 

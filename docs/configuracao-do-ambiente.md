@@ -59,6 +59,23 @@ Aplique as migrações:
 python manage.py migrate
 ```
 
+Carregue os dados iniciais (termos do dicionário, especialidades e consultas
+de exemplo da paciente de teste):
+
+```
+python manage.py loaddata termos_iniciais
+python manage.py loaddata consultas_iniciais
+```
+
+Crie os usuários fictícios para login local (`paciente_teste`, `medica_teste`
+e `admin_teste`, todos com senha `amare123`):
+
+```
+python manage.py criar_usuarios_teste
+```
+
+Esse comando é idempotente — pode rodar de novo sem duplicar registros.
+
 Rode o servidor:
 
 ```
@@ -88,6 +105,13 @@ npm run dev
 ```
 
 O frontend fica em `http://localhost:5173/`.
+
+A porta `5173` é fixa no `vite.config.js` (`strictPort: true`) porque o
+backend libera CORS apenas para ela e o Cypress usa esse `baseUrl`. Se a
+porta já estiver ocupada por outro processo, o Vite **falha** em vez de
+mudar para 5174 — encerre o processo antigo (no Windows:
+`netstat -ano | findstr :5173` + `taskkill /PID <pid> /F`) e rode
+`npm run dev` de novo.
 
 ## Verificar se está funcionando
 
