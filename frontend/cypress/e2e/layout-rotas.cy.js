@@ -1,8 +1,8 @@
 describe('Rotas e layout base da Amare', () => {
-  // Páginas ainda em placeholder. Dicionário e Perfil foram removidos daqui
-  // porque agora têm implementação real (ver dicionario.cy.js e perfil.cy.js).
+  // Páginas ainda em placeholder. Dicionário, Perfil e Calendário foram
+  // removidos daqui porque agora têm implementação real (ver dicionario.cy.js,
+  // perfil.cy.js e consultas.cy.js).
   const paginasPlaceholder = [
-    { rota: '/calendario', titulo: 'Calendário', dataCy: 'nav-calendario' },
     { rota: '/ciclo', titulo: 'Ciclo', dataCy: 'nav-ciclo' },
     { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
     { rota: '/tratamentos', titulo: 'Tratamentos', dataCy: 'nav-tratamentos' },
@@ -38,6 +38,8 @@ describe('Rotas e layout base da Amare', () => {
     cy.clearLocalStorage()
     // Mocks padrões para qualquer rota interna que dependa de API real.
     cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    cy.intercept('GET', '**/api/consultas/proximas/', { body: [] })
+    cy.intercept('GET', '**/api/consultas/', { body: [] })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
         username: 'paciente_teste',
@@ -106,8 +108,8 @@ describe('Rotas e layout base da Amare', () => {
       )
     })
 
-    // Dicionário e Perfil são rotas reais; a navegação ainda funciona, mas o
-    // conteúdo é a página correspondente — não o placeholder.
+    // Dicionário, Perfil e Calendário são rotas reais; a navegação ainda
+    // funciona, mas o conteúdo é a página correspondente — não o placeholder.
     cy.get('[data-cy=nav-dicionario]').should(
       'have.attr',
       'href',
@@ -121,23 +123,25 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-perfil]').click()
     cy.location('pathname').should('eq', '/perfil')
     cy.contains('h1', 'Perfil').should('be.visible')
+
+    cy.get('[data-cy=nav-calendario]').should(
+      'have.attr',
+      'href',
+      '/calendario',
+    )
+    cy.get('[data-cy=nav-calendario]').click()
+    cy.location('pathname').should('eq', '/calendario')
+    cy.contains('h1', 'Calendário de consultas').should('be.visible')
   })
 
-  it('abre Calendário e Bot corretamente por rota direta', () => {
-    const rotasDiretas = [
-      { rota: '/calendario', titulo: 'Calendário' },
-      { rota: '/bot', titulo: 'Bot' },
-    ]
-
-    rotasDiretas.forEach((pagina) => {
-      visitarAutenticado(pagina.rota)
-      cy.get('[data-cy=app-layout]').should('be.visible')
-      cy.get('[data-cy=app-search]').should('be.visible')
-      cy.contains('h1', pagina.titulo).should('be.visible')
-      cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
-        'be.visible',
-      )
-    })
+  it('abre Bot corretamente por rota direta', () => {
+    visitarAutenticado('/bot')
+    cy.get('[data-cy=app-layout]').should('be.visible')
+    cy.get('[data-cy=app-search]').should('be.visible')
+    cy.contains('h1', 'Bot').should('be.visible')
+    cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
+      'be.visible',
+    )
   })
 
   it('mostra título e texto básico nas páginas placeholder', () => {
