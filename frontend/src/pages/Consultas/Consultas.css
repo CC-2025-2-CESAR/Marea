@@ -2,7 +2,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-lg);
+  gap: var(--espaco-md);
   font-family: var(--fonte-base);
   color: var(--cor-texto);
 }
@@ -18,127 +18,80 @@
   max-width: 65ch;
 }
 
-.consultas-grupo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-md);
-}
-
-.consultas-grupo__cabecalho h2 {
-  margin: 0 0 4px;
-  font-size: 1.2rem;
-}
-
-.consultas-grupo__descricao {
-  margin: 0;
-  color: var(--cor-texto-suave);
-  font-size: 0.95rem;
-}
-
-.consultas-lista {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.consultas-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
   gap: var(--espaco-md);
   align-items: start;
 }
 
-.consultas-card {
-  position: relative;
+.consultas-painel {
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-xs);
-  padding: var(--espaco-md);
-  border-radius: var(--raio-medio);
+  gap: var(--espaco-md);
+}
+
+.painel-card {
   background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-md);
   box-shadow: var(--sombra-suave);
-  border-top: 4px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-rosa-secundario);
 }
 
-.consultas-card--proxima {
-  border-top-color: var(--cor-rosa-principal);
+.painel-card--lembretes {
+  border-left-color: var(--cor-bege);
 }
 
-.consultas-card--realizada {
-  border-top-color: var(--cor-verde-confirmacao);
-  opacity: 0.92;
-}
-
-.consultas-card--cancelada {
-  border-top-color: var(--cor-texto-suave);
-  opacity: 0.85;
-}
-
-.consultas-card__data {
-  margin: 0;
-  font-size: 0.85rem;
-  text-transform: lowercase;
+.painel-card__titulo {
+  margin: 0 0 var(--espaco-sm);
+  font-size: 1rem;
   color: var(--cor-marrom);
-  font-weight: 600;
 }
 
-.consultas-card__titulo {
-  margin: 0;
-  font-size: 1.15rem;
-  color: var(--cor-texto);
-}
-
-.consultas-card__medica {
+.painel-card__vazio {
   margin: 0;
   color: var(--cor-texto-suave);
-  font-size: 0.95rem;
-}
-
-.consultas-card__local {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--cor-texto-suave);
-}
-
-.consultas-card__local span {
-  color: var(--cor-texto);
-}
-
-.consultas-card__observacoes {
-  margin: 4px 0 0;
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.painel-proximas__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.painel-proximas__item {
   padding: var(--espaco-sm);
-  background: var(--cor-creme-claro);
   border-radius: var(--raio-pequeno);
+  background: var(--cor-creme-claro);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.painel-proximas__data {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--cor-rosa-secundario);
+  text-transform: capitalize;
+}
+
+.painel-proximas__hora {
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+}
+
+.painel-proximas__detalhe {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--cor-texto);
-}
-
-.consultas-card__status {
-  position: absolute;
-  top: var(--espaco-md);
-  right: var(--espaco-md);
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #fff;
-  background: var(--cor-texto-suave);
-}
-
-.consultas-card__status--agendada {
-  background: var(--cor-rosa-secundario);
-}
-
-.consultas-card__status--realizada {
-  background: var(--cor-verde-confirmacao);
-}
-
-.consultas-card__status--cancelada {
-  background: var(--cor-vermelho-alerta);
-}
-
-.consultas-card__status--remarcada {
-  background: var(--cor-caramelo);
 }
 
 .consultas-mensagem {
@@ -154,18 +107,18 @@
   font-style: normal;
 }
 
+@media (max-width: 1024px) {
+  .consultas-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 767px) {
   .consultas-cabecalho h1 {
     font-size: 1.5rem;
   }
 
-  .consultas-lista {
-    grid-template-columns: 1fr;
-  }
-
-  .consultas-card__status {
-    position: static;
-    align-self: flex-start;
-    margin-top: var(--espaco-xs);
+  .painel-card {
+    padding: var(--espaco-sm);
   }
 }
