@@ -38,3 +38,21 @@ button {
 input {
   font-family: inherit;
 }
+
+/*
+ * Respeita usuárias que pediram redução de movimento no sistema operacional.
+ * Praticamente desliga animações e transições CSS. Os componentes que usam
+ * Motion também respeitam esta preferência via <MotionConfig reducedMotion="user">
+ * em App.jsx, e via useReducedMotion() nos componentes que envolvem o conteúdo
+ * todo (PageTransition, SelectField).
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
