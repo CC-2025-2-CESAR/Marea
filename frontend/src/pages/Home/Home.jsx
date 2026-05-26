@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import BannerProximaConsulta from '../../components/BannerProximaConsulta/BannerProximaConsulta'
 import './Home.css'
 
 const cards = [
@@ -34,6 +35,8 @@ function Home() {
           compreensão das informações relacionadas aos tratamentos.
         </p>
       </div>
+
+      <BannerProximaConsulta />
 
       <div className="home__cards" aria-label="Recursos em preparação">
         {cards.map((card) => (
