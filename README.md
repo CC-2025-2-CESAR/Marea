@@ -21,8 +21,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Rotas internas protegidas: sem sessão, qualquer acesso volta para `/login`.
 - Botão de logout funcional na sidebar.
 - Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
-- Página de Calendário com lista de consultas agendadas, realizadas e canceladas
-  (PROJ-1), além de banner de "Próxima consulta" na página inicial.
+- Página de Calendário com grade mensal, marcadores nos dias com consulta e
+  painel lateral com próximas consultas e lembretes (PROJ-1), além de banner
+  de "Próxima consulta" na página inicial.
 - Interface adaptada para celular: menu lateral em drawer (hambúrguer) abaixo de
   768px, breakpoints padronizados em 480/768/1024 e tap targets de pelo menos 44px.
 - Polimento de UX: transição suave entre rotas internas, sidebar com microinterações
@@ -47,7 +48,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/login`: tela de login pública, sem sidebar, header ou busca.
 - `/`: página inicial da plataforma (requer login).
 - `/perfil`: perfil da paciente com formulário editável (requer login).
-- `/calendario`: lista de consultas agendadas, realizadas e canceladas da paciente.
+- `/calendario`: grade mensal de consultas com painel lateral de próximas consultas e lembretes.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.

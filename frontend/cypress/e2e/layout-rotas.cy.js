@@ -131,7 +131,8 @@ describe('Rotas e layout base da Amare', () => {
     )
     cy.get('[data-cy=nav-calendario]').click()
     cy.location('pathname').should('eq', '/calendario')
-    cy.contains('h1', 'Calendário de consultas').should('be.visible')
+    cy.contains('h1', 'Calendário').should('be.visible')
+    cy.get('[data-cy=calendario-mes]').should('be.visible')
   })
 
   it('abre Bot corretamente por rota direta', () => {

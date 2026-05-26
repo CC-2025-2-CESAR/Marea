@@ -1,19 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import { listarConsultas } from '../../services/consultasService'
 import './Consultas.css'
 
-const STATUS_PROXIMAS = ['agendada']
-const STATUS_REALIZADAS = ['realizada']
-const STATUS_CANCELADAS = ['cancelada', 'remarcada']
-
-function formatarData(iso) {
+function formatarDataCurta(iso) {
   if (!iso) return ''
   const data = new Date(iso)
   return data.toLocaleString('pt-BR', {
-    weekday: 'long',
     day: '2-digit',
     month: 'long',
-    year: 'numeric',
+  })
+}
+
+function formatarHorario(iso) {
+  if (!iso) return ''
+  const data = new Date(iso)
+  return data.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
   })
@@ -44,21 +46,34 @@ function Consultas() {
     }
   }, [])
 
-  const proximas = consultas.filter((c) => STATUS_PROXIMAS.includes(c.status))
-  const realizadas = consultas.filter((c) =>
-    STATUS_REALIZADAS.includes(c.status),
+  const agendadas = useMemo(
+    () => consultas.filter((c) => c.status === 'agendada'),
+    [consultas],
   )
-  const canceladas = consultas.filter((c) =>
-    STATUS_CANCELADAS.includes(c.status),
-  )
+
+  const proximas = useMemo(() => {
+    const agora = new Date()
+    return agendadas
+      .filter((c) => new Date(c.data_horario) >= agora)
+      .sort(
+        (a, b) => new Date(a.data_horario) - new Date(b.data_horario),
+      )
+      .slice(0, 5)
+  }, [agendadas])
+
+  const mesInicial = useMemo(() => {
+    if (proximas.length > 0) return new Date(proximas[0].data_horario)
+    if (agendadas.length > 0) return new Date(agendadas[0].data_horario)
+    return undefined
+  }, [proximas, agendadas])
 
   return (
     <section className="consultas-pagina" data-cy="page-calendario">
       <header className="consultas-cabecalho">
-        <h1>Calendário de consultas</h1>
+        <h1>Calendário</h1>
         <p>
-          Acompanhe seus próximos atendimentos e as consultas já realizadas
-          durante o tratamento.
+          Veja seus próximos atendimentos no mês e mantenha em vista os
+          lembretes da rotina de tratamento.
         </p>
       </header>
 
@@ -77,97 +92,112 @@ function Consultas() {
         >
           {erro}
         </p>
-      ) : consultas.length === 0 ? (
-        <p className="consultas-mensagem" data-cy="consultas-mensagem-vazia">
-          Você ainda não tem consultas cadastradas. Quando a clínica agendar um
-          atendimento, ele aparecerá aqui.
-        </p>
       ) : (
-        <>
-          <GrupoConsultas
-            titulo="Próximas"
-            descricao="Consultas marcadas que ainda vão acontecer."
-            itens={proximas}
-            variante="proxima"
-            dataCy="consultas-grupo-proximas"
+        <div className="consultas-layout" data-cy="consultas-layout">
+          <CalendarioMes
+            consultas={agendadas}
+            mesInicial={mesInicial}
+            key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
           />
-          <GrupoConsultas
-            titulo="Realizadas"
-            descricao="Atendimentos que já aconteceram."
-            itens={realizadas}
-            variante="realizada"
-            dataCy="consultas-grupo-realizadas"
-          />
-          <GrupoConsultas
-            titulo="Canceladas ou remarcadas"
-            descricao="Consultas que não vão ocorrer no horário original."
-            itens={canceladas}
-            variante="cancelada"
-            dataCy="consultas-grupo-canceladas"
-          />
-        </>
+
+          <aside className="consultas-painel" aria-label="Próximas consultas e lembretes">
+            <PainelProximas
+              proximas={proximas}
+              totalCadastrado={consultas.length}
+            />
+            <PainelLembretes />
+          </aside>
+        </div>
       )}
     </section>
   )
 }
 
-function GrupoConsultas({ titulo, descricao, itens, variante, dataCy }) {
-  if (itens.length === 0) return null
+function PainelProximas({ proximas, totalCadastrado }) {
+  if (totalCadastrado === 0) {
+    return (
+      <div
+        className="painel-card painel-card--proximas"
+        data-cy="painel-proximas"
+      >
+        <h2 className="painel-card__titulo">Próximas consultas</h2>
+        <p
+          className="painel-card__vazio"
+          data-cy="consultas-mensagem-vazia"
+        >
+          Você ainda não tem consultas cadastradas. Quando a clínica agendar
+          um atendimento, ele aparecerá aqui.
+        </p>
+      </div>
+    )
+  }
+
+  if (proximas.length === 0) {
+    return (
+      <div
+        className="painel-card painel-card--proximas"
+        data-cy="painel-proximas"
+      >
+        <h2 className="painel-card__titulo">Próximas consultas</h2>
+        <p className="painel-card__vazio">
+          Sem consultas agendadas a partir de hoje.
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <section className="consultas-grupo" data-cy={dataCy}>
-      <header className="consultas-grupo__cabecalho">
-        <h2 className="consultas-grupo__titulo">{titulo}</h2>
-        <p className="consultas-grupo__descricao">{descricao}</p>
-      </header>
-      <ul className="consultas-lista">
-        {itens.map((consulta) => (
+    <div
+      className="painel-card painel-card--proximas"
+      data-cy="painel-proximas"
+    >
+      <h2 className="painel-card__titulo">Próximas consultas</h2>
+      <ul className="painel-proximas__lista">
+        {proximas.map((consulta) => (
           <li
             key={consulta.id}
-            className={`consultas-card consultas-card--${variante}`}
-            data-cy="consultas-card"
-            data-status={consulta.status}
+            className="painel-proximas__item"
+            data-cy="painel-proximas-item"
           >
             <p
-              className="consultas-card__data"
-              data-cy="consultas-card-data"
+              className="painel-proximas__data"
+              data-cy="painel-proximas-data"
             >
-              {formatarData(consulta.data_horario)}
+              {formatarDataCurta(consulta.data_horario)}
+              <span className="painel-proximas__hora">
+                {' às '}
+                {formatarHorario(consulta.data_horario)}
+              </span>
             </p>
-            <h3
-              className="consultas-card__titulo"
-              data-cy="consultas-card-especialidade"
-            >
-              {consulta.especialidade_nome || 'Especialidade não informada'}
-            </h3>
             <p
-              className="consultas-card__medica"
-              data-cy="consultas-card-medica"
+              className="painel-proximas__detalhe"
+              data-cy="painel-proximas-detalhe"
             >
-              {consulta.medica_nome
-                ? `com ${consulta.medica_nome}`
-                : 'Profissional a confirmar'}
+              <strong>
+                {consulta.especialidade_nome || 'Consulta'}
+              </strong>
+              {consulta.medica_nome ? ` com ${consulta.medica_nome}` : ''}
+              {consulta.observacoes ? `: ${consulta.observacoes}` : ''}
             </p>
-            {consulta.local ? (
-              <p className="consultas-card__local">
-                Local: <span>{consulta.local}</span>
-              </p>
-            ) : null}
-            {consulta.observacoes ? (
-              <p className="consultas-card__observacoes">
-                {consulta.observacoes}
-              </p>
-            ) : null}
-            <span
-              className={`consultas-card__status consultas-card__status--${consulta.status}`}
-              data-cy="consultas-card-status"
-            >
-              {consulta.status_label}
-            </span>
           </li>
         ))}
       </ul>
-    </section>
+    </div>
+  )
+}
+
+function PainelLembretes() {
+  return (
+    <div
+      className="painel-card painel-card--lembretes"
+      data-cy="painel-lembretes"
+    >
+      <h2 className="painel-card__titulo">Lembretes</h2>
+      <p className="painel-card__vazio">
+        Em breve: aqui aparecerão os medicamentos do dia para você marcar como
+        tomados, junto com os lembretes da rotina de tratamento.
+      </p>
+    </div>
   )
 }
 

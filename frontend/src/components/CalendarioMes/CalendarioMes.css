@@ -1,0 +1,165 @@
+.calendario-mes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-md);
+  box-shadow: var(--sombra-suave);
+}
+
+.calendario-mes__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espaco-sm);
+  flex-wrap: wrap;
+}
+
+.calendario-mes__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  text-transform: capitalize;
+  color: var(--cor-texto);
+}
+
+.calendario-mes__navegacao {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.calendario-mes__botao {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  background: transparent;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out;
+}
+
+.calendario-mes__botao:hover,
+.calendario-mes__botao:focus-visible {
+  background: var(--cor-creme-claro);
+  border-color: var(--cor-rosa-secundario);
+  outline: none;
+}
+
+.calendario-mes__botao--hoje {
+  font-weight: 600;
+}
+
+.calendario-mes__semana {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  padding-bottom: 4px;
+}
+
+.calendario-mes__semana-rotulo {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--cor-texto-suave);
+  text-transform: lowercase;
+}
+
+.calendario-mes__grade {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--cor-borda);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  overflow: hidden;
+}
+
+.calendario-mes__celula {
+  background: var(--cor-card);
+  min-height: 70px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--cor-texto);
+  position: relative;
+}
+
+.calendario-mes__celula--anterior,
+.calendario-mes__celula--proximo {
+  color: var(--cor-texto-suave);
+  opacity: 0.45;
+}
+
+.calendario-mes__celula--hoje {
+  background: var(--cor-rosa-secundario);
+  color: #fff;
+}
+
+.calendario-mes__celula--hoje .calendario-mes__numero {
+  font-weight: 700;
+}
+
+.calendario-mes__numero {
+  font-size: 0.9rem;
+}
+
+.calendario-mes__marcador {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--cor-rosa-secundario);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.calendario-mes__celula--com-consulta:not(.calendario-mes__celula--hoje) {
+  background: linear-gradient(
+      180deg,
+      rgba(219, 183, 185, 0.18),
+      transparent
+    ),
+    var(--cor-card);
+}
+
+.calendario-mes__celula--hoje .calendario-mes__marcador {
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .calendario-mes {
+    padding: var(--espaco-sm);
+  }
+
+  .calendario-mes__celula {
+    min-height: 60px;
+    padding: 4px;
+  }
+
+  .calendario-mes__numero {
+    font-size: 0.8rem;
+  }
+
+  .calendario-mes__marcador {
+    font-size: 0.65rem;
+  }
+
+  .calendario-mes__botao {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
