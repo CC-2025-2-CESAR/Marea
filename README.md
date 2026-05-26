@@ -21,6 +21,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Rotas internas protegidas: sem sessão, qualquer acesso volta para `/login`.
 - Botão de logout funcional na sidebar.
 - Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
+- Página de Calendário com lista de consultas agendadas, realizadas e canceladas
+  (PROJ-1), além de banner de "Próxima consulta" na página inicial.
 - Interface adaptada para celular: menu lateral em drawer (hambúrguer) abaixo de
   768px, breakpoints padronizados em 480/768/1024 e tap targets de pelo menos 44px.
 - Demais páginas internas seguem como placeholders para evolução futura.
@@ -42,7 +44,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/login`: tela de login pública, sem sidebar, header ou busca.
 - `/`: página inicial da plataforma (requer login).
 - `/perfil`: perfil da paciente com formulário editável (requer login).
-- `/calendario`: placeholder de calendário.
+- `/calendario`: lista de consultas agendadas, realizadas e canceladas da paciente.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
@@ -67,6 +69,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py loaddata termos_iniciais
+python manage.py loaddata consultas_iniciais
 python manage.py criar_usuarios_teste
 python manage.py runserver
 ```

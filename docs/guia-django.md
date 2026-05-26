@@ -223,3 +223,57 @@ python manage.py criar_usuarios_teste
 Cria `paciente_teste`, `medica_teste` e `admin_teste` com senha `amare123`
 e dados fictícios. É idempotente — pode rodar várias vezes sem duplicar
 registros. Apenas para desenvolvimento local; nunca usar em produção.
+
+## App `consultas`
+
+Terceira app real do backend. Cuida das consultas agendadas das pacientes e
+das especialidades médicas usadas para classificá-las. Alimenta tanto a
+página `/calendario` no frontend quanto o banner de "Próxima consulta" na
+página inicial.
+
+Arquivos relevantes:
+
+- `backend/consultas/models.py` — dois models:
+  - `Especialidade` com `nome` único, `descricao`, `ativo` e timestamps.
+  - `Consulta` com FK para `Paciente` (obrigatória), `Medica` (opcional),
+    `Especialidade` (opcional), `data_horario`, `local`, `observacoes` e
+    `status` (choices: `agendada`, `realizada`, `cancelada`, `remarcada`).
+- `backend/consultas/serializers.py` — `ConsultaSerializer` traz
+  `especialidade_nome`, `medica_nome` e `status_label` resolvidos, para
+  o frontend não precisar fazer joins.
+- `backend/consultas/views.py` — duas views com `@api_view`:
+  - `listar_consultas`: todas as consultas da paciente autenticada,
+    ordenadas por `data_horario`.
+  - `listar_proximas_consultas`: até 3 consultas com status `agendada` nos
+    próximos 7 dias. Devolve `[]` se o usuário não for paciente, para o
+    banner sumir naturalmente.
+- `backend/consultas/admin.py` — `EspecialidadeAdmin` e `ConsultaAdmin`
+  com `date_hierarchy`, filtros por status/especialidade e busca por nome
+  da paciente/médica.
+- `backend/consultas/fixtures/consultas_iniciais.json` — 3 especialidades
+  e 4 consultas de exemplo (2 agendadas futuras, 1 realizada, 1 cancelada)
+  para `paciente_teste`.
+
+### Endpoints
+
+```
+GET /api/consultas/                  →  lista todas as consultas da paciente autenticada
+GET /api/consultas/proximas/         →  até 3 consultas agendadas nos próximos 7 dias
+```
+
+Ambos exigem autenticação JWT (`@permission_classes([IsAuthenticated])`).
+Usuários sem perfil de paciente recebem 404 amigável em `/api/consultas/`
+e lista vazia em `/api/consultas/proximas/` (para o banner sumir sem
+quebrar a Home).
+
+### Carregar dados iniciais
+
+```
+python manage.py migrate
+python manage.py loaddata consultas_iniciais
+```
+
+A fixture assume que `paciente_teste` (id 1) e `medica_teste` (id 1) já
+existem — rode `criar_usuarios_teste` antes. Para cadastrar consultas
+novas, use o Django Admin em
+`http://localhost:8000/admin/consultas/consulta/`.
