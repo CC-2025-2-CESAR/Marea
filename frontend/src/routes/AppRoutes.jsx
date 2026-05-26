@@ -5,7 +5,7 @@ import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
 import Login from '../pages/Login/Login'
 import Home from '../pages/Home/Home'
 import Perfil from '../pages/Perfil/Perfil'
-import Calendario from '../pages/Calendario/Calendario'
+import Consultas from '../pages/Consultas/Consultas'
 import Ciclo from '../pages/Ciclo/Ciclo'
 import Dicionario from '../pages/Dicionario/Dicionario'
 import Bot from '../pages/Bot/Bot'
@@ -30,7 +30,7 @@ function AppRoutes() {
         >
           <Route index element={<Home />} />
           <Route path="/perfil" element={<Perfil />} />
-          <Route path="/calendario" element={<Calendario />} />
+          <Route path="/calendario" element={<Consultas />} />
           <Route path="/ciclo" element={<Ciclo />} />
           <Route path="/dicionario" element={<Dicionario />} />
           <Route path="/bot" element={<Bot />} />
