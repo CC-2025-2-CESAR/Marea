@@ -302,3 +302,115 @@ Botões e links da navegação têm `min-height: 44px` (recomendação Apple
 HIG/WCAG). Inputs (`.campo-input` e os inputs das páginas de Perfil e
 Dicionário) usam `font-size: 16px` no mobile — abaixo disso, o Safari do
 iOS dá zoom automático ao focar.
+
+## Microinterações e transições
+
+Esta seção cobre o "polimento de UX": as decisões pequenas que dão
+sensação de produto cuidadoso. Os princípios gerais são:
+
+- **Sutil sempre vence chamativo.** Durações curtas (150–250 ms), easing
+  `easeOut`, e nada que segure a paciente esperando algo "terminar".
+- **Respeitar quem pediu menos movimento.** O sistema operacional pode
+  sinalizar isso, e o frontend obedece em três camadas (ver abaixo).
+- **Padronizar antes de espalhar.** Variáveis CSS e `MotionConfig`
+  global garantem que todos os componentes tenham o mesmo "tom".
+
+### Variáveis CSS de duração e easing
+
+Em `src/styles/variables.css`:
+
+```css
+--duracao-rapida: 0.15s;   /* hover, focus, tap */
+--duracao-media: 0.2s;     /* feedbacks, transições de página */
+--duracao-lenta: 0.35s;    /* entradas de tela (login) */
+--easing-saida: ease-out;
+```
+
+Motion não lê variáveis CSS — então os componentes `motion.*` usam os
+mesmos números literais (`0.15`, `0.2`, `0.35`) para manter o mesmo
+"tom" do CSS puro.
+
+### Transição entre páginas (`PageTransition`)
+
+`src/components/PageTransition/PageTransition.jsx` envolve o `<Outlet />`
+do `AppLayout`. Cada troca de rota faz um fade + microdeslocamento
+vertical (200 ms, `easeOut`). As páginas em si (`Home`, `Perfil`,
+`Dicionario`, …) **não mudam** — continuam como `<section>` normais.
+
+Detalhes importantes:
+
+- Usa `AnimatePresence mode="wait"` para a página antiga sair antes da
+  nova entrar (sem overlap visual).
+- Usa `initial={false}` para não animar a montagem inicial do app — só
+  trocas de rota subsequentes.
+- A `key` é `useLocation().pathname`.
+- Se a paciente pediu redução de movimento, devolve `children` direto
+  (sem `motion.div`).
+
+### `prefers-reduced-motion` em três camadas
+
+1. **`MotionConfig reducedMotion="user"`** em `src/App.jsx` envolve
+   toda a árvore — todos os `motion.*` respeitam a preferência do SO
+   automaticamente.
+2. **`@media (prefers-reduced-motion: reduce)`** em
+   `src/styles/global.css` desliga animações e transições do CSS puro.
+3. **`useReducedMotion()`** dentro de `PageTransition` e `SelectField`
+   devolve markup sem `motion.*` quando a paciente prefere menos
+   movimento (cobre o caso de `MotionConfig` não pegar componentes muito
+   aninhados).
+
+### Microinterações da Sidebar
+
+- **Indicador lateral** no link ativo: pseudo-elemento `::before` com
+  barra de 3×18 px que entra com `scaleY()` suave.
+- **Hover:** background rosa claro + `translateX(2px)` sutil.
+- **Foco visível:** `box-shadow` rosa (3 px) em vez de outline.
+- **Tap (mobile):** `scale(0.98)` via `:active`.
+
+Por que **não** usar `layoutId` da Motion para mover o indicador entre
+links: quando o drawer mobile está aberto, a `<Sidebar>` é renderizada
+duas vezes (desktop hidden + drawer). Dois `layoutId` iguais brigam.
+
+### `SelectField` — quando o select nativo não basta
+
+`src/components/SelectField/SelectField.jsx` substitui o `<select>`
+nativo em campos onde a abertura do dropdown precisa ser animada. Hoje
+é usado apenas no tipo sanguíneo do perfil.
+
+Recursos:
+
+- ARIA `combobox` + `listbox` + `option` com `aria-selected` e
+  `aria-activedescendant`.
+- Teclado: setas ↑/↓, Enter/Espaço (abre ou confirma), Esc (fecha e
+  devolve foco), Tab (fecha e segue o fluxo).
+- Click-outside via listener global de `mousedown`.
+- Animação Motion: opacity + scale + y curto (150 ms, `easeOut`).
+- `data-cy` no `<button>` raiz; cada `<li>` ganha
+  `data-cy="{dataCy}-opcao-{valor}"`.
+
+O `<select>` nativo continua sendo a opção certa para casos onde o
+dropdown nativo é mais útil (ex.: listas muito longas no mobile, onde
+o dropdown OS dá scroll mais fluido). Use `SelectField` só quando a
+animação fizer diferença real.
+
+### Máscara de telefone (`utils/formatadores.js`)
+
+`src/utils/formatadores.js` expõe:
+
+- `somenteNumeros(valor)` — remove tudo que não é dígito.
+- `formatarTelefone(valor)` — aplica máscara `(XX) XXXX-XXXX` (10
+  dígitos) ou `(XX) XXXXX-XXXX` (11 dígitos). Limite 11.
+- `normalizarTelefone(valor)` — útil se algum dia o backend pedir só
+  dígitos.
+- `telefoneValido(valor)` — aceita vazio (campo opcional) ou exatamente
+  10/11 dígitos.
+
+No Perfil, a máscara é aplicada no `onChange`:
+
+```jsx
+onChange={(e) => atualizarCampo('telefone', formatarTelefone(e.target.value))}
+```
+
+Limitação conhecida: editar no meio da string pode fazer o cursor
+saltar para o fim. Corrigir exigiria rastrear a posição do caret —
+fica para uma iteração futura se virar incômodo real.

@@ -235,3 +235,88 @@ function semScrollHorizontal() {
   `cy.get('[data-cy=app-layout-drawer] [data-cy=nav-dicionario]')`.
 - O backdrop tem animação de entrada/saída. Para clicar imediatamente
   após abrir, use `{ force: true }` ou aguarde a animação.
+
+## Testes de componentes customizados e máscaras
+
+`frontend/cypress/e2e/polimento-ux-perfil.cy.js` cobre os componentes
+customizados desta iteração: transição de rota, `SelectField` e máscara
+de telefone.
+
+### Testando o `SelectField`
+
+Como o `SelectField` é um combobox customizado, o teste interage com o
+`<button>` raiz e com a `<ul role="listbox">`:
+
+```js
+// Abrir a lista
+cy.get('[data-cy=perfil-tipo-sanguineo]').click()
+cy.get('[role=listbox]').should('be.visible')
+
+// Selecionar uma opção
+cy.get('[data-cy=perfil-tipo-sanguineo-opcao-AB-]').click()
+cy.get('[role=listbox]').should('not.exist')
+
+// Confirmar o valor selecionado (não use have.value — é um <button>)
+cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'AB-')
+```
+
+Padrão de `data-cy` das opções: `{dataCy do botão}-opcao-{valor}`.
+Ex.: `perfil-tipo-sanguineo-opcao-O+`.
+
+### Fechar via Esc ou click fora
+
+```js
+// Esc — disparado no próprio botão (que tem foco)
+cy.get('[data-cy=perfil-tipo-sanguineo]').type('{esc}')
+
+// Click fora — qualquer elemento fora do .select-field
+cy.get('h1').contains('Perfil').click()
+```
+
+### Teclado: setas + Enter
+
+O `keydown` é tratado no `<button>` raiz, não na `<ul>`. Use `force:
+true` se o botão sair de foco entre `.type()` consecutivos:
+
+```js
+cy.get('[data-cy=perfil-tipo-sanguineo]').click()
+cy.get('[data-cy=perfil-tipo-sanguineo]')
+  .type('{downarrow}', { force: true })
+  .type('{enter}', { force: true })
+cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'O-')
+```
+
+### Testando a máscara de telefone
+
+Quando `formatarTelefone` é aplicado no `onChange`, basta digitar uma
+mistura de letras e dígitos: o input final é sempre formatado.
+
+```js
+// Letras viram string vazia
+cy.get('[data-cy=perfil-telefone]').clear().type('abc')
+cy.get('[data-cy=perfil-telefone]').should('have.value', '')
+
+// 11 dígitos seguidos viram (XX) XXXXX-XXXX
+cy.get('[data-cy=perfil-telefone]').clear().type('81999998888')
+cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 99999-8888')
+
+// Digitação além de 11 dígitos é ignorada
+cy.get('[data-cy=perfil-telefone]').clear().type('819999988880000')
+cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 99999-8888')
+```
+
+Você pode digitar com separadores (`(81) 99999-8888`) — `formatarTelefone`
+extrai só os dígitos e reformata. O resultado final é sempre canônico.
+
+### Testes de transição de rota
+
+`PageTransition` usa `AnimatePresence mode="wait"` (até ~200 ms).
+Cypress espera elementos aparecerem por padrão, então a transição não
+exige `cy.wait` explícito — basta interagir com o seletor da página
+nova:
+
+```js
+cy.get('[data-cy=nav-dicionario]').click()
+cy.location('pathname').should('eq', '/dicionario')
+cy.get('[data-cy=page-perfil]').should('not.exist')
+```
