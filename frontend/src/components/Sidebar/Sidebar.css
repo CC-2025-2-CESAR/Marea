@@ -28,6 +28,7 @@
 }
 
 .sidebar__link {
+  position: relative;
   display: flex;
   align-items: center;
   min-height: 44px;
@@ -37,20 +38,63 @@
   font-size: 0.96rem;
   font-weight: 600;
   transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.15s ease;
+    background-color var(--duracao-media) var(--easing-saida),
+    color var(--duracao-media) var(--easing-saida),
+    transform var(--duracao-rapida) var(--easing-saida),
+    box-shadow var(--duracao-rapida) var(--easing-saida);
 }
 
 .sidebar__link:hover {
   background-color: rgba(219, 183, 185, 0.26);
   text-decoration: none;
+  transform: translateX(2px);
+}
+
+.sidebar__link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.45);
+}
+
+.sidebar__link:active {
+  transform: scale(0.98);
 }
 
 .sidebar__link--ativo {
   background-color: var(--cor-rosa-principal);
   color: var(--cor-grafite);
   box-shadow: 0 10px 22px rgba(219, 183, 185, 0.28);
+}
+
+/*
+ * Indicador lateral discreto da rota ativa. Aparece com scaleY
+ * para entrar suave quando a paciente troca de página.
+ */
+.sidebar__link--ativo::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 3px;
+  height: 18px;
+  border-radius: 3px;
+  background-color: var(--cor-terracota);
+  transform: translateY(-50%) scaleY(1);
+  transform-origin: center;
+  transition: transform var(--duracao-media) var(--easing-saida);
+}
+
+.sidebar__link:not(.sidebar__link--ativo)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 3px;
+  height: 18px;
+  border-radius: 3px;
+  background-color: var(--cor-terracota);
+  transform: translateY(-50%) scaleY(0);
+  transform-origin: center;
+  transition: transform var(--duracao-media) var(--easing-saida);
 }
 
 .sidebar__rodape {
@@ -73,11 +117,22 @@
   font-weight: 600;
   cursor: pointer;
   border-radius: 999px;
-  transition: background-color 0.15s ease-out;
+  transition:
+    background-color var(--duracao-rapida) var(--easing-saida),
+    transform var(--duracao-rapida) var(--easing-saida);
 }
 
 .sidebar__logout:hover {
   background-color: rgba(209, 29, 70, 0.08);
+}
+
+.sidebar__logout:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(209, 29, 70, 0.25);
+}
+
+.sidebar__logout:active {
+  transform: scale(0.98);
 }
 
 .sidebar__logout-icone {
@@ -133,9 +188,14 @@
   color: var(--cor-texto);
   border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.15s ease-out;
+  transition: background-color var(--duracao-rapida) var(--easing-saida);
 }
 
 .sidebar__fechar:hover {
   background-color: rgba(128, 82, 53, 0.08);
+}
+
+.sidebar__fechar:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(128, 82, 53, 0.2);
 }

@@ -40,4 +40,10 @@
 
   /* Tipografia */
   --fonte-base: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Animações e transições */
+  --duracao-rapida: 0.15s;
+  --duracao-media: 0.2s;
+  --duracao-lenta: 0.35s;
+  --easing-saida: ease-out;
 }

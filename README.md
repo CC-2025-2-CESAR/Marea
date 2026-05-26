@@ -23,6 +23,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Página de Dicionário consumindo a primeira API real do projeto (PROJ-3 e PROJ-4).
 - Interface adaptada para celular: menu lateral em drawer (hambúrguer) abaixo de
   768px, breakpoints padronizados em 480/768/1024 e tap targets de pelo menos 44px.
+- Polimento de UX: transição suave entre rotas internas, sidebar com microinterações
+  e indicador lateral de rota ativa, SelectField customizado para tipo sanguíneo,
+  máscara brasileira de telefone no perfil e respeito a `prefers-reduced-motion`.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias

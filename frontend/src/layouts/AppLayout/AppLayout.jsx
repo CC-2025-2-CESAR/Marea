@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import Header from '../../components/Header/Header'
+import PageTransition from '../../components/PageTransition/PageTransition'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import './AppLayout.css'
 
@@ -88,7 +89,9 @@ function AppLayout() {
       <div className="app-layout__conteudo">
         <Header onAbrirMenu={() => setMenuAberto(true)} />
         <main className="app-layout__principal">
-          <Outlet />
+          <PageTransition>
+            <Outlet />
+          </PageTransition>
         </main>
       </div>
     </div>
