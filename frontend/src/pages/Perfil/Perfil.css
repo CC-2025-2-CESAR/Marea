@@ -161,6 +161,20 @@
   font-size: 0.8rem;
 }
 
+.perfil-campo-erro {
+  color: var(--cor-erro);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+.perfil-campo input[aria-invalid='true'] {
+  border-color: var(--cor-erro);
+}
+
+.perfil-campo input[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px rgba(209, 29, 70, 0.18);
+}
+
 .perfil-grupo {
   display: grid;
   grid-template-columns: 1fr 1fr;

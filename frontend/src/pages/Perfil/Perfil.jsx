@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import Button from '../../components/Button/Button'
 import SelectField from '../../components/SelectField/SelectField'
 import { atualizarPerfil, obterPerfil } from '../../services/perfilService'
+import { formatarTelefone, telefoneValido } from '../../utils/formatadores'
 import './Perfil.css'
 
 const TIPOS_SANGUINEOS = [
@@ -73,7 +74,7 @@ function Perfil() {
         setPerfil(dados)
         setFormulario({
           nome_completo: dados.nome_completo ?? '',
-          telefone: dados.telefone ?? '',
+          telefone: formatarTelefone(dados.telefone ?? ''),
           data_nascimento: dados.data_nascimento ?? '',
           tipo_sanguineo: dados.tipo_sanguineo || 'desconhecido',
         })
@@ -98,6 +99,8 @@ function Perfil() {
     () => calcularIniciais(perfil?.nome_completo, perfil?.username),
     [perfil?.nome_completo, perfil?.username],
   )
+
+  const telefoneTemErro = !telefoneValido(formulario.telefone)
 
   function atualizarCampo(campo, valor) {
     setFormulario((atual) => ({ ...atual, [campo]: valor }))
@@ -239,12 +242,29 @@ function Perfil() {
             <label className="perfil-campo">
               <span>Telefone</span>
               <input
-                type="text"
+                type="tel"
+                inputMode="tel"
                 value={formulario.telefone}
-                onChange={(e) => atualizarCampo('telefone', e.target.value)}
+                onChange={(e) =>
+                  atualizarCampo('telefone', formatarTelefone(e.target.value))
+                }
                 data-cy="perfil-telefone"
                 autoComplete="tel"
+                aria-invalid={telefoneTemErro ? 'true' : 'false'}
+                aria-describedby={
+                  telefoneTemErro ? 'perfil-telefone-erro' : undefined
+                }
+                placeholder="(81) 99999-8888"
               />
+              {telefoneTemErro ? (
+                <small
+                  id="perfil-telefone-erro"
+                  className="perfil-campo-erro"
+                  data-cy="perfil-telefone-erro"
+                >
+                  Informe um telefone com 10 ou 11 dígitos.
+                </small>
+              ) : null}
             </label>
 
             <label className="perfil-campo">
