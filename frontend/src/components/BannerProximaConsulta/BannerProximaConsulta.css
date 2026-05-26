@@ -1,0 +1,96 @@
+.banner-proxima-consulta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  padding: var(--espaco-md) var(--espaco-lg);
+  border-radius: var(--raio-medio);
+  background: linear-gradient(
+      135deg,
+      rgba(220, 151, 164, 0.18),
+      rgba(254, 246, 228, 0.95)
+    ),
+    var(--cor-card);
+  border-left: 4px solid var(--cor-rosa-secundario);
+  box-shadow: 0 12px 28px rgba(128, 82, 53, 0.08);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.banner-proxima-consulta__rotulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cor-rosa-secundario);
+}
+
+.banner-proxima-consulta__principal {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--cor-texto);
+}
+
+.banner-proxima-consulta__principal strong {
+  color: var(--cor-marrom);
+}
+
+.banner-proxima-consulta__local {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.banner-proxima-consulta__rodape {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-xs);
+  flex-wrap: wrap;
+}
+
+.banner-proxima-consulta__restantes {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.banner-proxima-consulta__link {
+  color: var(--cor-azul-link);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--cor-azul-link);
+  transition:
+    background-color 0.15s ease-out,
+    color 0.15s ease-out;
+}
+
+.banner-proxima-consulta__link:hover,
+.banner-proxima-consulta__link:focus-visible {
+  background: var(--cor-azul-link);
+  color: #fff;
+  outline: none;
+}
+
+@media (max-width: 767px) {
+  .banner-proxima-consulta {
+    padding: var(--espaco-md);
+  }
+
+  .banner-proxima-consulta__principal {
+    font-size: 1rem;
+  }
+
+  .banner-proxima-consulta__rodape {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .banner-proxima-consulta__link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
