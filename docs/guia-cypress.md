@@ -67,7 +67,7 @@ describe('Tela de login', () => {
 
 ## Inventário de specs
 
-A suíte atual tem **66 testes verdes** distribuídos em 7 specs:
+A suíte atual tem **78 testes verdes** distribuídos em 8 specs:
 
 | Spec | Testes | Cobre |
 |---|---|---|
@@ -75,10 +75,11 @@ A suíte atual tem **66 testes verdes** distribuídos em 7 specs:
 | `perfil.cy.js` | 9 | Perfil da paciente |
 | `dicionario.cy.js` | 9 | Lista, busca e detalhes (PROJ-3, PROJ-4) |
 | `consultas.cy.js` | 11 | Calendário e banner (PROJ-1) |
+| `medicamentos.cy.js` | 12 | Checklist diário de medicamentos (PROJ-2) |
 | `layout-rotas.cy.js` | 6 | Rotas e estrutura do AppLayout |
 | `responsividade-mobile.cy.js` | 11 | Drawer mobile e breakpoints |
 | `polimento-ux-perfil.cy.js` | 10 | `SelectField`, máscara de telefone, transição |
-| **Total** | **66** | |
+| **Total** | **78** | |
 
 ## O que os testes do Dicionário verificam
 

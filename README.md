@@ -217,6 +217,7 @@ backend/
 ├── usuarios/               autenticação JWT + perfis (paciente, médica, admin)
 ├── dicionario/             termos médicos (PROJ-3, PROJ-4)
 ├── consultas/              consultas e especialidades (PROJ-1)
+├── medicamentos/           checklist diário de medicamentos prescritos (PROJ-2)
 ├── requirements.txt
 └── README.md
 frontend/
@@ -229,17 +230,19 @@ frontend/
 │   ├── contexts/           AuthContext + useAuth (sessão JWT)
 │   ├── layouts/            AppLayout (rotas internas) e AuthLayout (login)
 │   ├── pages/              Bot, Ciclo, Consultas, Dicionario, EmBreve,
-│   │                       Especialidades, Home, Login, Perfil, Tratamentos
+│   │                       Especialidades, Home, Login, Medicamentos, Perfil,
+│   │                       Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
 │   ├── services/           api, authService, consultasService, dicionarioService,
-│   │                       perfilService
+│   │                       medicamentosService, perfilService
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/                consultas, dicionario, layout-rotas, login, perfil,
-│                           polimento-ux-perfil, responsividade-mobile (66 testes)
+│   └── e2e/                consultas, dicionario, layout-rotas, login,
+│                           medicamentos, perfil, polimento-ux-perfil,
+│                           responsividade-mobile (78 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)

@@ -89,6 +89,7 @@ Páginas internas:
 | `Perfil` | `/perfil` | Perfil da paciente (formulário) |
 | `Dicionario` | `/dicionario` | Lista + busca + detalhes de termos médicos |
 | `Consultas` | `/calendario` | Grade mensal + painel lateral de próximas consultas |
+| `Medicamentos` | `/medicamentos` | Checklist diário de remédios prescritos |
 | `Ciclo` | `/ciclo` | Placeholder |
 | `Bot` | `/bot` | Placeholder |
 | `Tratamentos` | `/tratamentos` | Placeholder |
@@ -190,6 +191,7 @@ src/services/
 ├── authService.js          login, refresh e dados do usuário autenticado
 ├── consultasService.js     lista todas e lista próximas consultas
 ├── dicionarioService.js    chamadas específicas do dicionário
+├── medicamentosService.js  lista checklist diário e alterna tomada do dia
 └── perfilService.js        leitura e atualização do perfil
 ```
 
