@@ -16,6 +16,7 @@ const SESSAO_FAKE = {
   },
 }
 
+// Mock de 4 consultas em maio/2026 cobrindo todos os status.
 const consultasMock = [
   {
     id: 1,
@@ -69,6 +70,14 @@ const consultasMock = [
 
 const proximasMock = [consultasMock[0], consultasMock[1]]
 
+// Fixa a data atual em 25 de maio de 2026 (meio-dia UTC). Garante que os
+// testes funcionem independentemente do dia em que rodam, já que os mocks
+// usam datas absolutas em maio/2026.
+function fixarDataAtual() {
+  const inicio = new Date('2026-05-25T12:00:00Z').getTime()
+  cy.clock(inicio, ['Date'])
+}
+
 function visitarConsultas(rota = '/calendario') {
   return cy.visit(rota, {
     onBeforeLoad(janela) {
@@ -80,6 +89,7 @@ function visitarConsultas(rota = '/calendario') {
 describe('Calendário de consultas da Amare', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
+    fixarDataAtual()
   })
 
   it('exibe o título e o cabeçalho da página', () => {
@@ -87,27 +97,82 @@ describe('Calendário de consultas da Amare', () => {
     visitarConsultas()
     cy.wait('@listar')
     cy.get('[data-cy=page-calendario]').should('be.visible')
-    cy.contains('h1', 'Calendário de consultas').should('be.visible')
+    cy.contains('h1', 'Calendário').should('be.visible')
   })
 
-  it('mostra a lista de consultas agrupada por status (cenário BDD: visualizar)', () => {
+  it('mostra o calendário do mês e o painel lateral quando há consultas', () => {
     cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
     visitarConsultas()
     cy.wait('@listar')
 
-    cy.get('[data-cy=consultas-card]').should('have.length', 4)
-    cy.get('[data-cy=consultas-grupo-proximas]')
+    cy.get('[data-cy=consultas-layout]').should('be.visible')
+    cy.get('[data-cy=calendario-mes]').should('be.visible')
+    cy.get('[data-cy=painel-proximas]').should('be.visible')
+    cy.get('[data-cy=painel-lembretes]').should('be.visible')
+  })
+
+  it('abre o calendário no mês da próxima consulta agendada', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-titulo]')
       .should('be.visible')
-      .find('[data-cy=consultas-card]')
-      .should('have.length', 2)
-    cy.get('[data-cy=consultas-grupo-realizadas]')
-      .should('be.visible')
-      .find('[data-cy=consultas-card]')
-      .should('have.length', 1)
-    cy.get('[data-cy=consultas-grupo-canceladas]')
-      .should('be.visible')
-      .find('[data-cy=consultas-card]')
-      .should('have.length', 1)
+      .and('contain', 'maio de 2026')
+  })
+
+  it('marca os dias com consulta agendada na grade do calendário (cenário BDD: visualizar)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="27"]')
+      .should('have.attr', 'data-com-consulta', 'true')
+      .find('[data-cy=calendario-mes-marcador]')
+      .should('contain', 'Reprodução humana')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="30"]')
+      .should('have.attr', 'data-com-consulta', 'true')
+      .find('[data-cy=calendario-mes-marcador]')
+      .should('contain', 'Endocrinologia')
+
+    // Dias sem consulta não devem ter marcador.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]').should(
+      'have.attr',
+      'data-com-consulta',
+      'false',
+    )
+  })
+
+  it('permite navegar para o mês seguinte e voltar para hoje', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-proximo]').click()
+    cy.get('[data-cy=calendario-mes-titulo]').should('contain', 'junho de 2026')
+
+    cy.get('[data-cy=calendario-mes-hoje]').click()
+    cy.get('[data-cy=calendario-mes-titulo]').should('contain', 'maio de 2026')
+  })
+
+  it('lista as próximas consultas no painel lateral com data e detalhes', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=painel-proximas-item]').should('have.length', 2)
+
+    cy.get('[data-cy=painel-proximas-item]')
+      .first()
+      .within(() => {
+        cy.get('[data-cy=painel-proximas-data]')
+          .should('be.visible')
+          .and('contain', '27 de maio')
+        cy.get('[data-cy=painel-proximas-detalhe]')
+          .should('contain', 'Reprodução humana')
+          .and('contain', 'Dra. Helena Costa')
+      })
   })
 
   it('exibe mensagem amigável quando não há consultas (cenário BDD: nenhuma)', () => {
@@ -117,7 +182,7 @@ describe('Calendário de consultas da Amare', () => {
     cy.get('[data-cy=consultas-mensagem-vazia]')
       .should('be.visible')
       .and('contain', 'Você ainda não tem consultas cadastradas')
-    cy.get('[data-cy=consultas-card]').should('not.exist')
+    cy.get('[data-cy=calendario-mes-marcador]').should('not.exist')
   })
 
   it('exibe mensagem de erro acessível quando a API falha', () => {
@@ -130,44 +195,22 @@ describe('Calendário de consultas da Amare', () => {
       .and('contain', 'Não foi possível carregar suas consultas no momento.')
   })
 
-  it('cada card mostra data, especialidade, médica e status', () => {
+  it('card de Lembretes mostra stub indicando integração futura com medicamentos', () => {
     cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
     visitarConsultas()
     cy.wait('@listar')
 
-    cy.get('[data-cy=consultas-grupo-proximas]')
-      .find('[data-cy=consultas-card]')
-      .first()
-      .within(() => {
-        cy.get('[data-cy=consultas-card-data]').should('be.visible')
-        cy.get('[data-cy=consultas-card-especialidade]')
-          .should('be.visible')
-          .and('contain', 'Reprodução humana')
-        cy.get('[data-cy=consultas-card-medica]').should(
-          'contain',
-          'Dra. Helena Costa',
-        )
-        cy.get('[data-cy=consultas-card-status]')
-          .should('be.visible')
-          .and('contain', 'Agendada')
-      })
-  })
-
-  it('quando a consulta não tem médica associada, mostra "Profissional a confirmar"', () => {
-    cy.intercept('GET', ROTA_LISTA, { body: [consultasMock[1]] }).as('listar')
-    visitarConsultas()
-    cy.wait('@listar')
-
-    cy.get('[data-cy=consultas-card]')
-      .first()
-      .find('[data-cy=consultas-card-medica]')
-      .should('contain', 'Profissional a confirmar')
+    cy.get('[data-cy=painel-lembretes]')
+      .should('be.visible')
+      .and('contain', 'Lembretes')
+      .and('contain', 'medicamentos do dia')
   })
 })
 
 describe('Banner de próxima consulta na Home', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
+    fixarDataAtual()
   })
 
   it('renderiza com data, especialidade e médica quando há próxima consulta', () => {
