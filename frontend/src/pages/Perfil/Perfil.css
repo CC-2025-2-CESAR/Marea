@@ -165,6 +165,17 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--espaco-sm);
+  align-items: end;
+}
+
+/*
+ * O SelectField traz label + botão próprios e fica como filho direto do
+ * .perfil-grupo (substitui o <label className="perfil-campo"> de antes).
+ * Aqui só garantimos que o label dele tem o mesmo tamanho da label dos
+ * outros campos quando aparece dentro do grupo.
+ */
+.perfil-grupo .select-field__label {
+  font-size: 0.95rem;
 }
 
 .perfil-feedback {

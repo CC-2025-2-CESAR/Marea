@@ -16,6 +16,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import Button from '../../components/Button/Button'
+import SelectField from '../../components/SelectField/SelectField'
 import { atualizarPerfil, obterPerfil } from '../../services/perfilService'
 import './Perfil.css'
 
@@ -222,22 +223,17 @@ function Perfil() {
                   data-cy="perfil-data-nascimento"
                 />
               </label>
-              <label className="perfil-campo">
-                <span>Tipo sanguíneo</span>
-                <select
-                  value={formulario.tipo_sanguineo}
-                  onChange={(e) =>
-                    atualizarCampo('tipo_sanguineo', e.target.value)
-                  }
-                  data-cy="perfil-tipo-sanguineo"
-                >
-                  {TIPOS_SANGUINEOS.map((tipo) => (
-                    <option key={tipo.valor} value={tipo.valor}>
-                      {tipo.rotulo}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <SelectField
+                id="perfil-tipo-sanguineo"
+                label="Tipo sanguíneo"
+                value={formulario.tipo_sanguineo}
+                onChange={(novo) => atualizarCampo('tipo_sanguineo', novo)}
+                opcoes={TIPOS_SANGUINEOS.map((tipo) => ({
+                  valor: tipo.valor,
+                  rotulo: tipo.rotulo,
+                }))}
+                dataCy="perfil-tipo-sanguineo"
+              />
             </div>
 
             <label className="perfil-campo">
