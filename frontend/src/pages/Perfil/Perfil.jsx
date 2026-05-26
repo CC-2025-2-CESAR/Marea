@@ -299,7 +299,11 @@ function Perfil() {
 
             <div className="perfil-acoes">
               <Button type="submit" dataCy="perfil-salvar" disabled={salvando}>
-                {salvando ? 'Salvando…' : 'Salvar alterações'}
+                {salvando ? (
+                  <span className="perfil-salvando-texto">Salvando…</span>
+                ) : (
+                  'Salvar alterações'
+                )}
               </Button>
             </div>
           </form>

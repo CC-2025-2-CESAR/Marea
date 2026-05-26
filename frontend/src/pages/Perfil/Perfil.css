@@ -135,6 +135,7 @@
 
 .perfil-campo input,
 .perfil-campo select {
+  min-height: 44px;
   padding: 10px 16px;
   border: 1px solid var(--cor-borda);
   border-radius: var(--raio-campo);
@@ -142,12 +143,16 @@
   font-family: inherit;
   font-size: 1rem;
   color: var(--cor-texto);
+  transition:
+    border-color var(--duracao-rapida) var(--easing-saida),
+    box-shadow var(--duracao-rapida) var(--easing-saida);
 }
 
 .perfil-campo input:focus,
 .perfil-campo select:focus {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--cor-rosa-secundario);
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.4);
 }
 
 .perfil-campo input[readonly] {
@@ -213,6 +218,26 @@
   display: flex;
   justify-content: flex-end;
   margin-top: var(--espaco-xs);
+}
+
+/*
+ * Reticência animada exibida no texto do botão Salvar enquanto a
+ * requisição PATCH está em andamento. Passa sensação de que o botão
+ * está "respirando" e que algo está acontecendo de verdade.
+ */
+@keyframes perfil-pulsar-salvando {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.perfil-salvando-texto {
+  display: inline-block;
+  animation: perfil-pulsar-salvando 1.2s ease-in-out infinite;
 }
 
 .perfil-clinico {
