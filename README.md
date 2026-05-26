@@ -24,6 +24,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Página de Calendário com grade mensal, marcadores nos dias com consulta e
   painel lateral com próximas consultas e lembretes (PROJ-1), além de banner
   de "Próxima consulta" na página inicial.
+- Página de Medicamentos com checklist diário (PROJ-2): checkbox por
+  medicamento prescrito, atualização otimista e reset implícito a cada
+  novo dia. O card "Lembretes" no Calendário consome a mesma checklist.
 - Interface adaptada para celular: menu lateral em drawer (hambúrguer) abaixo de
   768px, breakpoints padronizados em 480/768/1024 e tap targets de pelo menos 44px.
 - Polimento de UX: transição suave entre rotas internas, sidebar com microinterações
@@ -49,6 +52,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/`: página inicial da plataforma (requer login).
 - `/perfil`: perfil da paciente com formulário editável (requer login).
 - `/calendario`: grade mensal de consultas com painel lateral de próximas consultas e lembretes.
+- `/medicamentos`: checklist diário de remédios prescritos com marcar/desmarcar.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
@@ -74,6 +78,7 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py loaddata termos_iniciais
 python manage.py loaddata consultas_iniciais
+python manage.py loaddata medicamentos_iniciais
 python manage.py criar_usuarios_teste
 python manage.py runserver
 ```

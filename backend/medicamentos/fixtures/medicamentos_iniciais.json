@@ -1,0 +1,66 @@
+[
+  {
+    "model": "medicamentos.medicamento",
+    "pk": 1,
+    "fields": {
+      "paciente": 1,
+      "nome": "Ácido fólico",
+      "dose": "1 comprimido 5mg",
+      "horario": "08:00:00",
+      "instrucoes": "Tomar após o café da manhã, com água.",
+      "tomado_hoje": false,
+      "data_ultima_marcacao": null,
+      "ativo": true,
+      "criado_em": "2026-05-15T10:00:00Z",
+      "atualizado_em": "2026-05-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "medicamentos.medicamento",
+    "pk": 2,
+    "fields": {
+      "paciente": 1,
+      "nome": "Progesterona",
+      "dose": "1 cápsula 200mg",
+      "horario": "12:00:00",
+      "instrucoes": "Via oral, sempre no mesmo horário.",
+      "tomado_hoje": false,
+      "data_ultima_marcacao": null,
+      "ativo": true,
+      "criado_em": "2026-05-15T10:00:00Z",
+      "atualizado_em": "2026-05-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "medicamentos.medicamento",
+    "pk": 3,
+    "fields": {
+      "paciente": 1,
+      "nome": "Vitamina D",
+      "dose": "1 gota",
+      "horario": "19:00:00",
+      "instrucoes": "Tomar junto com o jantar para melhor absorção.",
+      "tomado_hoje": false,
+      "data_ultima_marcacao": null,
+      "ativo": true,
+      "criado_em": "2026-05-15T10:00:00Z",
+      "atualizado_em": "2026-05-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "medicamentos.medicamento",
+    "pk": 4,
+    "fields": {
+      "paciente": 1,
+      "nome": "Anti-inflamatório (SOS)",
+      "dose": "1 comprimido",
+      "horario": null,
+      "instrucoes": "Apenas em caso de dor. Não usar mais de 3 vezes ao dia.",
+      "tomado_hoje": false,
+      "data_ultima_marcacao": null,
+      "ativo": true,
+      "criado_em": "2026-05-15T10:00:00Z",
+      "atualizado_em": "2026-05-15T10:00:00Z"
+    }
+  }
+]

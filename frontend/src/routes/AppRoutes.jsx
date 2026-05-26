@@ -8,6 +8,7 @@ import Perfil from '../pages/Perfil/Perfil'
 import Consultas from '../pages/Consultas/Consultas'
 import Ciclo from '../pages/Ciclo/Ciclo'
 import Dicionario from '../pages/Dicionario/Dicionario'
+import Medicamentos from '../pages/Medicamentos/Medicamentos'
 import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
 import Especialidades from '../pages/Especialidades/Especialidades'
@@ -33,6 +34,7 @@ function AppRoutes() {
           <Route path="/calendario" element={<Consultas />} />
           <Route path="/ciclo" element={<Ciclo />} />
           <Route path="/dicionario" element={<Dicionario />} />
+          <Route path="/medicamentos" element={<Medicamentos />} />
           <Route path="/bot" element={<Bot />} />
           <Route path="/tratamentos" element={<Tratamentos />} />
           <Route path="/especialidades" element={<Especialidades />} />

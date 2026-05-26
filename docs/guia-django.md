@@ -277,3 +277,69 @@ A fixture assume que `paciente_teste` (id 1) e `medica_teste` (id 1) já
 existem — rode `criar_usuarios_teste` antes. Para cadastrar consultas
 novas, use o Django Admin em
 `http://localhost:8000/admin/consultas/consulta/`.
+
+## App `medicamentos`
+
+Quarta app real do backend. Cuida do checklist diário de remédios da
+paciente. Alimenta tanto a página `/medicamentos` quanto o card
+"Lembretes" no `/calendario`.
+
+Arquivos relevantes:
+
+- `backend/medicamentos/models.py` — um único model `Medicamento`:
+  FK para `Paciente`, `nome`, `dose`, `horario` (TimeField, opcional),
+  `instrucoes`, `tomado_hoje` (BooleanField), `data_ultima_marcacao`
+  (DateField), `ativo`, timestamps.
+  - O método `esta_tomado_hoje()` retorna `True` apenas se a última
+    marcação foi feita **hoje**. Resolve o reset diário sem precisar
+    de cron: se a paciente marcou ontem e abre a checklist hoje, o
+    serializer já devolve `tomado=False`.
+  - O método `marcar_tomado(novo_estado)` atualiza estado e data
+    atomicamente em um único `save(update_fields=...)`.
+- `backend/medicamentos/serializers.py` — `MedicamentoSerializer` com
+  campo computado `tomado` (a partir de `esta_tomado_hoje()`).
+- `backend/medicamentos/views.py` — duas views `@api_view`:
+  - `listar_medicamentos` (GET) — medicamentos ativos da paciente
+    autenticada.
+  - `alternar_tomada` (PATCH) — recebe `pk`, valida ownership e alterna
+    o estado. Body opcional `{ "tomado": true|false }` para set explícito;
+    sem body, faz toggle.
+- `backend/medicamentos/admin.py` — `MedicamentoAdmin` com filtros por
+  `ativo`/`tomado_hoje`, busca por nome da paciente, e fieldset separado
+  para "Estado de hoje".
+- `backend/medicamentos/fixtures/medicamentos_iniciais.json` — 4
+  medicamentos de exemplo para `paciente_teste`: ácido fólico,
+  progesterona, vitamina D e um anti-inflamatório SOS sem horário fixo.
+
+### Endpoints
+
+```
+GET   /api/medicamentos/                →  medicamentos ativos da paciente autenticada
+PATCH /api/medicamentos/<id>/toma/      →  alterna estado de tomada; aceita { tomado: bool } opcional
+```
+
+Ambos exigem autenticação JWT. Usuários sem perfil de paciente recebem
+lista vazia em GET e 403 em PATCH. Tentar alterar um medicamento de
+outra paciente retorna 404 (não 403, para evitar leak de IDs).
+
+### Reset diário sem cron
+
+O campo `tomado_hoje` continua `True` no banco após uma marcação, mas o
+serializer só devolve `tomado=True` se `data_ultima_marcacao == hoje`.
+Isso significa que:
+- Não precisamos rodar um cron diário para limpar o checklist.
+- O histórico (campo `data_ultima_marcacao`) fica preservado para
+  futuras telas de "tomei X% dos remédios na semana", sem migration extra.
+- A primeira marcação do dia atualiza ambos os campos, então a coerência
+  é garantida no PATCH.
+
+### Carregar dados iniciais
+
+```
+python manage.py migrate
+python manage.py loaddata medicamentos_iniciais
+```
+
+Assume que `paciente_teste` (id 1) já existe. Para cadastrar
+medicamentos novos sem migration, use o Django Admin em
+`http://localhost:8000/admin/medicamentos/medicamento/`.

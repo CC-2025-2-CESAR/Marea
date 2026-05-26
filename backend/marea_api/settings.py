@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'dicionario',
     'usuarios',
     'consultas',
+    'medicamentos',
 ]
 
 MIDDLEWARE = [
