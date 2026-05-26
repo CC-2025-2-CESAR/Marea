@@ -9,6 +9,7 @@ const links = [
   { to: '/', label: 'Início', dataCy: 'nav-home' },
   { to: '/perfil', label: 'Perfil', dataCy: 'nav-perfil' },
   { to: '/calendario', label: 'Calendário', dataCy: 'nav-calendario' },
+  { to: '/medicamentos', label: 'Medicamentos', dataCy: 'nav-medicamentos' },
   { to: '/ciclo', label: 'Ciclo', dataCy: 'nav-ciclo' },
   { to: '/dicionario', label: 'Dicionário', dataCy: 'nav-dicionario' },
   { to: '/bot', label: 'Bot', dataCy: 'nav-bot' },
