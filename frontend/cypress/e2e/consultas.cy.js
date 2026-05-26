@@ -90,6 +90,8 @@ describe('Calendário de consultas da Amare', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
     fixarDataAtual()
+    // O painel Lembretes agora carrega medicamentos via API.
+    cy.intercept('GET', '**/api/medicamentos/', { body: [] })
   })
 
   it('exibe o título e o cabeçalho da página', () => {
@@ -195,15 +197,38 @@ describe('Calendário de consultas da Amare', () => {
       .and('contain', 'Não foi possível carregar suas consultas no momento.')
   })
 
-  it('card de Lembretes mostra stub indicando integração futura com medicamentos', () => {
+  it('card de Lembretes renderiza o checklist de medicamentos e link "Ver todos"', () => {
     cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/medicamentos/', {
+      body: [
+        {
+          id: 1,
+          nome: 'Ácido fólico',
+          dose: '1 comprimido 5mg',
+          horario: '08:00:00',
+          instrucoes: 'Tomar após o café.',
+          tomado: false,
+        },
+      ],
+    }).as('medicamentos')
     visitarConsultas()
     cy.wait('@listar')
+    cy.wait('@medicamentos')
 
     cy.get('[data-cy=painel-lembretes]')
       .should('be.visible')
-      .and('contain', 'Lembretes')
-      .and('contain', 'medicamentos do dia')
+      .within(() => {
+        cy.contains('h2', 'Lembretes').should('be.visible')
+        cy.get('[data-cy=painel-lembretes-link]')
+          .should('have.attr', 'href', '/medicamentos')
+          .and('contain', 'Ver todos')
+        cy.get('[data-cy=medicamentos-checklist]').should(
+          'have.attr',
+          'data-modo',
+          'compacto',
+        )
+        cy.get('[data-cy=medicamentos-item]').should('have.length', 1)
+      })
   })
 })
 
@@ -211,6 +236,7 @@ describe('Banner de próxima consulta na Home', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
     fixarDataAtual()
+    cy.intercept('GET', '**/api/medicamentos/', { body: [] })
   })
 
   it('renderiza com data, especialidade e médica quando há próxima consulta', () => {

@@ -68,6 +68,9 @@ function visitarAutenticadoMobile(rota, viewport = VIEWPORT_IPHONE_12) {
   cy.intercept('GET', '**/api/dicionario/termos/**', {
     body: TERMOS_MOCK,
   }).as('termos')
+  cy.intercept('GET', '**/api/consultas/proximas/', { body: [] })
+  cy.intercept('GET', '**/api/consultas/', { body: [] })
+  cy.intercept('GET', '**/api/medicamentos/', { body: [] })
   return cy.visit(rota, {
     onBeforeLoad(janela) {
       janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))
