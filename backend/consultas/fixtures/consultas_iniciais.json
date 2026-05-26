@@ -1,0 +1,95 @@
+[
+  {
+    "model": "consultas.especialidade",
+    "pk": 1,
+    "fields": {
+      "nome": "Reprodução humana",
+      "descricao": "Acompanhamento de fertilidade e tratamentos de reprodução assistida.",
+      "ativo": true,
+      "criado_em": "2026-05-25T10:00:00Z",
+      "atualizado_em": "2026-05-25T10:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.especialidade",
+    "pk": 2,
+    "fields": {
+      "nome": "Endocrinologia",
+      "descricao": "Avaliação hormonal e função da tireoide.",
+      "ativo": true,
+      "criado_em": "2026-05-25T10:00:00Z",
+      "atualizado_em": "2026-05-25T10:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.especialidade",
+    "pk": 3,
+    "fields": {
+      "nome": "Psicologia",
+      "descricao": "Apoio emocional durante o tratamento.",
+      "ativo": true,
+      "criado_em": "2026-05-25T10:00:00Z",
+      "atualizado_em": "2026-05-25T10:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.consulta",
+    "pk": 1,
+    "fields": {
+      "paciente": 1,
+      "medica": 1,
+      "especialidade": 1,
+      "data_horario": "2026-05-27T14:30:00-03:00",
+      "local": "Clínica Amare - Sala 3",
+      "observacoes": "Trazer exames de sangue da última semana.",
+      "status": "agendada",
+      "criado_em": "2026-05-15T10:00:00Z",
+      "atualizado_em": "2026-05-15T10:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.consulta",
+    "pk": 2,
+    "fields": {
+      "paciente": 1,
+      "medica": null,
+      "especialidade": 2,
+      "data_horario": "2026-05-30T09:00:00-03:00",
+      "local": "Clínica Amare - Sala 1",
+      "observacoes": "Jejum de 8 horas antes do exame de sangue.",
+      "status": "agendada",
+      "criado_em": "2026-05-16T10:00:00Z",
+      "atualizado_em": "2026-05-16T10:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.consulta",
+    "pk": 3,
+    "fields": {
+      "paciente": 1,
+      "medica": 1,
+      "especialidade": 1,
+      "data_horario": "2026-05-15T16:00:00-03:00",
+      "local": "Clínica Amare - Sala 3",
+      "observacoes": "Resultado do beta-hCG conversado. Próximos passos definidos.",
+      "status": "realizada",
+      "criado_em": "2026-05-01T10:00:00Z",
+      "atualizado_em": "2026-05-15T17:00:00Z"
+    }
+  },
+  {
+    "model": "consultas.consulta",
+    "pk": 4,
+    "fields": {
+      "paciente": 1,
+      "medica": null,
+      "especialidade": 3,
+      "data_horario": "2026-05-22T10:00:00-03:00",
+      "local": "Online (videochamada)",
+      "observacoes": "Cancelada pela clínica - será reagendada.",
+      "status": "cancelada",
+      "criado_em": "2026-05-10T10:00:00Z",
+      "atualizado_em": "2026-05-20T10:00:00Z"
+    }
+  }
+]
