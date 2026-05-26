@@ -58,13 +58,8 @@ function SelectField({
   const idListbox = `${id || idGerado}-listbox`
   const opcaoSelecionada = opcoes.find((o) => o.valor === value)
 
-  // Quando o value muda externamente, mantém o destaque sincronizado.
-  useEffect(() => {
-    const indice = opcoes.findIndex((o) => o.valor === value)
-    if (indice >= 0) {
-      setDestacado(indice)
-    }
-  }, [value, opcoes])
+  // O destacado é recalculado a partir do value sempre que a lista
+  // abre (via abrir()) — não precisamos sincronizar em useEffect.
 
   // Fecha ao clicar fora.
   useEffect(() => {

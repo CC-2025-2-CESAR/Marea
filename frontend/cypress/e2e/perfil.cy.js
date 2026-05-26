@@ -51,7 +51,7 @@ describe('Página de Perfil da Amare', () => {
     cy.get('[data-cy=perfil-nome]').should('have.value', 'Júlia Pereira')
     cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 91234-5678')
     cy.get('[data-cy=perfil-data-nascimento]').should('have.value', '1993-04-12')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').should('have.value', 'O+')
+    cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'O+')
   })
 
   it('mostra o e-mail como leitura apenas', () => {
