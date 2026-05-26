@@ -49,6 +49,32 @@
   color: var(--cor-marrom);
 }
 
+.painel-card__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espaco-sm);
+  margin-bottom: var(--espaco-sm);
+}
+
+.painel-card__cabecalho .painel-card__titulo {
+  margin: 0;
+}
+
+.painel-card__link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-azul-link);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.painel-card__link:hover,
+.painel-card__link:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
 .painel-card__vazio {
   margin: 0;
   color: var(--cor-texto-suave);

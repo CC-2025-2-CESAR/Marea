@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
+import ChecklistMedicamentos from '../../components/ChecklistMedicamentos/ChecklistMedicamentos'
 import { listarConsultas } from '../../services/consultasService'
 import './Consultas.css'
 
@@ -192,11 +194,17 @@ function PainelLembretes() {
       className="painel-card painel-card--lembretes"
       data-cy="painel-lembretes"
     >
-      <h2 className="painel-card__titulo">Lembretes</h2>
-      <p className="painel-card__vazio">
-        Em breve: aqui aparecerão os medicamentos do dia para você marcar como
-        tomados, junto com os lembretes da rotina de tratamento.
-      </p>
+      <div className="painel-card__cabecalho">
+        <h2 className="painel-card__titulo">Lembretes</h2>
+        <Link
+          to="/medicamentos"
+          className="painel-card__link"
+          data-cy="painel-lembretes-link"
+        >
+          Ver todos
+        </Link>
+      </div>
+      <ChecklistMedicamentos modo="compacto" />
     </div>
   )
 }
