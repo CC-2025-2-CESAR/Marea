@@ -65,6 +65,22 @@ describe('Tela de login', () => {
 })
 ```
 
+## Inventário de specs
+
+A suíte atual tem **78 testes verdes** distribuídos em 8 specs:
+
+| Spec | Testes | Cobre |
+|---|---|---|
+| `login.cy.js` | 10 | Tela de login (PROJ login) |
+| `perfil.cy.js` | 9 | Perfil da paciente |
+| `dicionario.cy.js` | 9 | Lista, busca e detalhes (PROJ-3, PROJ-4) |
+| `consultas.cy.js` | 11 | Calendário e banner (PROJ-1) |
+| `medicamentos.cy.js` | 12 | Checklist diário de medicamentos (PROJ-2) |
+| `layout-rotas.cy.js` | 6 | Rotas e estrutura do AppLayout |
+| `responsividade-mobile.cy.js` | 11 | Drawer mobile e breakpoints |
+| `polimento-ux-perfil.cy.js` | 10 | `SelectField`, máscara de telefone, transição |
+| **Total** | **78** | |
+
 ## O que os testes do Dicionário verificam
 
 `frontend/cypress/e2e/dicionario.cy.js` cobre oito cenários da página de termos
@@ -78,6 +94,56 @@ médicos (PROJ-3 e PROJ-4):
 6. Buscar por um termo inexistente exibe a mensagem vazia.
 7. Clicar em um termo abre o painel de detalhes.
 8. Erro da API exibe `dicionario-mensagem-erro`.
+
+## O que os testes de Consultas verificam
+
+`frontend/cypress/e2e/consultas.cy.js` cobre 11 cenários da página
+`/calendario` e do banner da Home (PROJ-1):
+
+1. A página `/calendario` exibe título e cabeçalho.
+2. Calendário do mês e painel lateral aparecem quando há consultas.
+3. O calendário abre no mês da próxima consulta agendada.
+4. Os dias com consulta agendada ganham marcador na grade (cenário BDD).
+5. Painel lateral lista as próximas consultas.
+6. Painel lateral lista os lembretes derivados das consultas.
+7. Clicar num dia marcado destaca o dia e mostra o detalhe.
+8. Banner da Home mostra a próxima consulta quando há agendamento (cenário BDD).
+9. Banner some quando não há próximas consultas (cenário BDD).
+10. Status `realizada` e `cancelada` aparecem com seus rótulos corretos.
+11. Navegação entre meses (botões anterior/próximo) muda o título do mês.
+
+### Padrão de mocks com data fixa
+
+Como o calendário depende da data atual, os testes fixam o relógio do
+navegador em **25 de maio de 2026** com `cy.clock`:
+
+```js
+function fixarDataAtual() {
+  const inicio = new Date('2026-05-25T12:00:00Z').getTime()
+  cy.clock(inicio, ['Date'])
+}
+
+beforeEach(() => {
+  cy.clearLocalStorage()
+  fixarDataAtual()
+})
+```
+
+Sem isso, a grade renderiza o mês corrente e os mocks (que usam datas
+absolutas em maio/2026) deixam de bater. O `['Date']` no segundo argumento
+restringe o mock ao `Date` global e não congela `setTimeout`/`setInterval`
+— evita travar animações da Motion.
+
+### Mockando os dois endpoints
+
+A página chama `/api/consultas/` (lista completa) e a Home chama
+`/api/consultas/proximas/`. Sempre mocke os dois quando o teste tocar nas
+duas rotas:
+
+```js
+cy.intercept('GET', '**/api/consultas/', { body: consultasMock }).as('listar')
+cy.intercept('GET', '**/api/consultas/proximas/', { body: proximasMock }).as('proximas')
+```
 
 ## Mockando a API com `cy.intercept`
 

@@ -155,11 +155,116 @@ Cenário: Logout
 **Dados envolvidos**: `User` (Django padrão), `PerfilUsuario`, `Paciente`,
 `Medica`.
 
+## Etapa atual — Gestão de Consultas e Lembretes (épico PROJ-8)
+
+### PROJ-1 — Consultas agendadas
+
+- Jira: [PROJ-1](https://afreis.atlassian.net/browse/PROJ-1)
+- GitHub: [#4](https://github.com/CC-2025-2-CESAR/Marea/issues/4)
+- Épico: [PROJ-8 — Gestão de Consultas, Calendário e Lembretes](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1)
+
+**História**: Como paciente, quero visualizar minhas consultas agendadas e
+saber qual é a próxima para não esquecer compromissos importantes do
+tratamento.
+
+**Objetivo**: Centralizar agenda da paciente em uma visão de calendário
+mensal, com painel lateral de próximas consultas e lembretes, e dar
+visibilidade da próxima consulta diretamente na página inicial.
+
+**Critérios de aceitação**:
+
+- A página `/calendario` deve mostrar uma grade mensal com marcadores
+  visuais nos dias que têm consulta.
+- O painel lateral deve listar as próximas consultas e os lembretes
+  associados.
+- A página inicial deve exibir um banner com a próxima consulta agendada
+  da paciente nos próximos 7 dias.
+- Os dados devem vir do banco via API REST autenticada.
+- Quando não houver consultas agendadas, o banner some sem quebrar a
+  Home.
+- Pacientes só veem as próprias consultas.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar calendário com consultas
+  Dado que existem consultas agendadas para a paciente
+  Quando ela acessa /calendario
+  Então o sistema deve exibir a grade mensal com marcadores nos dias correspondentes
+
+Cenário: Próxima consulta na Home
+  Dado que a paciente tem ao menos uma consulta agendada nos próximos 7 dias
+  Quando ela acessa a página inicial
+  Então o sistema deve exibir um banner com a próxima consulta
+
+Cenário: Sem consultas agendadas
+  Dado que a paciente não tem consultas agendadas nos próximos 7 dias
+  Quando ela acessa a página inicial
+  Então o banner de próxima consulta não deve aparecer
+```
+
+**Dados envolvidos**: `Especialidade`, `Consulta` (FK para `Paciente`,
+`Medica`, `Especialidade`).
+
+**Notas de entrega**: 11 testes Cypress em `consultas.cy.js` cobrindo
+banner da Home, grade mensal, painel lateral, status das consultas e
+seleção de dia.
+
+### PROJ-2 — Checklist de remédios
+
+- Jira: [PROJ-2](https://afreis.atlassian.net/browse/PROJ-2)
+- GitHub: [#5](https://github.com/CC-2025-2-CESAR/Marea/issues/5)
+- Épico: [PROJ-8 — Gestão de Consultas, Calendário e Lembretes](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1)
+
+**História**: Como paciente, quero marcar os remédios prescritos como
+tomados ao longo do dia para não esquecer nenhuma dose nem perder o fio
+do tratamento.
+
+**Objetivo**: Dar à paciente uma checklist diária simples dos
+medicamentos prescritos, com toggle reversível e estado que reseta a
+cada novo dia. Reaproveitar a mesma checklist no card Lembretes do
+calendário, evitando duplicar lógica.
+
+**Critérios de aceitação**:
+
+- A página `/medicamentos` deve listar os medicamentos cadastrados para
+  a paciente, com nome, dose, horário e instruções.
+- Cada item deve ter checkbox para marcar/desmarcar como tomado hoje.
+- A interface deve exibir um contador "X de Y tomados hoje".
+- A marcação deve ser otimista (UI atualiza antes da resposta do
+  servidor) e reverter se o PATCH falhar.
+- A checklist deve resetar implicitamente a cada novo dia.
+- O card Lembretes do `/calendario` deve consumir a mesma checklist.
+- Quando não houver medicamentos prescritos, exibir mensagem amigável.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar a checklist diária
+  Dado que a paciente tem medicamentos prescritos
+  Quando ela acessa /medicamentos
+  Então o sistema deve listar cada remédio com dose, horário e checkbox
+
+Cenário: Marcar remédio como tomado
+  Dado que a paciente está em /medicamentos
+  Quando ela clica no checkbox de um remédio pendente
+  Então o sistema deve marcá-lo como tomado e atualizar o contador
+
+Cenário: Nenhum medicamento prescrito
+  Dado que a paciente não tem medicamentos cadastrados
+  Quando ela acessa /medicamentos
+  Então o sistema deve exibir uma mensagem amigável de lista vazia
+```
+
+**Dados envolvidos**: `Medicamento` (FK para `Paciente`), com
+relacionamento implícito de tomada do dia (reset a cada novo dia).
+
+**Notas de entrega**: 12 testes Cypress em `medicamentos.cy.js` cobrindo
+visualização, marcação/desmarcação, contador, mensagens de vazio/erro,
+atualização otimista, rollback no erro do PATCH e link da sidebar.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
-- **Gestão de Consultas, Calendário e Lembretes** (épico [PROJ-8](https://afreis.atlassian.net/browse/PROJ-8) — issue [#1](https://github.com/CC-2025-2-CESAR/Marea/issues/1))
-  - PROJ-1 — Consultas agendadas — issue [#4](https://github.com/CC-2025-2-CESAR/Marea/issues/4)
-  - PROJ-2 — Checklist de remédios — issue [#5](https://github.com/CC-2025-2-CESAR/Marea/issues/5)
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))
   - PROJ-5 — Registro e atualizações do ciclo — issue [#8](https://github.com/CC-2025-2-CESAR/Marea/issues/8)
   - PROJ-6 — Previsões do ciclo — issue [#9](https://github.com/CC-2025-2-CESAR/Marea/issues/9)

@@ -50,12 +50,32 @@ docs: atualizar documentação principal
 
 ## Testar antes de enviar
 
-Antes de abrir um pull request:
+Antes de abrir um pull request, dentro de `frontend/`:
 
-- Frontend: `npm run lint` sem erros e `npm run cypress:run` com todos os testes passando.
-- Backend: `python manage.py migrate` e `python manage.py runserver` sem erros.
+```
+npm run lint
+npm run build
+npm run cypress:run
+```
 
-Não envie alterações que quebrem o lint ou os testes.
+- `npm run lint` deve sair sem erros nem warnings.
+- `npm run build` deve gerar o bundle sem falhas.
+- `npm run cypress:run` deve sair com todos os 66 testes verdes (ajustar o
+  número conforme novas suítes entram).
+
+E no `backend/` (venv ativo):
+
+```
+python manage.py migrate
+python manage.py runserver
+```
+
+Devem subir sem erros. Se a feature toca o backend, rode também
+`python manage.py loaddata <fixture>` quando aplicável e
+`python manage.py criar_usuarios_teste` para garantir os usuários
+fictícios.
+
+Não envie alterações que quebrem o lint, o build ou os testes.
 
 ## Manter o código organizado
 

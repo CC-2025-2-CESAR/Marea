@@ -202,36 +202,52 @@ Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias
 - [Guia do Django](docs/guia-django.md)
 - [Guia do React](docs/guia-react.md)
 - [Guia do Cypress](docs/guia-cypress.md)
+- [Guia da Motion](docs/guia-motion.md)
 - [Guia do ESLint e Prettier](docs/guia-eslint-prettier.md)
 - [Fluxo de Git](docs/fluxo-git.md)
 - [Histórias de usuário](docs/historias-de-usuario.md)
 - [Como contribuir](CONTRIBUTING.md)
 
-## Estrutura inicial do projeto
+## Estrutura do projeto
 
 ```
 backend/
 ├── manage.py
-├── marea_api/
+├── marea_api/              configuração do projeto Django (settings, urls raiz)
+├── usuarios/               autenticação JWT + perfis (paciente, médica, admin)
+├── dicionario/             termos médicos (PROJ-3, PROJ-4)
+├── consultas/              consultas e especialidades (PROJ-1)
+├── medicamentos/           checklist diário de medicamentos prescritos (PROJ-2)
 ├── requirements.txt
 └── README.md
 frontend/
 ├── src/
 │   ├── assets/
-│   ├── components/
-│   │   ├── Button/
-│   │   └── InputField/
-│   ├── pages/
-│   │   └── Login/
-│   ├── styles/
-│   ├── App.jsx
+│   ├── components/         BannerProximaConsulta, Button, CalendarioMes, Header,
+│   │                       IconeChevron, IconeFechar, IconeLogout, IconeLupa,
+│   │                       IconeMenu, InputField, PageTransition, ProtectedRoute,
+│   │                       SearchBar, SelectField, Sidebar
+│   ├── contexts/           AuthContext + useAuth (sessão JWT)
+│   ├── layouts/            AppLayout (rotas internas) e AuthLayout (login)
+│   ├── pages/              Bot, Ciclo, Consultas, Dicionario, EmBreve,
+│   │                       Especialidades, Home, Login, Medicamentos, Perfil,
+│   │                       Tratamentos
+│   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
+│   ├── services/           api, authService, consultasService, dicionarioService,
+│   │                       medicamentosService, perfilService
+│   ├── styles/             variables.css, global.css
+│   ├── utils/              formatadores (telefone)
+│   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/
+│   └── e2e/                consultas, dicionario, layout-rotas, login,
+│                           medicamentos, perfil, polimento-ux-perfil,
+│                           responsividade-mobile (78 testes)
 ├── cypress.config.js
 ├── package.json
-└── vite.config.js
-docs/
+└── vite.config.js          porta fixa 5173 (strictPort)
+docs/                       guias de Django, React, Cypress, Motion, ESLint,
+                            Git, configuração e histórias de usuário
 .gitignore
 README.md
 CONTRIBUTING.md

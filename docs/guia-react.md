@@ -12,6 +12,22 @@ O React monta a interface da plataforma em componentes reutilizáveis. Cada part
 O Vite é a ferramenta de build e o servidor de desenvolvimento. Ele roda o projeto em
 modo local com recarga automática e gera a versão final para produção.
 
+A porta do dev server é fixada em `5173` no `vite.config.js`:
+
+```js
+server: {
+  port: 5173,
+  strictPort: true,
+}
+```
+
+`strictPort: true` faz o Vite **falhar** se a porta estiver ocupada em vez
+de pular para 5174/5175. Isso evita o cenário em que o frontend sobe em
+outra porta e o backend rejeita as chamadas por CORS (que só libera 5173),
+ou que o Cypress (cujo `baseUrl` é 5173) bata em uma versão velha do app.
+Se aparecer erro "Port 5173 is already in use", encerre o processo antigo
+e rode `npm run dev` de novo.
+
 ## A pasta `src`
 
 É onde fica todo o código do frontend.
@@ -35,18 +51,26 @@ com o `.jsx` e o `.css`.
 
 ```
 components/
-├── Button/
-│   ├── Button.jsx
-│   └── Button.css
-├── IconeLupa/
-│   └── IconeLupa.jsx
-└── InputField/
-    ├── InputField.jsx
-    └── InputField.css
+├── BannerProximaConsulta/  banner da Home com a próxima consulta agendada
+├── Button/                 botão padrão com microinterações Motion
+├── CalendarioMes/          grade mensal usada em /calendario
+├── Header/                 cabeçalho global do AppLayout
+├── IconeChevron/           seta usada em SelectField e botões
+├── IconeFechar/            X usado no drawer mobile e dialogs
+├── IconeLogout/            ícone do botão Sair da sidebar
+├── IconeLupa/              SVG da busca (header global + dicionário)
+├── IconeMenu/              hambúrguer mobile (abre o drawer)
+├── InputField/             input com label, estado de erro e trailing
+├── PageTransition/         fade + slide entre rotas internas
+├── ProtectedRoute/         guarda de rota autenticada
+├── SearchBar/              campo de busca do header global
+├── SelectField/            combobox customizado e animado
+└── Sidebar/                navegação lateral (desktop) e drawer (mobile)
 ```
 
-`IconeLupa` é um SVG inline reutilizável (props: `tamanho`, `className`). É usado pela
-busca do header global (`SearchBar`) e pela busca interna da página do Dicionário.
+Todos os ícones (`IconeChevron`, `IconeFechar`, `IconeLogout`, `IconeLupa`,
+`IconeMenu`) são SVGs inline reutilizáveis com props `tamanho` e
+`className`. Use-os direto no JSX em vez de imagens.
 
 ## A pasta `pages`
 
@@ -57,8 +81,24 @@ src/pages/Login/Login.jsx
 src/pages/Login/Login.css
 ```
 
-As páginas internas atuais ficam em pastas próprias, como `Home`, `Calendario`,
-`Dicionario` e `Bot`. Nesta etapa, elas são placeholders.
+Páginas internas:
+
+| Pasta | Rota | Status |
+|---|---|---|
+| `Home` | `/` | Home com banner de próxima consulta |
+| `Perfil` | `/perfil` | Perfil da paciente (formulário) |
+| `Dicionario` | `/dicionario` | Lista + busca + detalhes de termos médicos |
+| `Consultas` | `/calendario` | Grade mensal + painel lateral de próximas consultas |
+| `Medicamentos` | `/medicamentos` | Checklist diário de remédios prescritos |
+| `Ciclo` | `/ciclo` | Placeholder |
+| `Bot` | `/bot` | Placeholder |
+| `Tratamentos` | `/tratamentos` | Placeholder |
+| `Especialidades` | `/especialidades` | Placeholder |
+| `EmBreve` | rotas placeholder | Reaproveitada por várias páginas em construção |
+
+A pasta `Consultas` cobre a rota `/calendario` (o nome do componente é
+`Consultas` porque a feature gira em torno das consultas; a rota usa
+`/calendario` porque é assim que a paciente reconhece a tela).
 
 ## A pasta `layouts`
 
@@ -149,7 +189,9 @@ Toda chamada à API do Maréa passa pela pasta `src/services/`:
 src/services/
 ├── api.js                  wrapper de fetch com URL base, auth e tratamento de erro
 ├── authService.js          login, refresh e dados do usuário autenticado
+├── consultasService.js     lista todas e lista próximas consultas
 ├── dicionarioService.js    chamadas específicas do dicionário
+├── medicamentosService.js  lista checklist diário e alterna tomada do dia
 └── perfilService.js        leitura e atualização do perfil
 ```
 
