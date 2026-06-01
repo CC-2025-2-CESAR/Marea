@@ -136,41 +136,45 @@ function Perfil() {
     }
   }
 
+  const cabecalho = (
+    <header className="perfil-cabecalho">
+      <h1>Perfil</h1>
+      <p>Acompanhe e atualize seus dados na Amare.</p>
+    </header>
+  )
+
   if (carregando) {
     return (
-      <section
-        data-cy="page-perfil"
-        className="perfil-pagina perfil-pagina--mensagem"
-      >
-        <p data-cy="perfil-mensagem-carregando" className="perfil-mensagem">
-          Carregando seu perfil…
-        </p>
+      <section data-cy="page-perfil" className="perfil-pagina">
+        {cabecalho}
+        <div className="perfil-estado">
+          <p data-cy="perfil-mensagem-carregando" className="perfil-mensagem">
+            Carregando seu perfil…
+          </p>
+        </div>
       </section>
     )
   }
 
   if (erro) {
     return (
-      <section
-        data-cy="page-perfil"
-        className="perfil-pagina perfil-pagina--mensagem"
-      >
-        <p
-          data-cy="perfil-mensagem-erro"
-          className="perfil-mensagem perfil-mensagem--erro"
-        >
-          {erro}
-        </p>
+      <section data-cy="page-perfil" className="perfil-pagina">
+        {cabecalho}
+        <div className="perfil-estado">
+          <p
+            data-cy="perfil-mensagem-erro"
+            className="perfil-mensagem perfil-mensagem--erro"
+          >
+            {erro}
+          </p>
+        </div>
       </section>
     )
   }
 
   return (
     <section data-cy="page-perfil" className="perfil-pagina">
-      <header className="perfil-cabecalho">
-        <h1>Perfil</h1>
-        <p>Acompanhe e atualize seus dados na Amare.</p>
-      </header>
+      {cabecalho}
 
       <div className="perfil-grade">
         <aside

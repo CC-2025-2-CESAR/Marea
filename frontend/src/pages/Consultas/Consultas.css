@@ -126,6 +126,12 @@
   color: var(--cor-texto-suave);
   text-align: center;
   font-style: italic;
+  /* Altura reservada para a área não "pular" quando o calendário e o painel
+     substituem a mensagem de carregando. */
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .consultas-mensagem--erro {
