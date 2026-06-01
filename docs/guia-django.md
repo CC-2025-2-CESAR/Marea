@@ -224,6 +224,29 @@ Cria `paciente_teste`, `medica_teste` e `admin_teste` com senha `amare123`
 e dados fictícios. É idempotente — pode rodar várias vezes sem duplicar
 registros. Apenas para desenvolvimento local; nunca usar em produção.
 
+### Controle de acesso por papel (RBAC)
+
+As permissões por papel ficam em `backend/usuarios/permissions.py`, lendo
+`request.user.perfil.tipo_usuario`:
+
+- `IsPaciente` — libera só pacientes.
+- `IsMedica` — libera só médicas.
+- `IsMedicaOuAdmin` — libera médicas e administradoras (e superusuária do
+  Django). Preparada para a futura área administrativa.
+
+`perfil_view` agora usa `@permission_classes([IsPaciente])`: médicas e admins
+recebem 403 (antes a view criava um `Paciente` para qualquer usuário, o que
+misturava papéis). O controle vive no backend — o frontend nunca é a única
+barreira.
+
+O login tem limite de tentativas por IP (`LoginThrottle`, um
+`AnonRateThrottle` com `rate = '10/min'` embutido na classe), mitigando força
+bruta. A mensagem de erro é genérica ("Usuário ou senha inválidos.") para não
+revelar se o usuário existe.
+
+Os testes de acesso estão em `backend/usuarios/tests.py` (paciente acessa o
+perfil, médica recebe 403, anônimo recebe 401).
+
 ## App `consultas`
 
 Terceira app real do backend. Cuida das consultas agendadas das pacientes e

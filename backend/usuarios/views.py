@@ -6,14 +6,31 @@ ViewSets ou Django Forms (regra da disciplina).
 
 from django.contrib.auth import authenticate
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    throttle_classes,
+)
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Paciente, PerfilUsuario
+from .models import Paciente
+from .permissions import IsPaciente
 from .serializers import PerfilPacienteSerializer, UsuarioBasicoSerializer
+
+
+class LoginThrottle(AnonRateThrottle):
+    """Limita tentativas de login por IP, mitigando ataques de força bruta.
+
+    O rate e o escopo ficam embutidos na própria classe (não dependem de
+    DEFAULT_THROTTLE_RATES no settings).
+    """
+
+    scope = 'login'
+    rate = '10/min'
 
 
 def _gerar_tokens(usuario):
@@ -27,6 +44,7 @@ def _gerar_tokens(usuario):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([LoginThrottle])
 def login_view(request):
     """Autentica por username + senha e devolve tokens JWT."""
     username = request.data.get('username', '').strip()
@@ -83,13 +101,15 @@ def me_view(request):
 
 
 @api_view(['GET', 'PATCH'])
+@permission_classes([IsPaciente])
 def perfil_view(request):
-    """Lê ou atualiza o perfil do usuário autenticado.
+    """Lê ou atualiza o perfil da paciente autenticada.
 
-    Hoje só pacientes têm fluxo de edição no frontend; médicas e admins
-    veem a tela mas seus dados são gerenciados pelo Django Admin.
+    Restrito a pacientes (IsPaciente): médicas e administradoras têm a
+    própria área e não passam por aqui. Antes, esta view criava um
+    Paciente para qualquer usuário autenticado — o que misturava papéis.
     """
-    perfil, _ = PerfilUsuario.objects.get_or_create(usuario=request.user)
+    perfil = request.user.perfil
     Paciente.objects.get_or_create(perfil=perfil)
 
     if request.method == 'GET':
