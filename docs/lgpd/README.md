@@ -20,6 +20,8 @@ segue para reduzir risco real às titulares (pacientes e médicas).
   de segurança.
 - [`politica-privacidade.md`](politica-privacidade.md) — rascunho da política de
   privacidade voltada às titulares.
+- [`checklist-pr.md`](checklist-pr.md) — checklist de apoio para revisar PRs que
+  tocam dados pessoais.
 
 ## Princípios que guiam o projeto
 

@@ -1,23 +1,20 @@
-## O que muda
+# Checklist de LGPD para revisão de PR
 
-<!-- Descreva em poucas linhas o que esta PR faz e por quê. -->
+Lista de apoio para abrir ou revisar uma PR. Use o bloco de LGPD sempre que a
+mudança tocar dados de usuário (usuário, perfil, paciente, médica, consulta,
+medicamento ou qualquer outro dado pessoal).
 
-## Como testar
+> É um guia opcional — não força nada no fluxo de PR do repositório.
 
-<!-- Passos para validar. Ex.: rotas, comandos, telas afetadas. -->
-
-## Checklist geral
+## Geral
 
 - [ ] `npm run lint` e `npm run build` passam (frontend).
-- [ ] `npm run cypress:run` verde (ou justificativa se não se aplica).
+- [ ] `npm run cypress:run` verde (ou justificativa, se não se aplica).
 - [ ] `python manage.py check` e os testes do backend passam.
 - [ ] Sem `console.log`/`print` de dados pessoais deixados no código.
 - [ ] Textos visíveis em pt-BR; arquivos em UTF-8.
 
-## Checklist LGPD (obrigatório quando mexe em dados de usuário)
-
-> Vale para qualquer PR que toque usuário, perfil, paciente, médica, consulta,
-> medicamento ou outro dado pessoal. Detalhes em `docs/lgpd/`.
+## LGPD (quando mexe em dados de usuário)
 
 - [ ] **Minimização**: não adicionei dado pessoal desnecessário.
 - [ ] **Sem dado sensível em URL**: busca por ID, não por nome/telefone/dado clínico.
@@ -26,4 +23,4 @@
 - [ ] **Serializer mínimo**: a resposta expõe apenas os campos que a tela usa.
 - [ ] **Acesso negado testado**: há teste cobrindo quem NÃO pode acessar.
 - [ ] **Dados fictícios**: seeds/fixtures/testes não usam dado real de paciente.
-- [ ] **Mapeamento atualizado**: se criei campo de dado pessoal, atualizei `docs/lgpd/mapeamento-dados.md`.
+- [ ] **Mapeamento atualizado**: se criei campo de dado pessoal, atualizei [`mapeamento-dados.md`](mapeamento-dados.md).
