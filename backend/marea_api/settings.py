@@ -10,23 +10,56 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega variáveis de um arquivo .env local, se existir. Em produção as
+# variáveis vêm do ambiente do servidor (ex.: App Settings do Azure), e este
+# arquivo simplesmente não existe — nada quebra.
+load_dotenv(BASE_DIR / '.env')
+
+
+def _env_bool(nome, padrao):
+    """Lê uma variável de ambiente como booleano."""
+    return os.environ.get(nome, str(padrao)).strip().lower() in {
+        '1',
+        'true',
+        'yes',
+        'on',
+    }
+
+
+def _env_lista(nome, padrao=''):
+    """Lê uma variável de ambiente como lista separada por vírgulas."""
+    bruto = os.environ.get(nome, padrao)
+    return [item.strip() for item in bruto.split(',') if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-wc&o)1!1)(=w(+naq50my(xp50*#3p!r6w6k$g=iqz6d5b-ae3'
+# Em produção, defina DJANGO_SECRET_KEY no ambiente. O valor abaixo é apenas
+# um fallback de desenvolvimento local e nunca deve ser usado em produção.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-wc&o)1!1)(=w(+naq50my(xp50*#3p!r6w6k$g=iqz6d5b-ae3',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Local: DEBUG ligado por padrão. Em produção, defina DJANGO_DEBUG=False.
+DEBUG = _env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+# Hosts liberados. Local cobre localhost; em produção defina
+# DJANGO_ALLOWED_HOSTS com o domínio real (separado por vírgulas).
+ALLOWED_HOSTS = _env_lista('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
 
 
 # Application definition
@@ -50,6 +83,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serve os arquivos estáticos em produção (logo após o
+    # SecurityMiddleware, conforme a documentação). Inócuo em desenvolvimento.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,11 +94,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Libera o frontend (Vite em desenvolvimento) a chamar a API.
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
+# Libera o frontend a chamar a API. Em produção, defina
+# DJANGO_CORS_ALLOWED_ORIGINS com o domínio real (separado por vírgulas).
+CORS_ALLOWED_ORIGINS = _env_lista(
+    'DJANGO_CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173',
+)
+
+# Origens confiáveis para CSRF quando atrás de HTTPS/proxy em produção.
+CSRF_TRUSTED_ORIGINS = _env_lista('DJANGO_CSRF_TRUSTED_ORIGINS')
 
 ROOT_URLCONF = 'marea_api.urls'
 
@@ -86,12 +126,15 @@ WSGI_APPLICATION = 'marea_api.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-
+#
+# Lido de DATABASE_URL quando presente (ex.: PostgreSQL em produção). Sem essa
+# variável, usa SQLite local — o desenvolvimento continua funcionando sem
+# nenhuma configuração extra.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+    )
 }
 
 
@@ -131,6 +174,21 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Destino do collectstatic em produção (admin, DRF browsable API). Servido
+# pelo WhiteNoise. Localmente o runserver continua servindo normalmente.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        # Armazenamento simples em desenvolvimento (sem manifest), trocado por
+        # WhiteNoise comprimido em produção no bloco `if not DEBUG` abaixo.
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
+
 
 # Django REST Framework
 # Por padrão exige autenticação via JWT. Endpoints públicos (como o dicionário)
@@ -151,3 +209,19 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+
+# Segurança reforçada apenas em produção (quando DEBUG=False). Em
+# desenvolvimento local nada disso é aplicado, para não atrapalhar o HTTP.
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_HSTS_SECONDS = 31536000  # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    STORAGES['staticfiles']['BACKEND'] = (
+        'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    )
