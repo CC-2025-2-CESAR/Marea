@@ -32,6 +32,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Polimento de UX: transição suave entre rotas internas, sidebar com microinterações
   e indicador lateral de rota ativa, SelectField customizado para tipo sanguíneo,
   máscara brasileira de telefone no perfil e respeito a `prefers-reduced-motion`.
+- Controle de acesso por papel: a médica tem uma área própria (`/area-medica`,
+  em construção) e não acessa as telas da paciente; o `/api/perfil/` é restrito
+  a pacientes no backend, e o login tem limite de tentativas.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias

@@ -13,6 +13,7 @@ import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
 import Especialidades from '../pages/Especialidades/Especialidades'
 import EmBreve from '../pages/EmBreve/EmBreve'
+import AreaMedica from '../pages/AreaMedica/AreaMedica'
 
 function AppRoutes() {
   return (
@@ -22,9 +23,21 @@ function AppRoutes() {
           <Route path="/login" element={<Login />} />
         </Route>
 
+        {/* Área da médica (em construção): exclusiva do papel "medica". */}
+        <Route
+          path="/area-medica"
+          element={
+            <ProtectedRoute papel="medica">
+              <AreaMedica />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Área da paciente: qualquer usuária autenticada, menos a médica
+            (que tem a própria área). */}
         <Route
           element={
-            <ProtectedRoute>
+            <ProtectedRoute excetoPapel="medica">
               <AppLayout />
             </ProtectedRoute>
           }

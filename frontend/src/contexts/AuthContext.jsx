@@ -69,6 +69,9 @@ function AuthProvider({ children }) {
 
   const valor = {
     usuario,
+    // Papel do usuário (paciente | medica | admin) para o controle de acesso
+    // por rota no frontend. Vem do login/me do backend.
+    tipoUsuario: usuario?.tipo_usuario ?? null,
     autenticado: usuario !== null,
     carregando: false,
     login,

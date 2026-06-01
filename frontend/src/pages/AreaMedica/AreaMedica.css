@@ -1,0 +1,84 @@
+.area-medica {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-lg) var(--espaco-md);
+  background:
+    radial-gradient(
+      circle at 88% 10%,
+      rgba(193, 211, 222, 0.34),
+      transparent 28%
+    ),
+    var(--cor-fundo);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.area-medica__cartao {
+  width: 100%;
+  max-width: 460px;
+  background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-xl) var(--espaco-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+.area-medica__logo {
+  width: 150px;
+  height: auto;
+  margin-bottom: var(--espaco-xs);
+}
+
+.area-medica__titulo {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--cor-marrom);
+}
+
+.area-medica__saudacao {
+  margin: 0;
+  font-weight: 600;
+}
+
+.area-medica__texto {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  line-height: 1.55;
+  max-width: 42ch;
+}
+
+.area-medica__sair {
+  margin-top: var(--espaco-sm);
+  min-height: 44px;
+  padding: 10px 28px;
+  border: none;
+  border-radius: 999px;
+  background: var(--cor-rosa-principal);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform var(--duracao-rapida) var(--easing-saida),
+    filter var(--duracao-rapida) var(--easing-saida);
+}
+
+.area-medica__sair:hover {
+  filter: brightness(0.97);
+}
+
+.area-medica__sair:active {
+  transform: scale(0.98);
+}
+
+.area-medica__sair:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
