@@ -2,6 +2,10 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  /* Rola internamente quando os itens do menu + o botão Sair passam da
+     altura da viewport (telas baixas ou muitos links), garantindo que o
+     rodapé com o "Sair" continue alcançável. */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--espaco-lg);
