@@ -196,6 +196,27 @@ criado com `python manage.py createsuperuser`).
 
 Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias-de-usuario.md).
 
+## Segurança e Privacidade (LGPD)
+
+A Amare trata **dados pessoais sensíveis** (dados de saúde), então privacidade é
+critério técnico de qualidade, não enfeite. Medidas adotadas:
+
+- **Minimização**: cada etapa coleta só o necessário.
+- **Separação de dados**: conta, perfil e dados clínicos em tabelas distintas.
+- **Controle de acesso no backend**: cada papel (paciente, médica, admin) só
+  acessa o que lhe compete — nunca confiando apenas no frontend.
+- **Segredos fora do código**: `SECRET_KEY`, banco e demais credenciais vêm de
+  variáveis de ambiente; `.env` não é versionado (há `.env.example`).
+- **Produção endurecida**: com `DJANGO_DEBUG=False`, o projeto liga HTTPS
+  obrigatório, HSTS e cookies seguros automaticamente.
+- **Sem dado sensível em URL nem em log**; **dados fictícios** em
+  desenvolvimento, testes e demonstrações.
+
+Documentação completa em [`docs/lgpd/`](docs/lgpd/README.md): mapeamento de
+dados, registro de operações, RIPD simplificado, plano de incidente e rascunho
+da política de privacidade. Toda PR que toca dado pessoal passa pelo checklist
+LGPD do template de pull request.
+
 ## Documentação
 
 - [Configuração do ambiente](docs/configuracao-do-ambiente.md)
@@ -206,6 +227,7 @@ Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias
 - [Guia do ESLint e Prettier](docs/guia-eslint-prettier.md)
 - [Fluxo de Git](docs/fluxo-git.md)
 - [Histórias de usuário](docs/historias-de-usuario.md)
+- [Segurança e Privacidade (LGPD)](docs/lgpd/README.md)
 - [Como contribuir](CONTRIBUTING.md)
 
 ## Estrutura do projeto
