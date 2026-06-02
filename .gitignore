@@ -23,6 +23,11 @@ db.sqlite3-journal
 staticfiles/
 backend/staticfiles/
 
+# Build do frontend copiado para dentro do backend no deploy (gerado pelo
+# processo de publicação a partir de frontend/dist; nunca versionar)
+frontend_dist/
+backend/frontend_dist/
+
 # --- Node / React / Vite ---
 node_modules/
 dist/
