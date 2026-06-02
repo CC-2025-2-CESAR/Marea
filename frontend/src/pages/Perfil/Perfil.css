@@ -7,9 +7,13 @@
   color: var(--cor-texto);
 }
 
-.perfil-pagina--mensagem {
+/* Área de estado (carregando / erro): altura reservada e mensagem centrada,
+   para o conteúdo não "pular" quando o formulário aparece após o carregamento. */
+.perfil-estado {
+  display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 40vh;
   padding: var(--espaco-xl) var(--espaco-md);
 }
 

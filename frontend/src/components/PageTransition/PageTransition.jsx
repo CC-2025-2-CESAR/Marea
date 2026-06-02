@@ -2,20 +2,19 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useLocation } from 'react-router-dom'
 
 /**
- * Envolve o <Outlet /> do AppLayout para dar uma transição curta de
- * fade + microdeslocamento vertical entre as rotas internas. Mantém o
- * scroll natural da página e desliga a animação se a paciente pediu
- * redução de movimento no sistema operacional.
+ * Envolve o <Outlet /> do AppLayout para dar uma transição curta e suave
+ * entre as rotas internas. Usa apenas opacidade (crossfade), sem
+ * deslocamento vertical — o movimento vertical somado ao mode="wait" era o
+ * que dava a sensação de "travadinha" na troca de página. Desliga a
+ * animação se a paciente pediu redução de movimento no sistema operacional.
  *
  * Detalhes:
- * - mode="wait" garante que a página anterior termine de sair antes da
- *   próxima entrar — evita overlap visual.
- * - initial={false} evita animar a montagem inicial do app (entra
- *   instantâneo na primeira visita / refresh).
- * - key={pathname} é o que sinaliza para o AnimatePresence que houve
- *   troca de rota.
- * - minHeight: 100% mitiga o "pulo" quando a página seguinte é mais
- *   alta ou mais baixa que a anterior.
+ * - mode="wait": a página anterior termina de sair antes de a próxima
+ *   entrar, evitando sobreposição de conteúdo. A saída é mais rápida que a
+ *   entrada para o conjunto parecer ágil, não arrastado.
+ * - initial={false}: não anima a montagem inicial do app (primeira visita
+ *   ou refresh entram instantâneos).
+ * - key={pathname}: sinaliza a troca de rota para o AnimatePresence.
  */
 function PageTransition({ children }) {
   const local = useLocation()
@@ -29,10 +28,10 @@ function PageTransition({ children }) {
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={local.pathname}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -4 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0, transition: { duration: 0.1, ease: 'easeIn' } }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
         style={{ minHeight: '100%' }}
       >
         {children}
