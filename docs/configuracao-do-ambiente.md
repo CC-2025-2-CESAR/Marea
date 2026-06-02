@@ -59,22 +59,22 @@ Aplique as migrações:
 python manage.py migrate
 ```
 
-Carregue os dados iniciais (termos do dicionário, especialidades e consultas
-de exemplo da paciente de teste):
-
-```
-python manage.py loaddata termos_iniciais
-python manage.py loaddata consultas_iniciais
-```
-
-Crie os usuários fictícios para login local (`paciente_teste`, `medica_teste`
-e `admin_teste`, todos com senha `amare123`):
+Crie os dados fictícios de demonstração — as contas de login (`renata`,
+`amanda`, `medica_teste` e `admin_teste`, todas com senha `amare123`), o vínculo
+Médica↔Paciente e as consultas/medicamentos de cada paciente:
 
 ```
 python manage.py criar_usuarios_teste
 ```
 
 Esse comando é idempotente — pode rodar de novo sem duplicar registros.
+
+Carregue o dicionário de termos (conteúdo de referência, sem vínculo com
+paciente):
+
+```
+python manage.py loaddata termos_iniciais
+```
 
 Rode o servidor:
 

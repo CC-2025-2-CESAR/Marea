@@ -35,9 +35,10 @@ class PerfilUsuarioAdmin(admin.ModelAdmin):
 
 @admin.register(Paciente)
 class PacienteAdmin(admin.ModelAdmin):
-    list_display = ('perfil', 'data_nascimento', 'tipo_sanguineo')
+    list_display = ('perfil', 'data_nascimento', 'tipo_sanguineo', 'medica_responsavel')
     search_fields = ('perfil__usuario__username', 'perfil__nome_completo')
-    list_filter = ('tipo_sanguineo',)
+    list_filter = ('tipo_sanguineo', 'medica_responsavel')
+    autocomplete_fields = ('medica_responsavel',)
 
 
 @admin.register(Medica)

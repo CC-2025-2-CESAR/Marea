@@ -6,6 +6,7 @@ from .views import servir_spa
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('usuarios.urls')),
+    path('api/medica/', include('area_medica.urls')),
     path('api/dicionario/', include('dicionario.urls')),
     path('api/consultas/', include('consultas.urls')),
     path('api/medicamentos/', include('medicamentos.urls')),

@@ -84,6 +84,17 @@ class Paciente(models.Model):
     )
     medicamentos_em_uso = models.TextField('Medicamentos em uso', blank=True)
     observacoes_medicas = models.TextField('Observações médicas', blank=True)
+    # Vínculo explícito Médica↔Paciente (não derivado de consultas). Define qual
+    # médica é responsável por esta paciente e, portanto, pode acompanhá-la e
+    # criar registros (consultas, medicamentos) para ela na área da médica.
+    medica_responsavel = models.ForeignKey(
+        'Medica',
+        on_delete=models.SET_NULL,
+        related_name='pacientes',
+        null=True,
+        blank=True,
+        verbose_name='Médica responsável',
+    )
 
     class Meta:
         verbose_name = 'Paciente'

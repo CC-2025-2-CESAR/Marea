@@ -1,60 +1,51 @@
 .area-medica {
   min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--espaco-lg) var(--espaco-md);
+  flex-direction: column;
+  gap: var(--espaco-lg);
+  padding: var(--espaco-lg) var(--espaco-lg) var(--espaco-xl);
   background:
     radial-gradient(
-      circle at 88% 10%,
+      circle at 88% 6%,
       rgba(193, 211, 222, 0.34),
-      transparent 28%
+      transparent 26%
     ),
     var(--cor-fundo);
   font-family: var(--fonte-base);
   color: var(--cor-texto);
 }
 
-.area-medica__cartao {
-  width: 100%;
-  max-width: 460px;
-  background: var(--cor-card);
-  border-radius: var(--raio-medio);
-  box-shadow: var(--sombra-suave);
-  padding: var(--espaco-xl) var(--espaco-lg);
-  text-align: center;
+/* --- Cabeçalho --- */
+.area-medica__topo {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--espaco-sm);
+  gap: var(--espaco-md);
+  flex-wrap: wrap;
 }
 
 .area-medica__logo {
-  width: 150px;
+  width: 110px;
   height: auto;
-  margin-bottom: var(--espaco-xs);
+}
+
+.area-medica__cabecalho-texto {
+  flex: 1;
+  min-width: 200px;
 }
 
 .area-medica__titulo {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   color: var(--cor-marrom);
 }
 
 .area-medica__saudacao {
-  margin: 0;
+  margin: 4px 0 0;
+  color: var(--cor-texto-suave);
   font-weight: 600;
 }
 
-.area-medica__texto {
-  margin: 0;
-  color: var(--cor-texto-suave);
-  line-height: 1.55;
-  max-width: 42ch;
-}
-
 .area-medica__sair {
-  margin-top: var(--espaco-sm);
   min-height: 44px;
   padding: 10px 28px;
   border: none;
@@ -81,4 +72,225 @@
 .area-medica__sair:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
+/* --- Conteúdo: lista + detalhe --- */
+.area-medica__conteudo {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: var(--espaco-lg);
+  align-items: start;
+}
+
+.area-medica__lista,
+.area-medica__detalhe {
+  background: var(--cor-card);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-lg);
+}
+
+.area-medica__lista h2 {
+  margin: 0 0 var(--espaco-md);
+  font-size: 1.15rem;
+  color: var(--cor-marrom);
+}
+
+.area-medica__lista ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.area-medica__paciente {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--raio-pequeno, 10px);
+  background: var(--cor-fundo);
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+  transition:
+    background var(--duracao-rapida) var(--easing-saida),
+    border-color var(--duracao-rapida) var(--easing-saida);
+}
+
+.area-medica__paciente:hover {
+  background: rgba(219, 183, 185, 0.16);
+}
+
+.area-medica__paciente.is-ativa {
+  border-color: var(--cor-rosa-principal);
+  background: rgba(219, 183, 185, 0.22);
+}
+
+.area-medica__paciente:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
+.area-medica__paciente-nome {
+  font-weight: 600;
+}
+
+.area-medica__paciente-meta {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+}
+
+.area-medica__estado,
+.area-medica__placeholder {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.area-medica__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30vh;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* --- Detalhe da paciente --- */
+.detalhe__cabecalho h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--cor-marrom);
+}
+
+.detalhe__meta {
+  margin: 4px 0 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.detalhe__feedback {
+  margin: var(--espaco-md) 0 0;
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno, 10px);
+  font-size: 0.9rem;
+}
+
+.detalhe__feedback--sucesso {
+  background: rgba(120, 180, 120, 0.16);
+  color: #2f6b34;
+}
+
+.detalhe__feedback--erro {
+  background: rgba(200, 90, 90, 0.14);
+  color: #9c2b2b;
+}
+
+.detalhe__colunas {
+  margin-top: var(--espaco-md);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaco-lg);
+}
+
+.detalhe__bloco h3 {
+  margin: 0 0 var(--espaco-sm);
+  font-size: 1.05rem;
+  color: var(--cor-marrom);
+}
+
+.detalhe__itens {
+  list-style: none;
+  margin: 0 0 var(--espaco-md);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.detalhe__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--raio-pequeno, 10px);
+  background: var(--cor-fundo);
+}
+
+.detalhe__item span {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.detalhe__vazio {
+  margin: 0 0 var(--espaco-md);
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+/* --- Formulários de escrita --- */
+.detalhe__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  padding-top: var(--espaco-md);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.detalhe__form h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--cor-texto);
+}
+
+.detalhe__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.detalhe__form input,
+.detalhe__form textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: var(--raio-pequeno, 10px);
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+.detalhe__form textarea {
+  resize: vertical;
+}
+
+.detalhe__form input:focus-visible,
+.detalhe__form textarea:focus-visible {
+  outline: none;
+  border-color: var(--cor-rosa-principal);
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.4);
+}
+
+/* --- Responsivo --- */
+@media (max-width: 1024px) {
+  .area-medica__conteudo {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .area-medica {
+    padding: var(--espaco-md);
+  }
+
+  .detalhe__colunas {
+    grid-template-columns: 1fr;
+  }
 }

@@ -11,23 +11,20 @@ set -e
 python manage.py migrate --noinput
 
 # Seed OPCIONAL de demonstração (idempotente):
-#   - fixtures com PK fixa  -> loaddata funciona como upsert (não duplica);
-#   - usuários de teste      -> criados via get_or_create.
-# Ative definindo a App Setting SEED_DEMO=true para popular o conteúdo inicial
-# e os usuários de teste; depois defina SEED_DEMO=false para que reinícios não
-# sobrescrevam dados criados em uso (ex.: registros feitos pela médica).
+#   - criar_usuarios_teste cria as contas de teste E todo o conteúdo clínico de
+#     demonstração (pacientes-persona, médica, especialidades, consultas e
+#     medicamentos), ligado por relacionamento — sem depender de PK fixa;
+#   - o dicionário continua vindo de fixture por ser conteúdo de referência sem
+#     vínculo com paciente.
+# Ative definindo a App Setting SEED_DEMO=true para popular o conteúdo inicial;
+# depois defina SEED_DEMO=false para que reinícios não sobrescrevam dados
+# criados em uso (ex.: registros feitos pela médica).
 if [ "${SEED_DEMO}" = "true" ]; then
-  echo "[startup] SEED_DEMO=true: populando usuários de teste e conteúdo..."
-  # Usuários PRIMEIRO: as fixtures de consultas/medicamentos têm FK para a
-  # paciente, então ela precisa existir antes do loaddata. Cada loaddata é
-  # separado para que uma falha não impeça as demais (loaddata é atômico por
-  # invocação).
+  echo "[startup] SEED_DEMO=true: populando dados de demonstração..."
   python manage.py criar_usuarios_teste \
     || echo "[startup] aviso: criar_usuarios_teste falhou (seguindo mesmo assim)"
-  for fixture in termos_iniciais consultas_iniciais medicamentos_iniciais; do
-    python manage.py loaddata "$fixture" \
-      || echo "[startup] aviso: loaddata $fixture falhou (seguindo mesmo assim)"
-  done
+  python manage.py loaddata termos_iniciais \
+    || echo "[startup] aviso: loaddata termos_iniciais falhou (seguindo mesmo assim)"
 fi
 
 exec gunicorn marea_api.wsgi \

@@ -57,11 +57,10 @@ obrigatório, HSTS e cookies seguros.
 ## Como o startup funciona (`backend/startup.sh`)
 
 1. `python manage.py migrate --noinput`
-2. Se `SEED_DEMO=true`: cria os usuários de teste (`criar_usuarios_teste`) e
-   carrega as fixtures (`termos_iniciais`, `consultas_iniciais`,
-   `medicamentos_iniciais`). É idempotente — usuários via `get_or_create` e
-   fixtures com PK fixa (upsert). Os usuários são criados **antes** das fixtures
-   porque consultas/medicamentos têm FK para a paciente.
+2. Se `SEED_DEMO=true`: roda `criar_usuarios_teste`, que cria as contas de teste
+   e todo o conteúdo clínico de demonstração (pacientes-persona, médica,
+   especialidades, consultas e medicamentos) ligado por relacionamento; e
+   carrega a fixture do dicionário (`termos_iniciais`). É idempotente.
 3. `exec gunicorn marea_api.wsgi --bind=0.0.0.0:8000 ...`
 
 ## Como reimplantar (deploy manual)
@@ -101,8 +100,9 @@ versionamento (`.gitignore`) e o `empacotar_deploy.py` também os exclui do zip.
 
 ## Usuários de demonstração
 
-`paciente_teste`, `medica_teste`, `admin_teste` — senha `amare123`. Apenas para
-demonstração acadêmica; nunca usar em um cenário com dados reais.
+`renata` e `amanda` (pacientes-persona), `medica_teste` (Dra. Helena Costa) e
+`admin_teste` — senha `amare123`. Apenas para demonstração acadêmica; nunca usar
+em um cenário com dados reais.
 
 ## Verificação rápida
 

@@ -35,9 +35,11 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Polimento de UX: transição suave entre rotas internas, sidebar com microinterações
   e indicador lateral de rota ativa, SelectField customizado para tipo sanguíneo,
   máscara brasileira de telefone no perfil e respeito a `prefers-reduced-motion`.
-- Controle de acesso por papel: a médica tem uma área própria (`/area-medica`,
-  em construção) e não acessa as telas da paciente; o `/api/perfil/` é restrito
-  a pacientes no backend, e o login tem limite de tentativas.
+- Controle de acesso por papel: a médica tem uma área própria (`/area-medica`)
+  com as pacientes vinculadas a ela, onde acompanha e registra consultas e
+  medicamentos (PROJ-19 e PROJ-20); não acessa as telas da paciente. O
+  `/api/perfil/` é restrito a pacientes no backend, e o login tem limite de
+  tentativas.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
@@ -66,6 +68,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/bot`: placeholder de bot.
 - `/tratamentos`: placeholder de tratamentos.
 - `/especialidades`: placeholder de especialidades.
+- `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
+  lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
 ## Layouts
 
@@ -84,22 +88,22 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py loaddata termos_iniciais
-python manage.py loaddata consultas_iniciais
-python manage.py loaddata medicamentos_iniciais
 python manage.py criar_usuarios_teste
+python manage.py loaddata termos_iniciais
 python manage.py runserver
 ```
 
 Backend em `http://127.0.0.1:8000/`.
 
 O command `criar_usuarios_teste` é idempotente — pode rodar mais de uma vez sem
-duplicar registros. Ele cria três usuários fictícios com senha `amare123`:
+duplicar registros. Ele cria as contas fictícias abaixo (todas com senha
+`amare123`) e, para cada paciente, as consultas e medicamentos de demonstração:
 
 | Usuário | Tipo | Para que serve |
 |---|---|---|
-| `paciente_teste` | Paciente | Login da paciente, fluxo principal do app. |
-| `medica_teste` | Médica | Reservado para futuro fluxo da médica. |
+| `renata` | Paciente | Persona Renata Cegonha — FIV com doação de sêmen. |
+| `amanda` | Paciente | Persona Amanda Coelho — acompanhamento após perdas gestacionais. |
+| `medica_teste` | Médica | Dra. Helena Costa — área da médica (acompanha as duas pacientes). |
 | `admin_teste` | Administradora (superuser) | Acesso ao Django Admin em `http://localhost:8000/admin/`. |
 
 Use esses dados apenas em ambiente local — eles não devem ir para produção.
@@ -163,7 +167,7 @@ Para testar o fluxo ponta-a-ponta:
 
 1. Backend rodando com `criar_usuarios_teste` já executado.
 2. Frontend rodando (`npm run dev`).
-3. Acesse `http://localhost:5173/login`, entre com `paciente_teste` / `amare123`.
+3. Acesse `http://localhost:5173/login`, entre com `renata` / `amare123`.
 4. Você é redirecionada para `/perfil`. Edite o telefone, clique em Salvar.
 5. O botão "Sair" no rodapé da sidebar limpa a sessão e volta para `/login`.
 
@@ -216,6 +220,29 @@ Para cadastrar novos termos sem migrations, use o Django Admin em
 criado com `python manage.py createsuperuser`).
 
 Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias-de-usuario.md).
+
+## Área da médica (PROJ-19 e PROJ-20)
+
+A médica tem uma área própria em
+[`/area-medica`](http://localhost:5173/area-medica), fora do layout da paciente.
+Ela vê apenas as pacientes **vinculadas a ela** (campo `medica_responsavel`),
+abre o detalhe de cada uma (dados básicos, consultas e medicamentos) e tem
+poderes de escrita para agendar consultas e cadastrar medicamentos.
+
+O escopo é garantido no backend (escopo por objeto — ponto sensível de LGPD): a
+médica só enxerga/altera as pacientes vinculadas; uma médica não acessa as
+pacientes de outra; a paciente é barrada da área; a administradora vê todas.
+
+Endpoints do backend (exigem papel de médica ou administradora):
+
+- `GET /api/medica/pacientes/` — lista as pacientes no escopo de quem pede
+- `GET /api/medica/pacientes/<id>/` — detalhe (dados, consultas e medicamentos)
+- `POST /api/medica/pacientes/<id>/consultas/` — agenda uma consulta para a paciente
+- `POST /api/medica/pacientes/<id>/medicamentos/` — cadastra um medicamento para a paciente
+
+O vínculo Médica↔Paciente é explícito (não derivado de consultas) e é definido
+no Django Admin ou pelo seed `criar_usuarios_teste`, que já liga as pacientes de
+demonstração (Renata e Amanda) à Dra. Helena Costa (`medica_teste`).
 
 ## Segurança e Privacidade (LGPD)
 
