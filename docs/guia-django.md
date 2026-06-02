@@ -228,9 +228,14 @@ token deveria ficar em cookie `httpOnly` para reduzir o risco de XSS.
 python manage.py criar_usuarios_teste
 ```
 
-Cria `paciente_teste`, `medica_teste` e `admin_teste` com senha `amare123`
-e dados fictícios. É idempotente — pode rodar várias vezes sem duplicar
-registros. Apenas para desenvolvimento local; nunca usar em produção.
+Cria os dados fictícios de demonstração: as pacientes-persona `renata`
+(Renata Cegonha) e `amanda` (Amanda Coelho), a médica `medica_teste`
+(Dra. Helena Costa) e a administradora `admin_teste` — todas com senha
+`amare123`. Também cria as especialidades, o vínculo Médica↔Paciente e, para
+cada paciente, as consultas e medicamentos de demonstração (ligados por
+relacionamento, sem PK fixa). Remove a conta legada `paciente_teste`, se
+existir. É idempotente — pode rodar várias vezes sem duplicar registros.
+Apenas para desenvolvimento e demonstração; nunca usar com dados reais.
 
 ### Controle de acesso por papel (RBAC)
 
@@ -281,9 +286,9 @@ Arquivos relevantes:
 - `backend/consultas/admin.py` — `EspecialidadeAdmin` e `ConsultaAdmin`
   com `date_hierarchy`, filtros por status/especialidade e busca por nome
   da paciente/médica.
-- `backend/consultas/fixtures/consultas_iniciais.json` — 3 especialidades
-  e 4 consultas de exemplo (2 agendadas futuras, 1 realizada, 1 cancelada)
-  para `paciente_teste`.
+- As especialidades e as consultas de exemplo são criadas pelo seed
+  `criar_usuarios_teste` (ligadas a cada paciente por relacionamento), e não
+  mais por fixture com PK fixa.
 
 ### Endpoints
 
@@ -299,15 +304,15 @@ quebrar a Home).
 
 ### Carregar dados iniciais
 
+As especialidades e as consultas de demonstração vêm do seed:
+
 ```
 python manage.py migrate
-python manage.py loaddata consultas_iniciais
+python manage.py criar_usuarios_teste
 ```
 
-A fixture assume que `paciente_teste` (id 1) e `medica_teste` (id 1) já
-existem — rode `criar_usuarios_teste` antes. Para cadastrar consultas
-novas, use o Django Admin em
-`http://localhost:8000/admin/consultas/consulta/`.
+Para cadastrar consultas novas, use o Django Admin em
+`http://localhost:8000/admin/consultas/consulta/` ou a área da médica.
 
 ## App `medicamentos`
 
@@ -338,9 +343,9 @@ Arquivos relevantes:
 - `backend/medicamentos/admin.py` — `MedicamentoAdmin` com filtros por
   `ativo`/`tomado_hoje`, busca por nome da paciente, e fieldset separado
   para "Estado de hoje".
-- `backend/medicamentos/fixtures/medicamentos_iniciais.json` — 4
-  medicamentos de exemplo para `paciente_teste`: ácido fólico,
-  progesterona, vitamina D e um anti-inflamatório SOS sem horário fixo.
+- Os medicamentos de exemplo são criados pelo seed `criar_usuarios_teste`,
+  coerentes com cada persona (ácido fólico e gonadotrofina para a Renata;
+  progesterona e AAS para a Amanda, entre outros).
 
 ### Endpoints
 
@@ -366,11 +371,48 @@ Isso significa que:
 
 ### Carregar dados iniciais
 
+Os medicamentos de demonstração vêm do seed:
+
 ```
 python manage.py migrate
-python manage.py loaddata medicamentos_iniciais
+python manage.py criar_usuarios_teste
 ```
 
-Assume que `paciente_teste` (id 1) já existe. Para cadastrar
-medicamentos novos sem migration, use o Django Admin em
-`http://localhost:8000/admin/medicamentos/medicamento/`.
+Para cadastrar medicamentos novos sem migration, use o Django Admin em
+`http://localhost:8000/admin/medicamentos/medicamento/` ou a área da médica.
+
+## App `area_medica`
+
+Quinta app real do backend (PROJ-19 e PROJ-20). É a área da médica: deixa a
+médica acompanhar e gerenciar as pacientes **vinculadas a ela**, com escopo por
+objeto garantido no backend (ponto sensível de LGPD).
+
+Arquivos relevantes:
+
+- `backend/area_medica/views.py` — views `@api_view` com
+  `@permission_classes([IsMedicaOuAdmin])`. O escopo é resolvido em cada
+  requisição: a administradora vê todas as pacientes; a médica vê apenas as com
+  `medica_responsavel` igual a ela; qualquer outra origem não vê nenhuma.
+  Acessar uma paciente fora do escopo devolve 404 (não 403, para não vazar IDs).
+- `backend/area_medica/serializers.py` — `PacienteResumoSerializer` (lista, com
+  contadores) e `PacienteDetalheSerializer` (detalhe, com consultas e
+  medicamentos aninhados, reaproveitando os serializers das apps `consultas` e
+  `medicamentos`); serializers próprios de entrada para criar consulta e
+  medicamento.
+- `backend/area_medica/tests.py` — cobre acesso permitido **e** negado: médica
+  só lista/abre as suas pacientes; não acessa as de outra; não cria registros
+  fora do escopo; paciente recebe 403; anônimo recebe 401; admin vê todas.
+
+O vínculo Médica↔Paciente é o campo `Paciente.medica_responsavel`
+(`backend/usuarios/models.py`), explícito e independente das consultas.
+
+### Endpoints
+
+```
+GET  /api/medica/pacientes/                    →  pacientes no escopo de quem pede
+GET  /api/medica/pacientes/<id>/               →  detalhe (dados, consultas, medicamentos)
+POST /api/medica/pacientes/<id>/consultas/     →  agenda consulta para a paciente
+POST /api/medica/pacientes/<id>/medicamentos/  →  cadastra medicamento para a paciente
+```
+
+Todos exigem papel de médica ou administradora (`IsMedicaOuAdmin`).

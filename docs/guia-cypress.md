@@ -180,10 +180,10 @@ const SESSAO_FAKE = {
   refresh: 'token-de-refresh-fake',
   usuario: {
     id: 1,
-    username: 'paciente_teste',
-    email: 'paciente@amare.test',
+    username: 'renata',
+    email: 'renata@amare.test',
     tipo_usuario: 'paciente',
-    nome_completo: 'Júlia Pereira',
+    nome_completo: 'Renata Cegonha',
   },
 }
 
@@ -209,12 +209,12 @@ cy.intercept('POST', '**/api/auth/login/', {
   body: {
     access: 'token-de-acesso-fake',
     refresh: 'token-de-refresh-fake',
-    usuario: { id: 1, username: 'paciente_teste', ... },
+    usuario: { id: 1, username: 'renata', ... },
   },
 }).as('login')
 
 cy.visit('/login')
-cy.get('[data-cy=login-username]').type('paciente_teste')
+cy.get('[data-cy=login-username]').type('renata')
 cy.get('[data-cy=login-password]').type('amare123')
 cy.get('[data-cy=login-submit]').click()
 cy.wait('@login')

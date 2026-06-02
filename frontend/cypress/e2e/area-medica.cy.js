@@ -19,29 +19,29 @@ const SESSAO_PACIENTE = {
   refresh: 'token-de-refresh-fake',
   usuario: {
     id: 1,
-    username: 'paciente_teste',
-    email: 'paciente@amare.test',
+    username: 'renata',
+    email: 'renata@amare.test',
     tipo_usuario: 'paciente',
-    nome_completo: 'Júlia Pereira',
+    nome_completo: 'Renata Cegonha',
   },
 }
 
 const PACIENTE_RESUMO = {
   id: 1,
-  nome_completo: 'Júlia Pereira',
-  telefone: '(81) 91234-5678',
-  tipo_sanguineo: 'O+',
+  nome_completo: 'Renata Cegonha',
+  telefone: '(81) 99777-3030',
+  tipo_sanguineo: 'A+',
   total_consultas: 1,
   total_medicamentos: 1,
 }
 
 const PACIENTE_DETALHE = {
   id: 1,
-  nome_completo: 'Júlia Pereira',
-  telefone: '(81) 91234-5678',
-  email: 'paciente@amare.test',
-  data_nascimento: '1993-04-12',
-  tipo_sanguineo: 'O+',
+  nome_completo: 'Renata Cegonha',
+  telefone: '(81) 99777-3030',
+  email: 'renata@amare.test',
+  data_nascimento: '1994-02-20',
+  tipo_sanguineo: 'A+',
   medicamentos_em_uso: '',
   observacoes_medicas: '',
   consultas: [
@@ -136,7 +136,7 @@ describe('Área da médica e controle de acesso por papel', () => {
   it('médica vê suas pacientes vinculadas na lista', () => {
     visitarComo(SESSAO_MEDICA, '/area-medica')
     cy.wait('@listaPacientes')
-    cy.get('[data-cy=lista-pacientes]').should('contain', 'Júlia Pereira')
+    cy.get('[data-cy=lista-pacientes]').should('contain', 'Renata Cegonha')
     cy.get('[data-cy=paciente-1]').should('be.visible')
   })
 

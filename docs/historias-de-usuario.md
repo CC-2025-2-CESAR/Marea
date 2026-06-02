@@ -263,6 +263,60 @@ relacionamento implícito de tomada do dia (reset a cada novo dia).
 visualização, marcação/desmarcação, contador, mensagens de vazio/erro,
 atualização otimista, rollback no erro do PATCH e link da sidebar.
 
+## Etapa atual — Área da médica (PROJ-19 e PROJ-20)
+
+### PROJ-19 e PROJ-20 — Acompanhamento e gestão das pacientes pela médica
+
+- Jira: [PROJ-19](https://afreis.atlassian.net/browse/PROJ-19) e [PROJ-20](https://afreis.atlassian.net/browse/PROJ-20)
+
+**História**: Como médica, quero uma área própria com as pacientes vinculadas a
+mim, para acompanhar a evolução de cada uma e registrar consultas e
+medicamentos sem misturar com a navegação da paciente.
+
+**Objetivo**: Dar à médica um espaço separado (`/area-medica`) com escopo por
+objeto: ela vê e altera apenas as pacientes sob sua responsabilidade. O vínculo
+Médica↔Paciente é explícito (campo `medica_responsavel`), não derivado das
+consultas. A administradora enxerga todas as pacientes.
+
+**Critérios de aceitação**:
+
+- A médica é direcionada para `/area-medica` e não acessa as telas da paciente.
+- A lista mostra apenas as pacientes vinculadas à médica autenticada.
+- O detalhe da paciente traz dados básicos, consultas e medicamentos.
+- A médica pode agendar consulta e cadastrar medicamento para a paciente.
+- Uma médica não acessa (nem altera) pacientes de outra médica — resposta 404.
+- A paciente é barrada da área (403) e o acesso anônimo é negado (401).
+- A administradora vê todas as pacientes.
+
+**Cenários BDD**:
+
+```
+Cenário: Médica vê apenas as suas pacientes
+  Dado que a médica tem pacientes vinculadas a ela
+  Quando ela acessa /area-medica
+  Então o sistema deve listar somente as pacientes sob sua responsabilidade
+
+Cenário: Médica agenda uma consulta
+  Dado que a médica está no detalhe de uma paciente vinculada
+  Quando ela preenche e envia o formulário de consulta
+  Então o sistema deve registrar a consulta para aquela paciente
+
+Cenário: Médica tenta acessar paciente de outra médica
+  Dado que existe uma paciente vinculada a outra médica
+  Quando a médica tenta abrir o detalhe dessa paciente
+  Então o sistema deve responder 404, sem vazar dados
+```
+
+**Dados envolvidos**: `Paciente.medica_responsavel` (FK para `Medica`),
+`Consulta` e `Medicamento` (FK para `Paciente`), criados/lidos com escopo por
+objeto no backend (`backend/area_medica/`).
+
+**Notas de entrega**: 9 testes de backend em `area_medica/tests.py` (acesso
+permitido **e** negado) e 8 testes Cypress em `area-medica.cy.js` (controle de
+acesso por papel e fluxo de acompanhamento). Pacientes de demonstração baseadas
+nas personas do projeto (Renata Cegonha e Amanda Coelho), criadas pelo seed
+`criar_usuarios_teste`.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))
