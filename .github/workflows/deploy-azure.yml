@@ -1,0 +1,56 @@
+name: Deploy para o Azure App Service
+
+# Publica automaticamente a cada push no main; também pode ser disparado
+# manualmente (workflow_dispatch) na aba Actions do GitHub.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Um deploy de cada vez (não cancela o que está em andamento, para não
+# interromper uma publicação no meio).
+concurrency:
+  group: deploy-marea-amare
+  cancel-in-progress: false
+
+jobs:
+  build-e-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalar dependências do frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint do frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build do frontend (produção)
+        working-directory: frontend
+        run: npm run build
+
+      - name: Copiar o build para dentro do backend
+        # O Django serve este diretório via WhiteNoise (WHITENOISE_ROOT).
+        run: |
+          rm -rf backend/frontend_dist
+          cp -r frontend/dist backend/frontend_dist
+
+      - name: Publicar no Azure App Service
+        # O App Service tem SCM_DO_BUILD_DURING_DEPLOYMENT=true, então o Oryx
+        # instala as dependências do backend e roda o collectstatic no servidor.
+        # O startup.sh aplica as migrações e sobe o gunicorn.
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: marea-amare
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+          package: backend
