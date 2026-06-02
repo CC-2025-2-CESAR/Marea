@@ -1,7 +1,8 @@
 name: Deploy para o Azure App Service
 
 # Publica automaticamente a cada push no main; também pode ser disparado
-# manualmente (workflow_dispatch) na aba Actions do GitHub.
+# manualmente (workflow_dispatch) na aba Actions do GitHub. A publicação só
+# acontece depois que a suíte de testes passa (job `testes` -> `needs`).
 on:
   push:
     branches: [main]
@@ -14,7 +15,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Roda a mesma suíte da CI (backend + frontend + Cypress) antes de publicar.
+  testes:
+    name: Suíte de testes
+    uses: ./.github/workflows/testes.yml
+
   build-e-deploy:
+    needs: testes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do código
@@ -31,11 +38,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Lint do frontend
-        working-directory: frontend
-        run: npm run lint
-
       - name: Build do frontend (produção)
+        # O lint e os testes já rodaram no job `testes`; aqui só geramos o
+        # build que será empacotado e publicado.
         working-directory: frontend
         run: npm run build
 
