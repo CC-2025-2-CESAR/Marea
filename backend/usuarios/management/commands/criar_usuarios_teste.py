@@ -108,6 +108,21 @@ class Command(BaseCommand):
                     setattr(medica, campo, valor)
                 medica.save()
 
+        # Vincula a paciente de teste à médica de teste, para a área da médica
+        # já ter um caso real de acompanhamento. Idempotente.
+        try:
+            paciente = Paciente.objects.get(
+                perfil__usuario__username='paciente_teste'
+            )
+            medica = Medica.objects.get(
+                perfil__usuario__username='medica_teste'
+            )
+            if paciente.medica_responsavel_id != medica.id:
+                paciente.medica_responsavel = medica
+                paciente.save(update_fields=['medica_responsavel'])
+        except (Paciente.DoesNotExist, Medica.DoesNotExist):
+            pass
+
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS('Usuários de teste prontos.'))
         if criados:
