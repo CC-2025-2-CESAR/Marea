@@ -189,6 +189,19 @@ STORAGES = {
     },
 }
 
+# Build do frontend React (Vite) servido pelo próprio Django em produção.
+# No deploy, o conteúdo de `frontend/dist` é copiado para `backend/frontend_dist`;
+# o WhiteNoise serve esses arquivos (JS/CSS/imagens) direto na raiz do domínio,
+# e a view catch-all em `marea_api.urls` devolve o index.html para as rotas do
+# SPA (ex.: /perfil, /login). Assim um único App Service serve API + frontend.
+# Localmente a pasta normalmente não existe (o front roda no Vite, porta 5173),
+# então nada disso é ativado e o desenvolvimento segue igual.
+FRONTEND_DIST = BASE_DIR / 'frontend_dist'
+if FRONTEND_DIST.is_dir():
+    WHITENOISE_ROOT = FRONTEND_DIST
+    # Faz a raiz "/" entregar o index.html do build.
+    WHITENOISE_INDEX_FILE = True
+
 
 # Django REST Framework
 # Por padrão exige autenticação via JWT. Endpoints públicos (como o dicionário)

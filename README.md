@@ -15,6 +15,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 
 ## Status atual
 
+- **No ar**: a plataforma está publicada no Azure (App Service F1, gratuito) com
+  PostgreSQL gerenciado externamente no Neon. Acesse em
+  **https://marea-amare.azurewebsites.net**. Detalhes em [Deploy (produção)](docs/deploy-azure.md).
 - Login real com JWT contra o backend Django.
 - Página de perfil consumindo a API (`GET` e `PATCH /api/perfil/`).
 - Tipos de usuário: paciente, médica e administradora (gerenciados pelo Django Admin).
@@ -47,7 +50,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Animações: Motion (microinterações e transições suaves)
 - Testes E2E: Cypress
 - Padronização: ESLint e Prettier
-- Banco local: SQLite (recomendado PostgreSQL no futuro)
+- Banco: SQLite em desenvolvimento; PostgreSQL (Neon) em produção
+- Hospedagem: Azure App Service (Linux, F1) servindo o Django e o build do React
+  via WhiteNoise; deploy por pacote zip
 
 ## Rotas atuais
 
@@ -123,6 +128,19 @@ Para rodar os testes no terminal:
 ```
 npm run cypress:run
 ```
+
+## Deploy (produção)
+
+A plataforma está publicada no **Azure App Service** (Linux, plano **F1 —
+gratuito**), num único serviço que serve a API Django **e** o build do React no
+mesmo domínio (via WhiteNoise + rota catch-all para o React Router). O banco é
+**PostgreSQL no Neon** (gratuito, fora do Azure para não consumir créditos).
+
+- Produção: **https://marea-amare.azurewebsites.net**
+- Os segredos (chave do Django, `DATABASE_URL`) ficam em App Settings do Azure,
+  nunca no repositório.
+- Passo a passo de publicação, variáveis de ambiente e o empacotador
+  (`scripts/empacotar_deploy.py`) estão em [Deploy em produção (Azure + Neon)](docs/deploy-azure.md).
 
 ## Login e perfil (H5)
 
@@ -231,6 +249,7 @@ LGPD do template de pull request.
 - [Fluxo de Git](docs/fluxo-git.md)
 - [Histórias de usuário](docs/historias-de-usuario.md)
 - [Segurança e Privacidade (LGPD)](docs/lgpd/README.md)
+- [Deploy em produção (Azure + Neon)](docs/deploy-azure.md)
 - [Como contribuir](CONTRIBUTING.md)
 
 ## Estrutura do projeto

@@ -13,8 +13,13 @@
 
 import { CHAVE_STORAGE } from '../contexts/authStorage'
 
+// URL base da API. Se `VITE_API_BASE_URL` estiver definida, ela manda. Caso
+// contrário: em build de produção o frontend é servido pelo próprio Django no
+// mesmo domínio, então a API fica em `/api` (relativo — dispensa CORS); em
+// desenvolvimento, aponta para o backend local na porta 8000.
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api')
 
 function lerSessao() {
   try {

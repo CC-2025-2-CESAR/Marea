@@ -1,0 +1,16 @@
+# Normalização de finais de linha do repositório Amare (Maréa).
+
+# Por padrão, deixa o Git decidir e normalizar texto no repositório (LF).
+* text=auto
+
+# Scripts de shell SEMPRE com LF: rodam no Linux (Azure App Service). Com CRLF,
+# o shebang quebraria ("bash\r: not found").
+*.sh text eol=lf
+
+# Artefatos binários: nunca normalizar.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
