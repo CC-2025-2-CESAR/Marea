@@ -17,11 +17,17 @@ python manage.py migrate --noinput
 # e os usuários de teste; depois defina SEED_DEMO=false para que reinícios não
 # sobrescrevam dados criados em uso (ex.: registros feitos pela médica).
 if [ "${SEED_DEMO}" = "true" ]; then
-  echo "[startup] SEED_DEMO=true: populando conteúdo e usuários de teste..."
-  python manage.py loaddata termos_iniciais consultas_iniciais medicamentos_iniciais \
-    || echo "[startup] aviso: loaddata falhou (seguindo mesmo assim)"
+  echo "[startup] SEED_DEMO=true: populando usuários de teste e conteúdo..."
+  # Usuários PRIMEIRO: as fixtures de consultas/medicamentos têm FK para a
+  # paciente, então ela precisa existir antes do loaddata. Cada loaddata é
+  # separado para que uma falha não impeça as demais (loaddata é atômico por
+  # invocação).
   python manage.py criar_usuarios_teste \
     || echo "[startup] aviso: criar_usuarios_teste falhou (seguindo mesmo assim)"
+  for fixture in termos_iniciais consultas_iniciais medicamentos_iniciais; do
+    python manage.py loaddata "$fixture" \
+      || echo "[startup] aviso: loaddata $fixture falhou (seguindo mesmo assim)"
+  done
 fi
 
 exec gunicorn marea_api.wsgi \
