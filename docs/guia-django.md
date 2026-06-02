@@ -124,13 +124,21 @@ A app `corsheaders` (django-cors-headers) está habilitada para liberar o fronte
 `backend/marea_api/settings.py`:
 
 ```python
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
-]
+CORS_ALLOWED_ORIGINS = _env_lista(
+    'DJANGO_CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173',
+)
 ```
 
-Em produção, ampliar essa lista para o domínio real.
+Localmente o padrão já cobre o Vite. Em produção, defina a variável de ambiente
+`DJANGO_CORS_ALLOWED_ORIGINS` com o domínio real (separado por vírgulas).
+
+O mesmo padrão — variável de ambiente com fallback seguro para desenvolvimento —
+vale para `SECRET_KEY` (`DJANGO_SECRET_KEY`), `DEBUG` (`DJANGO_DEBUG`),
+`ALLOWED_HOSTS` (`DJANGO_ALLOWED_HOSTS`) e o banco (`DATABASE_URL`). As variáveis
+estão documentadas em `backend/.env.example`; sem nenhuma delas, o backend roda
+em SQLite com `DEBUG=True`. Com `DJANGO_DEBUG=False`, o `settings.py` liga
+automaticamente HTTPS obrigatório, HSTS e cookies seguros.
 
 ## App `usuarios` (autenticação e perfis)
 
