@@ -50,11 +50,12 @@ cypress/downloads/
 .env.*
 !.env.example
 
-# --- Configurações locais do .github ---
-# Mantém o .github fora do versionamento (ex.: template de PR). Se no futuro o
-# projeto adotar workflows de CI/CD, libere-os com uma exceção, por exemplo:
-#   !.github/workflows/
-.github/
+# --- Configurações do .github ---
+# Ignora tudo em .github, EXCETO os workflows de CI/CD (deploy automático no
+# Azure). Assim mantemos fora do versionamento itens locais, mas versionamos
+# os workflows.
+.github/*
+!.github/workflows/
 
 # --- Sistema operacional / editores ---
 .DS_Store
