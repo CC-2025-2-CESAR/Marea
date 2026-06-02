@@ -70,9 +70,12 @@ function Login() {
     setEnviando(true)
     setFeedback(null)
     try {
-      await login(usuario.trim(), senha)
+      const usuarioLogado = await login(usuario.trim(), senha)
       setFeedback({ tipo: 'sucesso', texto: 'Login realizado com sucesso.' })
-      navegar('/perfil')
+      // Cada papel vai para a sua "casa": a médica tem a área dela.
+      navegar(
+        usuarioLogado?.tipo_usuario === 'medica' ? '/area-medica' : '/perfil',
+      )
     } catch (erro) {
       if (erro?.status === 401) {
         setFeedback({
