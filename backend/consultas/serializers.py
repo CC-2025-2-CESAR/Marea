@@ -9,6 +9,26 @@ class EspecialidadeSerializer(serializers.ModelSerializer):
         fields = ('id', 'nome', 'descricao')
 
 
+class EspecialidadePublicaSerializer(serializers.ModelSerializer):
+    """Listagem pública de especialidades, com as médicas relacionadas."""
+
+    medicas = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Especialidade
+        fields = ('id', 'nome', 'descricao', 'medicas')
+
+    def get_medicas(self, obj):
+        return [
+            {
+                'id': medica.id,
+                'nome': medica.perfil.nome_completo
+                or medica.perfil.usuario.username,
+            }
+            for medica in obj.medicas.all()
+        ]
+
+
 class ConsultaSerializer(serializers.ModelSerializer):
     """Serializer leitura: traz nomes resolvidos para a paciente ler na tela."""
 

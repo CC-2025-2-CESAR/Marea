@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/medica/', include('area_medica.urls')),
     path('api/dicionario/', include('dicionario.urls')),
     path('api/consultas/', include('consultas.urls')),
+    path('api/especialidades/', include('consultas.urls_especialidades')),
     path('api/medicamentos/', include('medicamentos.urls')),
     # Tratamentos e orientações expõem /api/tratamentos/ e /api/orientacoes/.
     path('api/', include('tratamentos.urls')),

@@ -279,6 +279,14 @@ class Command(BaseCommand):
         medica.crm = MEDICA['crm']
         medica.especialidade = MEDICA['especialidade']
         medica.save()
+        # Vínculo Médica↔Especialidade (PROJ-24): liga a médica à sua
+        # especialidade já cadastrada, para a página de especialidades exibir
+        # as médicas relacionadas.
+        especialidade_da_medica = Especialidade.objects.filter(
+            nome=MEDICA['especialidade']
+        ).first()
+        if especialidade_da_medica:
+            medica.especialidades.set([especialidade_da_medica])
         return medica
 
     def _criar_admin(self):

@@ -72,7 +72,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/bot`: placeholder de bot.
 - `/tratamentos`: tratamentos da clínica com as etapas principais de cada um.
 - `/orientacoes`: orientações em linguagem simples, com filtro por categoria.
-- `/especialidades`: placeholder de especialidades.
+- `/especialidades`: especialidades da clínica e as médicas relacionadas.
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
@@ -278,6 +278,22 @@ python manage.py loaddata tratamentos_iniciais orientacoes_iniciais
 
 Para cadastrar/editar sem migrations, use o Django Admin em
 `http://localhost:8000/admin/tratamentos/`.
+
+## Especialidades (PROJ-24)
+
+A página [`/especialidades`](http://localhost:5173/especialidades) lista as
+especialidades da clínica com nome, descrição e as **médicas relacionadas**
+(quando houver). É conteúdo de referência gerido pelo Django Admin e **público**
+no backend.
+
+A `Especialidade` mora no app `consultas` (é usada nas consultas); o vínculo
+Médica↔Especialidade é um ManyToMany explícito, definido no Django Admin ou pelo
+seed `criar_usuarios_teste` (que liga a Dra. Helena Costa à Reprodução humana).
+
+Endpoint do backend (público, somente leitura):
+
+- `GET /api/especialidades/` — lista as especialidades ativas com as médicas
+  relacionadas
 
 ## Segurança e Privacidade (LGPD)
 
