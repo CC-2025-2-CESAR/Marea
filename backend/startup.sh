@@ -25,6 +25,10 @@ if [ "${SEED_DEMO}" = "true" ]; then
     || echo "[startup] aviso: criar_usuarios_teste falhou (seguindo mesmo assim)"
   python manage.py loaddata termos_iniciais \
     || echo "[startup] aviso: loaddata termos_iniciais falhou (seguindo mesmo assim)"
+  # Conteúdo de referência da paciente (tratamentos -> etapas -> orientações).
+  # A ordem importa: orientações apontam para tratamentos e etapas.
+  python manage.py loaddata tratamentos_iniciais orientacoes_iniciais \
+    || echo "[startup] aviso: loaddata de tratamentos/orientações falhou (seguindo mesmo assim)"
 fi
 
 exec gunicorn marea_api.wsgi \

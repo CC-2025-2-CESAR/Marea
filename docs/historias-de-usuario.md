@@ -317,6 +317,107 @@ acesso por papel e fluxo de acompanhamento). Pacientes de demonstração baseada
 nas personas do projeto (Renata Cegonha e Amanda Coelho), criadas pelo seed
 `criar_usuarios_teste`.
 
+## Etapa atual — Conteúdo da paciente (PROJ-23, PROJ-18)
+
+Conteúdo de referência gerido pelo Django Admin e lido de forma pública pela
+paciente (não é dado pessoal). O app `tratamentos` reúne os modelos
+`Tratamento`, `EtapaTratamento` e `OrientacaoTratamento`.
+
+### PROJ-23 — H14 Página de tratamentos
+
+- Jira: [PROJ-23](https://afreis.atlassian.net/browse/PROJ-23)
+
+**História**: Como paciente, quero visualizar informações sobre os tratamentos
+disponíveis, para entender melhor as opções oferecidas pela clínica.
+
+**Objetivo**: Apresentar os tratamentos de forma simples, organizada e
+confiável, ajudando a paciente a entender possibilidades sem depender de buscas
+externas confusas.
+
+**Critérios de aceitação**:
+
+- A página deve listar tratamentos cadastrados.
+- Cada tratamento deve ter nome, descrição simples, indicação geral e etapas
+  principais quando houver.
+- Os dados devem ser lidos do banco de dados.
+- O conteúdo deve ser gerenciado pelo Django Admin.
+- A linguagem deve ser clara e acessível.
+- Caso não existam tratamentos cadastrados, o sistema deve exibir uma mensagem
+  informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar tratamentos cadastrados
+  Dado que existem tratamentos cadastrados no sistema
+  Quando a paciente acessa a página de tratamentos
+  Então o sistema deve exibir a lista de tratamentos disponíveis
+
+Cenário: Visualizar detalhes de um tratamento
+  Dado que existem tratamentos cadastrados
+  Quando a paciente seleciona um tratamento
+  Então o sistema deve exibir sua descrição e etapas principais
+
+Cenário: Nenhum tratamento cadastrado
+  Dado que não existem tratamentos cadastrados
+  Quando a paciente acessa a página de tratamentos
+  Então o sistema deve informar que nenhum tratamento foi encontrado
+```
+
+**Dados envolvidos**: `Tratamento`, `EtapaTratamento`.
+
+**Notas de entrega**: app `tratamentos` com endpoints públicos
+`GET /api/tratamentos/`, `GET /api/tratamentos/?busca=` e
+`GET /api/tratamentos/<id>/`. Conteúdo inicial fictício em
+`tratamentos_iniciais.json`. 5 testes Cypress em `tratamentos.cy.js` e testes de
+API em `tratamentos/tests.py`.
+
+### PROJ-18 — H9 Orientações do tratamento em linguagem simples
+
+- Jira: [PROJ-18](https://afreis.atlassian.net/browse/PROJ-18)
+
+**História**: Como paciente, quero acessar orientações simples sobre meu
+tratamento, para entender melhor o que preciso fazer em cada etapa.
+
+**Objetivo**: Reduzir dúvidas e insegurança usando uma linguagem clara, direta e
+acessível, sem excesso de termos técnicos.
+
+**Critérios de aceitação**:
+
+- A paciente deve visualizar orientações cadastradas.
+- Cada orientação deve ter título, conteúdo, categoria e etapa relacionada
+  quando houver.
+- Os dados devem ser lidos do banco de dados.
+- As orientações devem ser gerenciadas pelo Django Admin.
+- Caso não existam orientações cadastradas, o sistema deve exibir uma mensagem
+  informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar orientações cadastradas
+  Dado que existem orientações cadastradas no sistema
+  Quando a paciente acessa a página de orientações
+  Então o sistema deve exibir as orientações em linguagem simples
+
+Cenário: Filtrar orientações por categoria
+  Dado que existem orientações de categorias diferentes
+  Quando a paciente seleciona uma categoria
+  Então o sistema deve exibir apenas orientações compatíveis
+
+Cenário: Nenhuma orientação cadastrada
+  Dado que não existem orientações cadastradas
+  Quando a paciente acessa a página de orientações
+  Então o sistema deve informar que nenhuma orientação foi encontrada
+```
+
+**Dados envolvidos**: `OrientacaoTratamento`, `Tratamento`, `EtapaTratamento`.
+
+**Notas de entrega**: endpoint público `GET /api/orientacoes/` (filtros
+`?categoria=` e `?busca=`), com o nome do tratamento e da etapa resolvidos para
+a tela. Conteúdo inicial fictício em `orientacoes_iniciais.json`. 7 testes
+Cypress em `orientacoes.cy.js`.
+
 ## Etapa atual — Especialidades da clínica (PROJ-24)
 
 ### PROJ-24 — H15 Página de especialidades

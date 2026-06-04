@@ -40,6 +40,10 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
   medicamentos (PROJ-19 e PROJ-20); não acessa as telas da paciente. O
   `/api/perfil/` é restrito a pacientes no backend, e o login tem limite de
   tentativas.
+- Páginas de Tratamentos e Orientações com conteúdo de referência vindo do
+  banco e gerido pelo Django Admin (PROJ-23 e PROJ-18): a de Tratamentos lista
+  cada tratamento com suas etapas; a de Orientações traz textos em linguagem
+  simples com filtro por categoria.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
@@ -66,7 +70,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
-- `/tratamentos`: placeholder de tratamentos.
+- `/tratamentos`: tratamentos da clínica com as etapas principais de cada um.
+- `/orientacoes`: orientações em linguagem simples, com filtro por categoria.
 - `/especialidades`: especialidades da clínica e as médicas relacionadas.
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
@@ -244,6 +249,36 @@ O vínculo Médica↔Paciente é explícito (não derivado de consultas) e é de
 no Django Admin ou pelo seed `criar_usuarios_teste`, que já liga as pacientes de
 demonstração (Renata e Amanda) à Dra. Helena Costa (`medica_teste`).
 
+## Tratamentos e orientações (PROJ-23 e PROJ-18)
+
+Conteúdo de referência da paciente, gerido pelo Django Admin e **público** no
+backend (como o dicionário). O app `tratamentos` reúne `Tratamento`,
+`EtapaTratamento` e `OrientacaoTratamento`.
+
+- [`/tratamentos`](http://localhost:5173/tratamentos): lista os tratamentos com
+  nome, descrição, indicação e as etapas principais de cada um.
+- [`/orientacoes`](http://localhost:5173/orientacoes): orientações em linguagem
+  simples, com filtro por categoria; cada uma pode apontar para um tratamento e
+  uma etapa.
+
+Endpoints do backend (públicos, somente leitura):
+
+- `GET /api/tratamentos/` — lista os tratamentos ativos com as etapas
+- `GET /api/tratamentos/?busca=fiv` — filtra por nome, descrição ou indicação
+- `GET /api/tratamentos/<id>/` — detalhe de um tratamento
+- `GET /api/orientacoes/` — lista as orientações ativas
+- `GET /api/orientacoes/?categoria=Procedimentos` — filtra por categoria
+
+Para popular o conteúdo inicial fictício (idempotente):
+
+```
+cd backend
+python manage.py loaddata tratamentos_iniciais orientacoes_iniciais
+```
+
+Para cadastrar/editar sem migrations, use o Django Admin em
+`http://localhost:8000/admin/tratamentos/`.
+
 ## Especialidades (PROJ-24)
 
 A página [`/especialidades`](http://localhost:5173/especialidades) lista as
@@ -305,6 +340,8 @@ backend/
 ├── dicionario/             termos médicos (PROJ-3, PROJ-4)
 ├── consultas/              consultas e especialidades (PROJ-1)
 ├── medicamentos/           checklist diário de medicamentos prescritos (PROJ-2)
+├── area_medica/            área da médica com escopo por objeto (PROJ-19, PROJ-20)
+├── tratamentos/            tratamentos, etapas e orientações (PROJ-23, PROJ-18)
 ├── requirements.txt
 └── README.md
 frontend/
@@ -316,20 +353,22 @@ frontend/
 │   │                       SearchBar, SelectField, Sidebar
 │   ├── contexts/           AuthContext + useAuth (sessão JWT)
 │   ├── layouts/            AppLayout (rotas internas) e AuthLayout (login)
-│   ├── pages/              Bot, Ciclo, Consultas, Dicionario, EmBreve,
-│   │                       Especialidades, Home, Login, Medicamentos, Perfil,
-│   │                       Tratamentos
+│   ├── pages/              AreaMedica, Bot, Ciclo, Consultas, Dicionario,
+│   │                       EmBreve, Especialidades, Home, Login, Medicamentos,
+│   │                       Orientacoes, Perfil, Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
 │   ├── services/           api, authService, consultasService, dicionarioService,
-│   │                       medicamentosService, perfilService
+│   │                       medicaService, medicamentosService, perfilService,
+│   │                       tratamentosService
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/                consultas, dicionario, layout-rotas, login,
-│                           medicamentos, perfil, polimento-ux-perfil,
-│                           responsividade-mobile (78 testes)
+│   └── e2e/                area-medica, consultas, dicionario, layout-rotas,
+│                           login, medicamentos, orientacoes, perfil,
+│                           polimento-ux-perfil, responsividade-mobile,
+│                           tratamentos (98 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)
