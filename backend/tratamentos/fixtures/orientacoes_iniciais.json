@@ -1,0 +1,100 @@
+[
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 1,
+    "fields": {
+      "titulo": "Como se preparar para a coleta de óvulos",
+      "conteudo": "No dia da coleta, é comum a equipe pedir um período de jejum por causa da sedação. Use roupas confortáveis, chegue com antecedência e leve um acompanhante. Siga sempre as instruções específicas da sua equipe.",
+      "categoria": "Procedimentos",
+      "tratamento": 1,
+      "etapa": 3,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 2,
+    "fields": {
+      "titulo": "Cuidados após a transferência embrionária",
+      "conteudo": "Você pode retomar a rotina normalmente, evitando apenas esforços muito intensos. Mantenha as medicações conforme prescrito e evite se cobrar demais durante a espera. Em caso de dúvida ou desconforto, fale com a equipe.",
+      "categoria": "Pós-procedimento",
+      "tratamento": 1,
+      "etapa": 5,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 3,
+    "fields": {
+      "titulo": "Alimentação durante a estimulação ovariana",
+      "conteudo": "Prefira uma alimentação equilibrada, com bastante água ao longo do dia. Não há necessidade de dietas restritivas. Se sentir inchaço, avise a equipe no acompanhamento.",
+      "categoria": "Bem-estar",
+      "tratamento": 1,
+      "etapa": 2,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 4,
+    "fields": {
+      "titulo": "Como aplicar as medicações hormonais em casa",
+      "conteudo": "Guarde as medicações conforme a orientação (algumas precisam de geladeira), respeite os horários e organize os materiais antes de começar. Na primeira aplicação, peça que a equipe demonstre. Nunca ajuste a dose por conta própria.",
+      "categoria": "Medicação",
+      "tratamento": null,
+      "etapa": null,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 5,
+    "fields": {
+      "titulo": "O que levar no dia da inseminação",
+      "conteudo": "Leve um documento, os exames recentes e a relação das medicações em uso. O procedimento é rápido e você costuma retomar as atividades no mesmo dia. Tire suas dúvidas com a equipe antes de ir.",
+      "categoria": "Procedimentos",
+      "tratamento": 2,
+      "etapa": 9,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 6,
+    "fields": {
+      "titulo": "Lidando com a ansiedade na espera do resultado",
+      "conteudo": "O período de espera pelo resultado pode ser delicado. Mantenha atividades que te fazem bem, apoie-se em pessoas de confiança e lembre que sentir ansiedade é natural. Se precisar, converse com a equipe sobre apoio psicológico. Este conteúdo não substitui acompanhamento profissional.",
+      "categoria": "Apoio emocional",
+      "tratamento": null,
+      "etapa": null,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.orientacaotratamento",
+    "pk": 7,
+    "fields": {
+      "titulo": "Entendendo o congelamento de óvulos",
+      "conteudo": "Os óvulos são congelados por uma técnica chamada vitrificação e ficam guardados com segurança até você decidir usá-los. A quantidade ideal varia em cada caso e é definida junto com a equipe.",
+      "categoria": "Bem-estar",
+      "tratamento": 4,
+      "etapa": null,
+      "ativo": true,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  }
+]

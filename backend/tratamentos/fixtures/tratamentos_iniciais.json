@@ -1,0 +1,204 @@
+[
+  {
+    "model": "tratamentos.tratamento",
+    "pk": 1,
+    "fields": {
+      "nome": "Fertilização in vitro (FIV)",
+      "descricao": "Tratamento em que o óvulo e o espermatozoide são unidos em laboratório. Depois de formado, o embrião é transferido para o útero. É uma das técnicas mais usadas na reprodução assistida.",
+      "indicacao": "Indicada em casos como obstrução das trompas, endometriose, fator masculino e quando outros tratamentos não tiveram sucesso.",
+      "ativo": true,
+      "ordem": 1,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.tratamento",
+    "pk": 2,
+    "fields": {
+      "nome": "Inseminação intrauterina (IIU)",
+      "descricao": "Os espermatozoides preparados em laboratório são colocados diretamente no útero, no período da ovulação, para facilitar o encontro com o óvulo.",
+      "indicacao": "Indicada em casos leves de infertilidade, alterações discretas do sêmen ou dificuldade sem causa aparente.",
+      "ativo": true,
+      "ordem": 2,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.tratamento",
+    "pk": 3,
+    "fields": {
+      "nome": "Indução da ovulação",
+      "descricao": "Uso de medicação para estimular o ovário a liberar um óvulo maduro, com acompanhamento por ultrassom para identificar o melhor momento da tentativa.",
+      "indicacao": "Indicada quando a ovulação é irregular ou ausente.",
+      "ativo": true,
+      "ordem": 3,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.tratamento",
+    "pk": 4,
+    "fields": {
+      "nome": "Preservação da fertilidade",
+      "descricao": "Coleta e congelamento de óvulos para uso futuro, preservando a chance de gravidez para mais adiante.",
+      "indicacao": "Indicada para quem deseja adiar a maternidade ou antes de tratamentos que possam afetar a fertilidade.",
+      "ativo": true,
+      "ordem": 4,
+      "criado_em": "2026-05-30T10:00:00Z",
+      "atualizado_em": "2026-05-30T10:00:00Z"
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 1,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Avaliação inicial",
+      "descricao": "Consultas e exames para entender o histórico do casal e planejar o tratamento.",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 2,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Estimulação ovariana",
+      "descricao": "Uso de medicação para o desenvolvimento de vários óvulos, acompanhado por ultrassom.",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 3,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Coleta dos óvulos (punção folicular)",
+      "descricao": "Procedimento rápido, com sedação, para recolher os óvulos maduros.",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 4,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Fertilização em laboratório",
+      "descricao": "Os óvulos e os espermatozoides são unidos no laboratório e os embriões são acompanhados.",
+      "ordem": 4
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 5,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Transferência embrionária",
+      "descricao": "O embrião é colocado no útero em um procedimento simples e indolor.",
+      "ordem": 5
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 6,
+    "fields": {
+      "tratamento": 1,
+      "titulo": "Teste de gravidez (Beta hCG)",
+      "descricao": "Exame de sangue, cerca de duas semanas depois, para confirmar a gestação.",
+      "ordem": 6
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 7,
+    "fields": {
+      "tratamento": 2,
+      "titulo": "Estimulação leve da ovulação",
+      "descricao": "Medicação suave para favorecer a ovulação, com acompanhamento.",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 8,
+    "fields": {
+      "tratamento": 2,
+      "titulo": "Preparo do sêmen",
+      "descricao": "Seleção, no laboratório, dos espermatozoides com melhor movimentação.",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 9,
+    "fields": {
+      "tratamento": 2,
+      "titulo": "Inseminação",
+      "descricao": "Os espermatozoides preparados são colocados no útero no dia da ovulação.",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 10,
+    "fields": {
+      "tratamento": 3,
+      "titulo": "Monitoramento do ciclo",
+      "descricao": "Acompanhamento do ciclo para planejar o início da medicação.",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 11,
+    "fields": {
+      "tratamento": 3,
+      "titulo": "Medicação para induzir a ovulação",
+      "descricao": "Uso da medicação prescrita para estimular a liberação do óvulo.",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 12,
+    "fields": {
+      "tratamento": 3,
+      "titulo": "Acompanhamento por ultrassom",
+      "descricao": "Ultrassons para identificar o melhor momento da tentativa.",
+      "ordem": 3
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 13,
+    "fields": {
+      "tratamento": 4,
+      "titulo": "Estimulação ovariana",
+      "descricao": "Medicação para o desenvolvimento de vários óvulos.",
+      "ordem": 1
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 14,
+    "fields": {
+      "tratamento": 4,
+      "titulo": "Coleta dos óvulos",
+      "descricao": "Procedimento, com sedação, para recolher os óvulos maduros.",
+      "ordem": 2
+    }
+  },
+  {
+    "model": "tratamentos.etapatratamento",
+    "pk": 15,
+    "fields": {
+      "tratamento": 4,
+      "titulo": "Congelamento (vitrificação)",
+      "descricao": "Os óvulos são congelados por uma técnica rápida e guardados com segurança.",
+      "ordem": 3
+    }
+  }
+]
