@@ -134,6 +134,21 @@ describe('Dicionário da Amare', () => {
     cy.get('[data-cy=dicionario-grid]').should('contain', 'FIV')
   })
 
+  it('abre já filtrado quando recebe ?busca= na URL (deep-link)', () => {
+    // Simula o clique num chip "termo relacionado" de Tratamentos/Orientações,
+    // que navega para /dicionario?busca=<termo>.
+    cy.intercept('GET', '**/api/dicionario/termos/?busca=*', {
+      body: [termosMock[2]],
+    }).as('buscarDeepLink')
+
+    visitarDicionario('/dicionario?busca=FIV')
+    cy.wait('@buscarDeepLink')
+
+    cy.get('[data-cy=dicionario-busca-input]').should('have.value', 'FIV')
+    cy.get('[data-cy=dicionario-card]').should('have.length', 1)
+    cy.get('[data-cy=dicionario-grid]').should('contain', 'FIV')
+  })
+
   it('exibe mensagem vazia quando a busca não tem resultados', () => {
     cy.intercept('GET', '**/api/dicionario/termos/', { body: termosMock }).as(
       'listarInicial',

@@ -15,6 +15,12 @@ class Tratamento(models.Model):
     nome = models.CharField('Nome', max_length=120, unique=True)
     descricao = models.TextField('Descrição simples')
     indicacao = models.TextField('Indicação geral', blank=True)
+    termos_relacionados = models.ManyToManyField(
+        'dicionario.TermoDicionario',
+        related_name='tratamentos',
+        blank=True,
+        verbose_name='Termos do dicionário relacionados',
+    )
     ativo = models.BooleanField('Ativo', default=True)
     ordem = models.PositiveIntegerField('Ordem de exibição', default=0)
     criado_em = models.DateTimeField('Criado em', auto_now_add=True)
@@ -72,6 +78,12 @@ class OrientacaoTratamento(models.Model):
         null=True,
         blank=True,
         verbose_name='Etapa relacionada',
+    )
+    termos_relacionados = models.ManyToManyField(
+        'dicionario.TermoDicionario',
+        related_name='orientacoes',
+        blank=True,
+        verbose_name='Termos do dicionário relacionados',
     )
     ativo = models.BooleanField('Ativo', default=True)
     criado_em = models.DateTimeField('Criado em', auto_now_add=True)

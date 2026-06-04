@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import TermosRelacionados from '../../components/TermosRelacionados/TermosRelacionados'
 import { listarTratamentos } from '../../services/tratamentosService'
 import './Tratamentos.css'
 
@@ -112,6 +113,7 @@ function Tratamentos() {
                     </ol>
                   </div>
                 ) : null}
+                <TermosRelacionados termos={tratamento.termos_relacionados} />
               </li>
             )
           })}

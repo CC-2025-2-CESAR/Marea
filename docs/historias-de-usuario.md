@@ -323,6 +323,11 @@ Conteúdo de referência gerido pelo Django Admin e lido de forma pública pela
 paciente (não é dado pessoal). O app `tratamentos` reúne os modelos
 `Tratamento`, `EtapaTratamento` e `OrientacaoTratamento`.
 
+Tratamentos e orientações se ligam ao **dicionário** (PROJ-3/PROJ-4): cada um
+pode apontar termos relacionados que, na tela, viram chips com deep-link para o
+dicionário já filtrado. Assim a paciente salta do conteúdo direto para a
+explicação simples do termo, espelhando os "artigos relacionados" do dicionário.
+
 ### PROJ-23 — H14 Página de tratamentos
 
 - Jira: [PROJ-23](https://afreis.atlassian.net/browse/PROJ-23)
@@ -369,8 +374,11 @@ Cenário: Nenhum tratamento cadastrado
 **Notas de entrega**: app `tratamentos` com endpoints públicos
 `GET /api/tratamentos/`, `GET /api/tratamentos/?busca=` e
 `GET /api/tratamentos/<id>/`. Conteúdo inicial fictício em
-`tratamentos_iniciais.json`. 5 testes Cypress em `tratamentos.cy.js` e testes de
-API em `tratamentos/tests.py`.
+`tratamentos_iniciais.json`. Cada tratamento pode listar **termos relacionados**
+do dicionário (M2M `termos_relacionados`, curado no Admin e exposto na API como
+lista de `{id, termo}`); na tela viram chips que levam ao dicionário já
+filtrado (`/dicionario?busca=<termo>`). 7 testes Cypress em `tratamentos.cy.js`
+e testes de API em `tratamentos/tests.py`.
 
 ### PROJ-18 — H9 Orientações do tratamento em linguagem simples
 
@@ -415,8 +423,10 @@ Cenário: Nenhuma orientação cadastrada
 
 **Notas de entrega**: endpoint público `GET /api/orientacoes/` (filtros
 `?categoria=` e `?busca=`), com o nome do tratamento e da etapa resolvidos para
-a tela. Conteúdo inicial fictício em `orientacoes_iniciais.json`. 7 testes
-Cypress em `orientacoes.cy.js`.
+a tela. Conteúdo inicial fictício em `orientacoes_iniciais.json`. Cada
+orientação também pode listar **termos relacionados** do dicionário, que viram
+chips com deep-link para `/dicionario?busca=<termo>`. 9 testes Cypress em
+`orientacoes.cy.js`.
 
 ## Etapa atual — Especialidades da clínica (PROJ-24)
 

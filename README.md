@@ -195,6 +195,10 @@ A página segue o protótipo do grupo: grid responsivo de cards autocontidos
 (título, definição, artigos relacionados e tag colorida por categoria),
 busca com ícone de lupa e filtro por categoria via chips.
 
+A busca vive na URL (`/dicionario?busca=<termo>`), então o dicionário pode ser
+aberto já filtrado a partir dos chips de **termos relacionados** das telas de
+Tratamentos e Orientações (deep-link).
+
 Endpoints do backend:
 
 - `GET /api/dicionario/termos/` — lista termos ativos
@@ -261,6 +265,13 @@ backend (como o dicionário). O app `tratamentos` reúne `Tratamento`,
   simples, com filtro por categoria; cada uma pode apontar para um tratamento e
   uma etapa.
 
+Cada tratamento e cada orientação pode listar **termos relacionados** do
+dicionário. Eles aparecem como chips ("No dicionário: …") nos cards e levam
+ao dicionário já filtrado por aquele termo — criando a ligação entre o
+conteúdo da paciente e a explicação simples do termo. O vínculo é curado no
+Django Admin (campo `termos_relacionados`, com seletor duplo) e exposto na API
+em `termos_relacionados` (lista de `{id, termo}`).
+
 Endpoints do backend (públicos, somente leitura):
 
 - `GET /api/tratamentos/` — lista os tratamentos ativos com as etapas
@@ -269,11 +280,12 @@ Endpoints do backend (públicos, somente leitura):
 - `GET /api/orientacoes/` — lista as orientações ativas
 - `GET /api/orientacoes/?categoria=Procedimentos` — filtra por categoria
 
-Para popular o conteúdo inicial fictício (idempotente):
+Para popular o conteúdo inicial fictício (idempotente). Como as fixtures já
+ligam alguns termos do dicionário, carregue `termos_iniciais` antes:
 
 ```
 cd backend
-python manage.py loaddata tratamentos_iniciais orientacoes_iniciais
+python manage.py loaddata termos_iniciais tratamentos_iniciais orientacoes_iniciais
 ```
 
 Para cadastrar/editar sem migrations, use o Django Admin em
@@ -368,7 +380,7 @@ frontend/
 │   └── e2e/                area-medica, consultas, dicionario, layout-rotas,
 │                           login, medicamentos, orientacoes, perfil,
 │                           polimento-ux-perfil, responsividade-mobile,
-│                           tratamentos (98 testes)
+│                           tratamentos (103 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)

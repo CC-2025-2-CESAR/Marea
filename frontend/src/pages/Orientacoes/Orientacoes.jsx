@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import TermosRelacionados from '../../components/TermosRelacionados/TermosRelacionados'
 import { listarOrientacoes } from '../../services/tratamentosService'
 import './Orientacoes.css'
 
@@ -154,6 +155,7 @@ function Orientacoes() {
                     Relacionado a: {relacao}
                   </p>
                 ) : null}
+                <TermosRelacionados termos={orientacao.termos_relacionados} />
                 {orientacao.categoria ? (
                   <span
                     className="orientacoes-card__tag"

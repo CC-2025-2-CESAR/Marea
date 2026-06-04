@@ -4,6 +4,7 @@
     "pk": 1,
     "fields": {
       "nome": "Fertilização in vitro (FIV)",
+      "termos_relacionados": [5, 2, 6, 7, 1, 4],
       "descricao": "Tratamento em que o óvulo e o espermatozoide são unidos em laboratório. Depois de formado, o embrião é transferido para o útero. É uma das técnicas mais usadas na reprodução assistida.",
       "indicacao": "Indicada em casos como obstrução das trompas, endometriose, fator masculino e quando outros tratamentos não tiveram sucesso.",
       "ativo": true,
@@ -17,6 +18,7 @@
     "pk": 2,
     "fields": {
       "nome": "Inseminação intrauterina (IIU)",
+      "termos_relacionados": [11, 6, 9],
       "descricao": "Os espermatozoides preparados em laboratório são colocados diretamente no útero, no período da ovulação, para facilitar o encontro com o óvulo.",
       "indicacao": "Indicada em casos leves de infertilidade, alterações discretas do sêmen ou dificuldade sem causa aparente.",
       "ativo": true,
@@ -30,6 +32,7 @@
     "pk": 3,
     "fields": {
       "nome": "Indução da ovulação",
+      "termos_relacionados": [9, 11, 6, 13],
       "descricao": "Uso de medicação para estimular o ovário a liberar um óvulo maduro, com acompanhamento por ultrassom para identificar o melhor momento da tentativa.",
       "indicacao": "Indicada quando a ovulação é irregular ou ausente.",
       "ativo": true,
@@ -43,6 +46,7 @@
     "pk": 4,
     "fields": {
       "nome": "Preservação da fertilidade",
+      "termos_relacionados": [6, 7, 11],
       "descricao": "Coleta e congelamento de óvulos para uso futuro, preservando a chance de gravidez para mais adiante.",
       "indicacao": "Indicada para quem deseja adiar a maternidade ou antes de tratamentos que possam afetar a fertilidade.",
       "ativo": true,

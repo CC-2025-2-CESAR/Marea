@@ -16,7 +16,9 @@ def listar_tratamentos(request):
     Conteúdo público de referência: dispensa login, como o dicionário.
     """
     busca = request.query_params.get('busca', '').strip()
-    queryset = Tratamento.objects.filter(ativo=True).prefetch_related('etapas')
+    queryset = Tratamento.objects.filter(ativo=True).prefetch_related(
+        'etapas', 'termos_relacionados'
+    )
     if busca:
         queryset = queryset.filter(
             Q(nome__icontains=busca)
@@ -32,9 +34,9 @@ def listar_tratamentos(request):
 def detalhar_tratamento(request, pk):
     """Detalha um tratamento ativo (com etapas). 404 se não existir."""
     try:
-        tratamento = Tratamento.objects.prefetch_related('etapas').get(
-            pk=pk, ativo=True
-        )
+        tratamento = Tratamento.objects.prefetch_related(
+            'etapas', 'termos_relacionados'
+        ).get(pk=pk, ativo=True)
     except Tratamento.DoesNotExist:
         return Response(
             {'detail': 'Tratamento não encontrado.'},
@@ -50,8 +52,10 @@ def listar_orientacoes(request):
     """Lista orientações ativas; filtros opcionais `categoria` e `busca`."""
     categoria = request.query_params.get('categoria', '').strip()
     busca = request.query_params.get('busca', '').strip()
-    queryset = OrientacaoTratamento.objects.filter(ativo=True).select_related(
-        'tratamento', 'etapa'
+    queryset = (
+        OrientacaoTratamento.objects.filter(ativo=True)
+        .select_related('tratamento', 'etapa')
+        .prefetch_related('termos_relacionados')
     )
     if categoria:
         queryset = queryset.filter(categoria__iexact=categoria)
