@@ -1,3 +1,120 @@
 .tratamentos-pagina {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.tratamentos-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 1.75rem;
+}
+
+.tratamentos-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 65ch;
+}
+
+.tratamentos-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--espaco-md);
+  align-items: start;
+}
+
+.tratamentos-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  padding: var(--espaco-md);
+  border-radius: var(--raio-medio);
+  background: var(--cor-card);
+  box-shadow: var(--sombra-suave);
+  border-top: 4px solid var(--cor-terracota);
+}
+
+.tratamentos-card__titulo {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--cor-texto);
+}
+
+.tratamentos-card__descricao {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--cor-texto);
+}
+
+.tratamentos-card__indicacao {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: var(--cor-texto-suave);
+}
+
+.tratamentos-card__etapas {
+  margin-top: var(--espaco-xs);
+  border-top: 1px solid var(--cor-borda);
+  padding-top: var(--espaco-sm);
+}
+
+.tratamentos-card__etapas-titulo {
+  margin: 0 0 var(--espaco-xs);
+  font-size: 0.95rem;
+  color: var(--cor-marrom);
+}
+
+.tratamentos-card__etapas-lista {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tratamentos-card__etapa {
+  line-height: 1.4;
+}
+
+.tratamentos-card__etapa-nome {
+  font-weight: 600;
+}
+
+.tratamentos-card__etapa-descricao {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.tratamentos-mensagem {
+  margin: 0;
+  padding: var(--espaco-md);
+  color: var(--cor-texto-suave);
+  text-align: center;
+  font-style: italic;
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tratamentos-mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+@media (max-width: 767px) {
+  .tratamentos-cabecalho h1 {
+    font-size: 1.5rem;
+  }
+
+  .tratamentos-grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -14,6 +14,7 @@ const links = [
   { to: '/dicionario', label: 'Dicionário', dataCy: 'nav-dicionario' },
   { to: '/bot', label: 'Bot', dataCy: 'nav-bot' },
   { to: '/tratamentos', label: 'Tratamentos', dataCy: 'nav-tratamentos' },
+  { to: '/orientacoes', label: 'Orientações', dataCy: 'nav-orientacoes' },
   {
     to: '/especialidades',
     label: 'Especialidades',

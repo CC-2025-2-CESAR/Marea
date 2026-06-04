@@ -11,6 +11,7 @@ import Dicionario from '../pages/Dicionario/Dicionario'
 import Medicamentos from '../pages/Medicamentos/Medicamentos'
 import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
+import Orientacoes from '../pages/Orientacoes/Orientacoes'
 import Especialidades from '../pages/Especialidades/Especialidades'
 import EmBreve from '../pages/EmBreve/EmBreve'
 import AreaMedica from '../pages/AreaMedica/AreaMedica'
@@ -50,6 +51,7 @@ function AppRoutes() {
           <Route path="/medicamentos" element={<Medicamentos />} />
           <Route path="/bot" element={<Bot />} />
           <Route path="/tratamentos" element={<Tratamentos />} />
+          <Route path="/orientacoes" element={<Orientacoes />} />
           <Route path="/especialidades" element={<Especialidades />} />
           <Route
             path="*"
