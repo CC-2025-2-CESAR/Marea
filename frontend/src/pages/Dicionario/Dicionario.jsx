@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import IconeLupa from '../../components/IconeLupa/IconeLupa'
 import { listarTermos } from '../../services/dicionarioService'
 import './Dicionario.css'
@@ -20,33 +21,38 @@ function slugCategoria(categoria) {
 const FILTRO_TODOS = '__todos__'
 
 function Dicionario() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  // O termo da busca vive na URL (?busca=...). Assim o Dicionário pode ser
+  // aberto já filtrado a partir dos chips de "termos relacionados" das telas
+  // de Tratamentos e Orientações (deep-link).
+  const buscaParam = searchParams.get('busca') || ''
+
   const [termos, setTermos] = useState([])
-  const [busca, setBusca] = useState('')
+  const [busca, setBusca] = useState(buscaParam)
+  const [buscaParamAnterior, setBuscaParamAnterior] = useState(buscaParam)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState(FILTRO_TODOS)
 
-  async function buscarTermos(termoBusca) {
-    setCarregando(true)
-    setErro(null)
-    try {
-      const dados = await listarTermos(termoBusca)
-      setTermos(dados)
-    } catch {
-      setTermos([])
-      setErro('Não foi possível carregar os termos no momento.')
-    } finally {
-      setCarregando(false)
-    }
+  // Sincroniza o input com a URL quando o ?busca= muda por fora (deep-link),
+  // ajustando o estado durante a renderização — o padrão recomendado pelo
+  // React para derivar estado de uma prop, sem efeito nem render extra.
+  if (buscaParam !== buscaParamAnterior) {
+    setBuscaParamAnterior(buscaParam)
+    setBusca(buscaParam)
   }
 
+  // Recarrega sempre que o ?busca= muda: na carga inicial e quando um
+  // deep-link troca o termo.
   useEffect(() => {
     let cancelado = false
 
-    async function carregarInicial() {
+    async function carregar() {
+      setCarregando(true)
+      setErro(null)
       try {
-        const dados = await listarTermos('')
+        const dados = await listarTermos(buscaParam)
         if (!cancelado) {
           setTermos(dados)
         }
@@ -62,16 +68,18 @@ function Dicionario() {
       }
     }
 
-    carregarInicial()
+    carregar()
 
     return () => {
       cancelado = true
     }
-  }, [])
+  }, [buscaParam])
 
   function handleBuscar(evento) {
     evento.preventDefault()
-    buscarTermos(busca)
+    const termo = busca.trim()
+    // Atualiza a URL; o efeito acima dispara a busca de fato.
+    setSearchParams(termo ? { busca: termo } : {})
   }
 
   // Categorias presentes nos termos carregados, em ordem alfabética.

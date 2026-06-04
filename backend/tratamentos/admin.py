@@ -17,6 +17,7 @@ class TratamentoAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'descricao', 'indicacao')
     ordering = ('ordem', 'nome')
     readonly_fields = ('criado_em', 'atualizado_em')
+    filter_horizontal = ('termos_relacionados',)
     inlines = [EtapaTratamentoInline]
 
 
@@ -27,3 +28,4 @@ class OrientacaoTratamentoAdmin(admin.ModelAdmin):
     search_fields = ('titulo', 'conteudo', 'categoria')
     ordering = ('categoria', 'titulo')
     readonly_fields = ('criado_em', 'atualizado_em')
+    filter_horizontal = ('termos_relacionados',)

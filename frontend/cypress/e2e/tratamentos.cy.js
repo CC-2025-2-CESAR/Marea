@@ -38,6 +38,10 @@ const tratamentosMock = [
       },
       { id: 2, titulo: 'Transferência embrionária', descricao: '', ordem: 2 },
     ],
+    termos_relacionados: [
+      { id: 5, termo: 'FIV' },
+      { id: 2, termo: 'Embrião' },
+    ],
   },
   {
     id: 2,
@@ -45,6 +49,7 @@ const tratamentosMock = [
     descricao: 'Espermatozoides preparados são colocados no útero.',
     indicacao: 'Indicada em casos leves de infertilidade.',
     etapas: [],
+    termos_relacionados: [],
   },
 ]
 
@@ -84,6 +89,41 @@ describe('Tratamentos da Amare', () => {
         cy.get('[data-cy=tratamentos-card-etapas]')
           .should('contain', 'Estimulação ovariana')
           .and('contain', 'Transferência embrionária')
+      })
+  })
+
+  it('mostra os chips de termos do dicionário e leva ao dicionário filtrado', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: tratamentosMock }).as('listar')
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarTratamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=tratamentos-card]')
+      .filter(':contains("Fertilização in vitro (FIV)")')
+      .within(() => {
+        cy.get('[data-cy=termos-relacionados]').should('be.visible')
+        cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
+        cy.get('[data-cy=termo-relacionado-chip][data-termo="Embrião"]')
+          .should('have.attr', 'href')
+          .and('include', '/dicionario?busca=')
+        cy.get(
+          '[data-cy=termo-relacionado-chip][data-termo="Embrião"]',
+        ).click()
+      })
+
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.location('search').should('include', 'busca=')
+  })
+
+  it('não renderiza o bloco de termos quando o tratamento não tem termos', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: tratamentosMock }).as('listar')
+    visitarTratamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=tratamentos-card]')
+      .filter(':contains("Inseminação intrauterina (IIU)")')
+      .within(() => {
+        cy.get('[data-cy=termos-relacionados]').should('not.exist')
       })
   })
 
