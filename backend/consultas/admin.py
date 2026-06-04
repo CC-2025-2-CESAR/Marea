@@ -8,6 +8,7 @@ class EspecialidadeAdmin(admin.ModelAdmin):
     list_display = ('nome', 'ativo', 'atualizado_em')
     list_filter = ('ativo',)
     search_fields = ('nome',)
+    filter_horizontal = ('medicas',)
     readonly_fields = ('criado_em', 'atualizado_em')
 
 

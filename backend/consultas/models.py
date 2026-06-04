@@ -14,6 +14,14 @@ class Especialidade(models.Model):
 
     nome = models.CharField('Nome', max_length=120, unique=True)
     descricao = models.TextField('Descrição', blank=True)
+    # Médicas que atuam nesta especialidade (PROJ-24). Vínculo explícito,
+    # gerido pelo Django Admin ou pelo seed, exibido na página da paciente.
+    medicas = models.ManyToManyField(
+        Medica,
+        related_name='especialidades',
+        blank=True,
+        verbose_name='Médicas relacionadas',
+    )
     ativo = models.BooleanField('Ativo', default=True)
     criado_em = models.DateTimeField('Criado em', auto_now_add=True)
     atualizado_em = models.DateTimeField('Atualizado em', auto_now=True)

@@ -10,13 +10,13 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from usuarios.models import Paciente
 
-from .models import Consulta
-from .serializers import ConsultaSerializer
+from .models import Consulta, Especialidade
+from .serializers import ConsultaSerializer, EspecialidadePublicaSerializer
 
 
 def _obter_paciente(request):
@@ -68,4 +68,18 @@ def listar_proximas_consultas(request):
         .select_related('medica__perfil__usuario', 'especialidade')[:3]
     )
     serializer = ConsultaSerializer(proximas, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def listar_especialidades(request):
+    """Lista as especialidades ativas com as médicas relacionadas.
+
+    Conteúdo de referência público (como o dicionário): dispensa login.
+    """
+    especialidades = Especialidade.objects.filter(ativo=True).prefetch_related(
+        'medicas__perfil__usuario'
+    )
+    serializer = EspecialidadePublicaSerializer(especialidades, many=True)
     return Response(serializer.data)
