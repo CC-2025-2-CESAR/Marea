@@ -317,6 +317,56 @@ acesso por papel e fluxo de acompanhamento). Pacientes de demonstração baseada
 nas personas do projeto (Renata Cegonha e Amanda Coelho), criadas pelo seed
 `criar_usuarios_teste`.
 
+## Etapa atual — Especialidades da clínica (PROJ-24)
+
+### PROJ-24 — H15 Página de especialidades
+
+- Jira: [PROJ-24](https://afreis.atlassian.net/browse/PROJ-24)
+
+**História**: Como paciente, quero visualizar as especialidades da clínica, para
+entender quais áreas de cuidado fazem parte do atendimento.
+
+**Objetivo**: Apresentar as especialidades da clínica de forma clara e
+organizada, ajudando a paciente a compreender o suporte disponível durante o
+tratamento.
+
+**Critérios de aceitação**:
+
+- A página deve listar especialidades cadastradas.
+- Cada especialidade deve ter nome, descrição e médicas relacionadas quando
+  houver.
+- Os dados devem ser lidos do banco de dados.
+- O conteúdo deve ser gerenciado pelo Django Admin.
+- Caso não existam especialidades cadastradas, o sistema deve exibir uma
+  mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar especialidades cadastradas
+  Dado que existem especialidades cadastradas no sistema
+  Quando a paciente acessa a página de especialidades
+  Então o sistema deve exibir a lista de especialidades disponíveis
+
+Cenário: Visualizar médicas relacionadas
+  Dado que uma especialidade possui médicas vinculadas
+  Quando a paciente visualiza a especialidade
+  Então o sistema deve exibir as médicas relacionadas
+
+Cenário: Nenhuma especialidade cadastrada
+  Dado que não existem especialidades cadastradas
+  Quando a paciente acessa a página de especialidades
+  Então o sistema deve informar que nenhuma especialidade foi encontrada
+```
+
+**Dados envolvidos**: `Especialidade` (app `consultas`) e `Medica`. O vínculo
+Médica↔Especialidade é um ManyToMany explícito, gerido pelo Django Admin e pelo
+seed `criar_usuarios_teste`.
+
+**Notas de entrega**: endpoint público `GET /api/especialidades/`, que devolve
+cada especialidade com as médicas relacionadas. 6 testes Cypress em
+`especialidades.cy.js` e testes de API em `consultas/tests.py`.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))

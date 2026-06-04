@@ -67,7 +67,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
 - `/tratamentos`: placeholder de tratamentos.
-- `/especialidades`: placeholder de especialidades.
+- `/especialidades`: especialidades da clínica e as médicas relacionadas.
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
@@ -243,6 +243,22 @@ Endpoints do backend (exigem papel de médica ou administradora):
 O vínculo Médica↔Paciente é explícito (não derivado de consultas) e é definido
 no Django Admin ou pelo seed `criar_usuarios_teste`, que já liga as pacientes de
 demonstração (Renata e Amanda) à Dra. Helena Costa (`medica_teste`).
+
+## Especialidades (PROJ-24)
+
+A página [`/especialidades`](http://localhost:5173/especialidades) lista as
+especialidades da clínica com nome, descrição e as **médicas relacionadas**
+(quando houver). É conteúdo de referência gerido pelo Django Admin e **público**
+no backend.
+
+A `Especialidade` mora no app `consultas` (é usada nas consultas); o vínculo
+Médica↔Especialidade é um ManyToMany explícito, definido no Django Admin ou pelo
+seed `criar_usuarios_teste` (que liga a Dra. Helena Costa à Reprodução humana).
+
+Endpoint do backend (público, somente leitura):
+
+- `GET /api/especialidades/` — lista as especialidades ativas com as médicas
+  relacionadas
 
 ## Segurança e Privacidade (LGPD)
 

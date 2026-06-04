@@ -1,16 +1,11 @@
 describe('Rotas e layout base da Amare', () => {
-  // Páginas ainda em placeholder. Dicionário, Perfil, Calendário e
-  // Medicamentos foram removidos daqui porque agora têm implementação real
-  // (ver dicionario.cy.js, perfil.cy.js, consultas.cy.js, medicamentos.cy.js).
+  // Páginas ainda em placeholder. Dicionário, Perfil, Calendário,
+  // Medicamentos e Especialidades foram removidos daqui porque agora têm
+  // implementação real (ver os specs correspondentes).
   const paginasPlaceholder = [
     { rota: '/ciclo', titulo: 'Ciclo', dataCy: 'nav-ciclo' },
     { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
     { rota: '/tratamentos', titulo: 'Tratamentos', dataCy: 'nav-tratamentos' },
-    {
-      rota: '/especialidades',
-      titulo: 'Especialidades',
-      dataCy: 'nav-especialidades',
-    },
   ]
 
   // Sessão fake usada para passar pela ProtectedRoute durante os testes.
@@ -41,6 +36,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/consultas/proximas/', { body: [] })
     cy.intercept('GET', '**/api/consultas/', { body: [] })
     cy.intercept('GET', '**/api/medicamentos/', { body: [] })
+    cy.intercept('GET', '**/api/especialidades/', { body: [] })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
         username: 'paciente_teste',
@@ -143,6 +139,15 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-medicamentos]').click()
     cy.location('pathname').should('eq', '/medicamentos')
     cy.contains('h1', 'Medicamentos').should('be.visible')
+
+    cy.get('[data-cy=nav-especialidades]').should(
+      'have.attr',
+      'href',
+      '/especialidades',
+    )
+    cy.get('[data-cy=nav-especialidades]').click()
+    cy.location('pathname').should('eq', '/especialidades')
+    cy.contains('h1', 'Especialidades').should('be.visible')
   })
 
   it('abre Bot corretamente por rota direta', () => {
