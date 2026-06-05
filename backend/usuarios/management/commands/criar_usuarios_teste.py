@@ -24,6 +24,7 @@ from django.utils import timezone
 
 from consultas.models import Consulta, Especialidade, EventoTratamento
 from medicamentos.models import Medicamento
+from sintomas.models import RegistroSintoma
 from tratamentos.models import EtapaJornada, Tratamento
 from usuarios.models import Medica, Paciente, PerfilUsuario
 
@@ -153,6 +154,20 @@ PACIENTES = [
                 2: EtapaJornada.STATUS_ATUAL,
             },
         },
+        'sintomas': [
+            {
+                'dias': -3,
+                'tipo': 'Inchaço',
+                'descricao': 'Leve inchaço abdominal no fim do dia.',
+                'intensidade': 2,
+            },
+            {
+                'dias': -1,
+                'tipo': 'Enjoo',
+                'descricao': 'Enjoo matinal leve depois da medicação.',
+                'intensidade': 2,
+            },
+        ],
     },
     {
         'username': 'amanda',
@@ -256,6 +271,20 @@ PACIENTES = [
                 5: EtapaJornada.STATUS_ATUAL,
             },
         },
+        'sintomas': [
+            {
+                'dias': -2,
+                'tipo': 'Ansiedade',
+                'descricao': 'Ansiedade na espera do resultado.',
+                'intensidade': 3,
+            },
+            {
+                'dias': -5,
+                'tipo': 'Cólica',
+                'descricao': 'Cólica leve, parecida com a da TPM.',
+                'intensidade': 2,
+            },
+        ],
     },
 ]
 
@@ -399,6 +428,7 @@ class Command(BaseCommand):
         paciente.medicamentos.all().delete()
         paciente.eventos.all().delete()
         paciente.jornada.all().delete()
+        paciente.registros_sintomas.all().delete()
 
         for c in dados['consultas']:
             Consulta.objects.create(
@@ -429,6 +459,16 @@ class Command(BaseCommand):
                 descricao=e['descricao'],
                 data_horario=self._quando(e['dias'], e['hora']),
                 tipo=e['tipo'],
+            )
+
+        hoje = timezone.localtime(timezone.now()).date()
+        for s in dados.get('sintomas', []):
+            RegistroSintoma.objects.create(
+                paciente=paciente,
+                data=hoje + timedelta(days=s['dias']),
+                tipo=s['tipo'],
+                descricao=s['descricao'],
+                intensidade=s.get('intensidade'),
             )
 
         self._popular_jornada(paciente, dados.get('jornada'))

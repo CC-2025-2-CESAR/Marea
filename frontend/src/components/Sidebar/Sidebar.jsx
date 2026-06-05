@@ -26,6 +26,7 @@ const links = [
     dataCy: 'nav-linha-do-tempo',
   },
   { to: '/apoio', label: 'Apoio emocional', dataCy: 'nav-apoio' },
+  { to: '/sintomas', label: 'Sintomas', dataCy: 'nav-sintomas' },
 ]
 
 /**

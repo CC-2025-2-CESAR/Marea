@@ -478,11 +478,12 @@ seed `criar_usuarios_teste`.
 cada especialidade com as médicas relacionadas. 6 testes Cypress em
 `especialidades.cy.js` e testes de API em `consultas/tests.py`.
 
-## Etapa atual — Conteúdo da paciente II (PROJ-15, PROJ-17, PROJ-22)
+## Etapa atual — Conteúdo da paciente II (PROJ-15, PROJ-17, PROJ-21, PROJ-22)
 
-Mais conteúdo da paciente. Calendário de eventos e linha do tempo são
-**escopados por dono** (a paciente só vê o que é dela, garantido no backend);
-o apoio emocional é conteúdo de referência público gerido pelo Django Admin.
+Mais conteúdo da paciente. Calendário de eventos, linha do tempo e registro de
+sintomas são **escopados por dono** (a paciente só vê o que é dela, garantido no
+backend); o apoio emocional é conteúdo de referência público gerido pelo Django
+Admin. O registro de sintomas é a primeira tela em que a paciente **escreve**.
 
 ### PROJ-15 — H6 Calendário do tratamento
 
@@ -615,6 +616,52 @@ categoria, publicado), gerido pelo Django Admin. Endpoint público
 `GET /api/apoio/` (somente publicados; filtro `?categoria=`). A `/apoio` exibe
 o aviso fixo de que não substitui acompanhamento profissional. Conteúdo inicial
 em `apoio_inicial.json`. Testes em `apoio/tests.py` e `apoio.cy.js`.
+
+### PROJ-21 — H12 Registro de sintomas e observações
+
+- Jira: [PROJ-21](https://afreis.atlassian.net/browse/PROJ-21)
+
+**História**: Como paciente, quero registrar sintomas ou observações durante o
+tratamento, para acompanhar meu estado e compartilhar informações relevantes com
+a clínica.
+
+**Critérios de aceitação**:
+
+- A paciente deve conseguir criar um registro de sintoma ou observação.
+- O registro deve conter data, tipo, descrição e intensidade opcional.
+- A paciente deve conseguir visualizar registros anteriores.
+- Os dados devem ser lidos e gravados no banco de dados.
+- A paciente deve visualizar apenas os próprios registros.
+- Caso não existam registros, o sistema deve exibir uma mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Registrar sintoma ou observação
+  Dado que a paciente está autenticada
+  Quando ela preenche um novo registro e salva
+  Então o sistema deve gravar o registro no banco de dados
+
+Cenário: Visualizar registros anteriores
+  Dado que existem registros cadastrados para a paciente
+  Quando ela acessa a página de sintomas e observações
+  Então o sistema deve exibir os registros anteriores
+
+Cenário: Proteger registros de outra paciente
+  Dado que existem registros de outras pacientes no sistema
+  Quando a paciente acessa seus registros
+  Então ela deve visualizar apenas os próprios registros
+```
+
+**Dados envolvidos**: `Paciente`, `RegistroSintoma` (app `sintomas`).
+
+**Notas de entrega**: primeira feature de **escrita** pela paciente. App
+`sintomas` com `RegistroSintoma` (data, tipo, descrição, intensidade opcional
+1–5). Endpoints `GET`/`POST /api/sintomas/` com `IsPaciente` e escopo por dono
+— a dona vem da sessão, nunca do corpo (um POST com `paciente` no payload é
+ignorado). Página `/sintomas` com formulário e histórico dos próprios registros.
+Registros de demonstração no seed. Testes em `sintomas/tests.py` (escopo, acesso
+negado à médica, validação) e `sintomas.cy.js`.
 
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 

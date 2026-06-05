@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'area_medica',
     'tratamentos',
     'apoio',
+    'sintomas',
 ]
 
 MIDDLEWARE = [

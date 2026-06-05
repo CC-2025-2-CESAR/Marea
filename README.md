@@ -77,6 +77,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/linha-do-tempo`: etapas do tratamento da paciente, com a etapa atual destacada.
 - `/apoio`: conteúdos de apoio emocional, com aviso de que não substituem
   acompanhamento profissional.
+- `/sintomas`: registro de sintomas e observações escrito pela própria paciente.
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
@@ -110,7 +111,8 @@ a linha do tempo (jornada) das pacientes aponta para as etapas dos tratamentos.
 O command `criar_usuarios_teste` é idempotente — pode rodar mais de uma vez sem
 duplicar registros. Ele cria as contas fictícias abaixo (todas com senha
 `amare123`) e, para cada paciente, as consultas, medicamentos, eventos do
-calendário e a linha do tempo (jornada) de demonstração:
+calendário, a linha do tempo (jornada) e alguns registros de sintomas de
+demonstração:
 
 | Usuário | Tipo | Para que serve |
 |---|---|---|
@@ -341,6 +343,23 @@ Endpoints do backend:
 - `GET /api/jornada/` — linha do tempo da paciente autenticada (escopo por dono)
 - `GET /api/apoio/` — conteúdos de apoio publicados (público); filtro `?categoria=`
 
+## Registro de sintomas (PROJ-21)
+
+Primeira tela em que a paciente **escreve** os próprios dados. Em
+[`/sintomas`](http://localhost:5173/sintomas) ela registra sintomas e
+observações (data, tipo, descrição e intensidade opcional de 1 a 5) e vê o
+histórico dos próprios registros. É dado pessoal de saúde: cada paciente só
+acessa o que é dela, garantido no backend.
+
+O modelo `RegistroSintoma` mora no app `sintomas`. Endpoints (exigem papel de
+paciente):
+
+- `GET /api/sintomas/` — lista os registros da paciente autenticada
+- `POST /api/sintomas/` — cria um registro para a paciente autenticada (a dona
+  vem da sessão, nunca do corpo da requisição)
+
+Registros de demonstração são criados pelo `criar_usuarios_teste`.
+
 ## Segurança e Privacidade (LGPD)
 
 A Amare trata **dados pessoais sensíveis** (dados de saúde), então privacidade é
@@ -389,6 +408,7 @@ backend/
 ├── area_medica/            área da médica com escopo por objeto (PROJ-19, PROJ-20)
 ├── tratamentos/            tratamentos, etapas, orientações e linha do tempo (PROJ-23, PROJ-18, PROJ-17)
 ├── apoio/                  conteúdos de apoio emocional (PROJ-22)
+├── sintomas/               registro de sintomas escrito pela paciente (PROJ-21)
 ├── requirements.txt
 └── README.md
 frontend/
@@ -403,11 +423,12 @@ frontend/
 │   ├── pages/              ApoioEmocional, AreaMedica, Bot, Ciclo, Consultas,
 │   │                       Dicionario, EmBreve, Especialidades, Home,
 │   │                       LinhaDoTempo, Login, Medicamentos, Orientacoes,
-│   │                       Perfil, Tratamentos
+│   │                       Perfil, Sintomas, Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
 │   ├── services/           api, apoioService, authService, consultasService,
 │   │                       dicionarioService, linhaTempoService, medicaService,
-│   │                       medicamentosService, perfilService, tratamentosService
+│   │                       medicamentosService, perfilService, sintomasService,
+│   │                       tratamentosService
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
@@ -417,7 +438,7 @@ frontend/
 │                           especialidades, layout-rotas, linha-do-tempo,
 │                           login, medicamentos, orientacoes, perfil,
 │                           polimento-ux-perfil, responsividade-mobile,
-│                           tratamentos (122 testes)
+│                           sintomas, tratamentos (128 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)
