@@ -42,6 +42,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/jornada/', { body: [] })
     cy.intercept('GET', '**/api/apoio/**', { body: [] })
     cy.intercept('GET', '**/api/sintomas/', { body: [] })
+    cy.intercept('GET', '**/api/busca/**', { body: [] })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
         username: 'paciente_teste',

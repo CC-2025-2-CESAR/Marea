@@ -18,9 +18,32 @@
   border: 0;
 }
 
-.search-bar__icone {
+.search-bar__botao {
   position: absolute;
-  left: 16px;
+  left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.search-bar__botao:hover {
+  color: var(--cor-caramelo);
+}
+
+.search-bar__botao:focus-visible {
+  outline: 2px solid var(--cor-caramelo);
+  outline-offset: 2px;
+}
+
+.search-bar__icone {
   pointer-events: none;
 }
 

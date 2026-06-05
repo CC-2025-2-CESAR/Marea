@@ -663,6 +663,59 @@ ignorado). Página `/sintomas` com formulário e histórico dos próprios regist
 Registros de demonstração no seed. Testes em `sintomas/tests.py` (escopo, acesso
 negado à médica, validação) e `sintomas.cy.js`.
 
+## Etapa atual — Busca global (PROJ-25)
+
+### PROJ-25 — H16 Busca global no conteúdo
+
+- Jira: [PROJ-25](https://afreis.atlassian.net/browse/PROJ-25)
+
+**História**: Como paciente, quero buscar por um termo e encontrar de uma vez
+resultados em todo o conteúdo da Amare (dicionário, tratamentos, orientações e
+especialidades), para chegar rápido à informação sem precisar saber em qual
+página ela está.
+
+**Critérios de aceitação**:
+
+- A busca do cabeçalho deve estar disponível nas páginas internas da paciente.
+- Ao enviar um termo, o sistema deve exibir uma página de resultados.
+- Cada resultado deve indicar o seu tipo (dicionário, tratamento, orientação ou
+  especialidade).
+- Cada resultado deve levar à página de origem (o dicionário abre já filtrado
+  pelo termo).
+- Buscas sem resultado devem exibir uma mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Buscar em todo o conteúdo
+  Dado que a paciente está autenticada
+  Quando ela digita um termo na busca do cabeçalho e envia
+  Então o sistema deve exibir os resultados agrupados por tipo
+
+Cenário: Abrir um resultado
+  Dado que a busca retornou resultados
+  Quando a paciente clica em um resultado
+  Então o sistema deve abrir a página de origem daquele conteúdo
+
+Cenário: Busca sem resultados
+  Dado que nenhum conteúdo casa com o termo
+  Quando a paciente realiza a busca
+  Então o sistema deve informar que nada foi encontrado
+```
+
+**Dados envolvidos**: `TermoDicionario`, `Tratamento`, `OrientacaoTratamento`,
+`Especialidade` (somente leitura). O app `busca` não tem models próprios.
+
+**Notas de entrega**: app `busca` sem models nem migração — busca sobre o
+conteúdo já existente. Endpoint público `GET /api/busca/?q=<termo>` procura nas
+quatro fontes e devolve uma lista achatada, cada item com `tipo`, `tipo_label`,
+`id`, `titulo`, `descricao` (trecho) e `url` (deep-link). Termo com menos de
+dois caracteres devolve vazio; há limite por tipo. A `SearchBar` do cabeçalho
+passou a ser controlada e navega para `/busca?q=<termo>`; a página `/busca`
+agrupa os resultados por tipo. O dicionário abre filtrado via `?busca=`; os
+demais tipos levam à respectiva página de seção. Sem fixtures novas. Testes em
+`busca/tests.py` e `busca.cy.js`.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))

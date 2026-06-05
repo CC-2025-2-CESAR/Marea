@@ -44,6 +44,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
   banco e gerido pelo Django Admin (PROJ-23 e PROJ-18): a de Tratamentos lista
   cada tratamento com suas etapas; a de Orientações traz textos em linguagem
   simples com filtro por categoria.
+- Busca global no cabeçalho (PROJ-25): procura em dicionário, tratamentos,
+  orientações e especialidades de uma vez, com resultados agrupados por tipo em
+  `/busca` e link para a página de origem.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
@@ -78,6 +81,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/apoio`: conteúdos de apoio emocional, com aviso de que não substituem
   acompanhamento profissional.
 - `/sintomas`: registro de sintomas e observações escrito pela própria paciente.
+- `/busca`: resultados da busca global, agrupados por tipo (dicionário,
+  tratamentos, orientações e especialidades).
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
@@ -360,6 +365,22 @@ paciente):
 
 Registros de demonstração são criados pelo `criar_usuarios_teste`.
 
+## Busca global (PROJ-25)
+
+A busca do cabeçalho procura, de uma vez, em todo o conteúdo público de
+referência: dicionário, tratamentos, orientações e especialidades. Ao enviar o
+termo, a `SearchBar` leva para
+[`/busca?q=<termo>`](http://localhost:5173/busca?q=fiv), que mostra os
+resultados **agrupados por tipo**, cada um com um link para a página de origem
+(o dicionário abre já filtrado pelo termo).
+
+Um único endpoint público resolve tudo e devolve o **tipo** de cada resultado.
+Não há models novos: a busca consulta o conteúdo já existente.
+
+- `GET /api/busca/?q=<termo>` — busca unificada; cada item traz `tipo`,
+  `tipo_label`, `id`, `titulo`, `descricao` (trecho) e `url` (deep-link). Termo
+  com menos de dois caracteres devolve lista vazia; há limite por tipo.
+
 ## Segurança e Privacidade (LGPD)
 
 A Amare trata **dados pessoais sensíveis** (dados de saúde), então privacidade é
@@ -434,11 +455,11 @@ frontend/
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/                apoio, area-medica, consultas, dicionario,
+│   └── e2e/                apoio, area-medica, busca, consultas, dicionario,
 │                           especialidades, layout-rotas, linha-do-tempo,
 │                           login, medicamentos, orientacoes, perfil,
 │                           polimento-ux-perfil, responsividade-mobile,
-│                           sintomas, tratamentos (128 testes)
+│                           sintomas, tratamentos (134 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)
