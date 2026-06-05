@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/eventos/', include('consultas.urls_eventos')),
     path('api/medicamentos/', include('medicamentos.urls')),
     path('api/apoio/', include('apoio.urls')),
+    path('api/sintomas/', include('sintomas.urls')),
     # Tratamentos, orientações e linha do tempo expõem /api/tratamentos/,
     # /api/orientacoes/ e /api/jornada/.
     path('api/', include('tratamentos.urls')),

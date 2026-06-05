@@ -1,0 +1,146 @@
+.sintomas-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.sintomas-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+  color: var(--cor-marrom);
+}
+
+.sintomas-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+.sintomas-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  padding: var(--espaco-md);
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+}
+
+.sintomas-form__linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--espaco-sm);
+  align-items: end;
+}
+
+.sintomas-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sintomas-campo__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+.sintomas-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--cor-texto);
+  background-color: var(--cor-creme-claro);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.sintomas-textarea:focus {
+  outline: 2px solid var(--cor-azul-link);
+  outline-offset: 1px;
+}
+
+.sintomas-form__acoes {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sintomas-mensagem {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.sintomas-mensagem--erro {
+  margin: 0;
+  color: var(--cor-erro);
+  font-size: 0.9rem;
+}
+
+.sintomas-mensagem--sucesso {
+  margin: 0;
+  color: var(--cor-sucesso);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sintomas-lista-titulo {
+  margin: 0;
+  color: var(--cor-marrom);
+  font-size: 1.15rem;
+}
+
+.sintomas-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.sintomas-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+}
+
+.sintomas-item__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espaco-xs);
+}
+
+.sintomas-item__tipo {
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+.sintomas-item__data {
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+}
+
+.sintomas-item__descricao {
+  margin: 0;
+  color: var(--cor-texto);
+  line-height: 1.5;
+}
+
+.sintomas-item__intensidade {
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: var(--raio-grande);
+  background-color: var(--cor-azul-suave);
+  color: var(--cor-marrom);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
