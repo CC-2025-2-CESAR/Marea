@@ -20,6 +20,12 @@ const links = [
     label: 'Especialidades',
     dataCy: 'nav-especialidades',
   },
+  {
+    to: '/linha-do-tempo',
+    label: 'Linha do tempo',
+    dataCy: 'nav-linha-do-tempo',
+  },
+  { to: '/apoio', label: 'Apoio emocional', dataCy: 'nav-apoio' },
 ]
 
 /**

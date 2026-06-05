@@ -1,0 +1,139 @@
+.linha-tempo-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.linha-tempo-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+  color: var(--cor-marrom);
+}
+
+.linha-tempo-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+.linha-tempo-tratamento {
+  margin: 0;
+  color: var(--cor-texto);
+}
+
+.linha-tempo-mensagem {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.linha-tempo-mensagem--erro {
+  color: var(--cor-erro);
+}
+
+.linha-tempo-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.linha-tempo-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--espaco-sm);
+  padding-bottom: var(--espaco-md);
+}
+
+/* Linha vertical conectando os marcadores. */
+.linha-tempo-item::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 22px;
+  bottom: -2px;
+  width: 2px;
+  background-color: var(--cor-borda);
+}
+
+.linha-tempo-item:last-child::before {
+  display: none;
+}
+
+.linha-tempo-item__marcador {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: 3px solid var(--cor-borda);
+  background-color: var(--cor-card);
+  z-index: 1;
+}
+
+.linha-tempo-item--concluida .linha-tempo-item__marcador {
+  background-color: var(--cor-verde-confirmacao);
+  border-color: var(--cor-verde-confirmacao);
+}
+
+.linha-tempo-item--atual .linha-tempo-item__marcador {
+  background-color: var(--cor-caramelo);
+  border-color: var(--cor-terracota);
+  box-shadow: 0 0 0 4px rgba(212, 150, 104, 0.25);
+}
+
+.linha-tempo-item__conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+}
+
+.linha-tempo-item--atual .linha-tempo-item__conteudo {
+  border-color: var(--cor-caramelo);
+  box-shadow: var(--sombra-suave);
+}
+
+.linha-tempo-item--futura .linha-tempo-item__conteudo {
+  opacity: 0.75;
+}
+
+.linha-tempo-item__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--espaco-xs);
+}
+
+.linha-tempo-item__titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--cor-marrom);
+}
+
+.linha-tempo-item__status {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.linha-tempo-item--atual .linha-tempo-item__status {
+  color: var(--cor-terracota);
+}
+
+.linha-tempo-item--concluida .linha-tempo-item__status {
+  color: var(--cor-verde-confirmacao);
+}
+
+.linha-tempo-item__descricao,
+.linha-tempo-item__observacao {
+  margin: 0;
+  color: var(--cor-texto);
+  line-height: 1.5;
+}
+
+.linha-tempo-item__observacao {
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}

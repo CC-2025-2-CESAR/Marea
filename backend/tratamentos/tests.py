@@ -1,11 +1,18 @@
-"""Testes da API pública de tratamentos e orientações."""
+"""Testes das APIs de tratamentos, orientações e linha do tempo."""
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from dicionario.models import TermoDicionario
+from usuarios.models import Paciente, PerfilUsuario
 
-from .models import EtapaTratamento, OrientacaoTratamento, Tratamento
+from .models import (
+    EtapaJornada,
+    EtapaTratamento,
+    OrientacaoTratamento,
+    Tratamento,
+)
 
 
 class TratamentosAPITests(TestCase):
@@ -163,3 +170,80 @@ class OrientacoesAPITests(TestCase):
             '/api/orientacoes/', {'categoria': 'Apoio emocional'}
         )
         self.assertEqual(resp.data[0]['termos_relacionados'], [])
+
+
+class JornadaAPITests(TestCase):
+    """Linha do tempo da paciente, com escopo por dono (PROJ-17)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        User = get_user_model()
+
+        self.fiv = Tratamento.objects.create(
+            nome='FIV', descricao='...', ordem=1
+        )
+        self.etapa1 = EtapaTratamento.objects.create(
+            tratamento=self.fiv, titulo='Avaliação inicial', ordem=1
+        )
+        self.etapa2 = EtapaTratamento.objects.create(
+            tratamento=self.fiv, titulo='Estimulação ovariana', ordem=2
+        )
+
+        u1 = User.objects.create_user(username='renata', password='x')
+        p1 = PerfilUsuario.objects.create(
+            usuario=u1,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Renata',
+        )
+        self.paciente1 = Paciente.objects.create(perfil=p1)
+        self.u1 = u1
+
+        u2 = User.objects.create_user(username='amanda', password='x')
+        p2 = PerfilUsuario.objects.create(
+            usuario=u2,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Amanda',
+        )
+        self.paciente2 = Paciente.objects.create(perfil=p2)
+
+        EtapaJornada.objects.create(
+            paciente=self.paciente1,
+            etapa=self.etapa1,
+            status=EtapaJornada.STATUS_CONCLUIDA,
+        )
+        EtapaJornada.objects.create(
+            paciente=self.paciente1,
+            etapa=self.etapa2,
+            status=EtapaJornada.STATUS_ATUAL,
+        )
+        EtapaJornada.objects.create(
+            paciente=self.paciente2,
+            etapa=self.etapa1,
+            status=EtapaJornada.STATUS_FUTURA,
+        )
+
+    def test_exige_autenticacao(self):
+        resp = self.client.get('/api/jornada/')
+        self.assertIn(resp.status_code, (401, 403))
+
+    def test_paciente_ve_apenas_a_propria_jornada_em_ordem(self):
+        self.client.force_authenticate(user=self.u1)
+        resp = self.client.get('/api/jornada/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 2)
+        self.assertEqual(resp.data[0]['etapa_titulo'], 'Avaliação inicial')
+        self.assertEqual(resp.data[1]['etapa_titulo'], 'Estimulação ovariana')
+
+    def test_jornada_traz_status_e_tratamento(self):
+        self.client.force_authenticate(user=self.u1)
+        resp = self.client.get('/api/jornada/')
+        atual = next(e for e in resp.data if e['status'] == 'atual')
+        self.assertEqual(atual['status_label'], 'Atual')
+        self.assertEqual(atual['tratamento_nome'], 'FIV')
+
+    def test_jornada_vazia(self):
+        self.client.force_authenticate(user=self.u1)
+        EtapaJornada.objects.filter(paciente=self.paciente1).delete()
+        resp = self.client.get('/api/jornada/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 0)

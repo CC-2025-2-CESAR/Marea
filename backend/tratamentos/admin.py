@@ -1,6 +1,11 @@
 from django.contrib import admin
 
-from .models import EtapaTratamento, OrientacaoTratamento, Tratamento
+from .models import (
+    EtapaJornada,
+    EtapaTratamento,
+    OrientacaoTratamento,
+    Tratamento,
+)
 
 
 class EtapaTratamentoInline(admin.TabularInline):
@@ -29,3 +34,15 @@ class OrientacaoTratamentoAdmin(admin.ModelAdmin):
     ordering = ('categoria', 'titulo')
     readonly_fields = ('criado_em', 'atualizado_em')
     filter_horizontal = ('termos_relacionados',)
+
+
+@admin.register(EtapaJornada)
+class EtapaJornadaAdmin(admin.ModelAdmin):
+    list_display = ('paciente', 'etapa', 'status', 'atualizado_em')
+    list_filter = ('status',)
+    search_fields = (
+        'paciente__perfil__nome_completo',
+        'paciente__perfil__usuario__username',
+        'etapa__titulo',
+    )
+    readonly_fields = ('atualizado_em',)

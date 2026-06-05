@@ -10,8 +10,11 @@ urlpatterns = [
     path('api/dicionario/', include('dicionario.urls')),
     path('api/consultas/', include('consultas.urls')),
     path('api/especialidades/', include('consultas.urls_especialidades')),
+    path('api/eventos/', include('consultas.urls_eventos')),
     path('api/medicamentos/', include('medicamentos.urls')),
-    # Tratamentos e orientações expõem /api/tratamentos/ e /api/orientacoes/.
+    path('api/apoio/', include('apoio.urls')),
+    # Tratamentos, orientações e linha do tempo expõem /api/tratamentos/,
+    # /api/orientacoes/ e /api/jornada/.
     path('api/', include('tratamentos.urls')),
     # Catch-all do SPA: entrega o index.html do React para qualquer rota que
     # NÃO seja da API, do admin ou de estáticos. Permite o roteamento no

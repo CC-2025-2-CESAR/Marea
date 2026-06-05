@@ -65,7 +65,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/login`: tela de login pública, sem sidebar, header ou busca.
 - `/`: página inicial da plataforma (requer login).
 - `/perfil`: perfil da paciente com formulário editável (requer login).
-- `/calendario`: grade mensal de consultas com painel lateral de próximas consultas e lembretes.
+- `/calendario`: grade mensal de consultas e eventos do tratamento, com painel
+  lateral de próximas consultas, próximos eventos e lembretes.
 - `/medicamentos`: checklist diário de remédios prescritos com marcar/desmarcar.
 - `/ciclo`: placeholder de ciclo.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
@@ -73,6 +74,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/tratamentos`: tratamentos da clínica com as etapas principais de cada um.
 - `/orientacoes`: orientações em linguagem simples, com filtro por categoria.
 - `/especialidades`: especialidades da clínica e as médicas relacionadas.
+- `/linha-do-tempo`: etapas do tratamento da paciente, com a etapa atual destacada.
+- `/apoio`: conteúdos de apoio emocional, com aviso de que não substituem
+  acompanhamento profissional.
 - `/area-medica`: área exclusiva da médica (fora do layout da paciente), com a
   lista de pacientes vinculadas e o painel de acompanhamento (requer papel de médica).
 
@@ -93,16 +97,20 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
+python manage.py loaddata termos_iniciais tratamentos_iniciais orientacoes_iniciais apoio_inicial
 python manage.py criar_usuarios_teste
-python manage.py loaddata termos_iniciais
 python manage.py runserver
 ```
 
 Backend em `http://127.0.0.1:8000/`.
 
+A ordem importa: carregue as fixtures **antes** de `criar_usuarios_teste`, porque
+a linha do tempo (jornada) das pacientes aponta para as etapas dos tratamentos.
+
 O command `criar_usuarios_teste` é idempotente — pode rodar mais de uma vez sem
 duplicar registros. Ele cria as contas fictícias abaixo (todas com senha
-`amare123`) e, para cada paciente, as consultas e medicamentos de demonstração:
+`amare123`) e, para cada paciente, as consultas, medicamentos, eventos do
+calendário e a linha do tempo (jornada) de demonstração:
 
 | Usuário | Tipo | Para que serve |
 |---|---|---|
@@ -307,6 +315,32 @@ Endpoint do backend (público, somente leitura):
 - `GET /api/especialidades/` — lista as especialidades ativas com as médicas
   relacionadas
 
+## Calendário, linha do tempo e apoio (PROJ-15, PROJ-17, PROJ-22)
+
+Mais conteúdo da paciente. Os dois primeiros são **escopados por dono** (a
+paciente só vê o que é dela, garantido no backend); o terceiro é conteúdo de
+referência público gerido pelo Django Admin.
+
+- **Eventos no calendário (PROJ-15)**: além das consultas, o
+  [`/calendario`](http://localhost:5173/calendario) mostra os **eventos do
+  tratamento** (exame, procedimento, medicação, lembrete) com marcador próprio
+  na grade e um painel "Próximos eventos". O modelo `EventoTratamento` mora no
+  app `consultas`.
+- **Linha do tempo (PROJ-17)**: a [`/linha-do-tempo`](http://localhost:5173/linha-do-tempo)
+  mostra as etapas do tratamento da paciente em ordem, com a **etapa atual
+  destacada**. O modelo `EtapaJornada` (app `tratamentos`) liga a paciente às
+  `EtapaTratamento` e guarda o status de cada uma.
+- **Apoio emocional (PROJ-22)**: a [`/apoio`](http://localhost:5173/apoio)
+  reúne mensagens de acolhimento e exibe um aviso de que o conteúdo **não
+  substitui acompanhamento profissional**. O modelo `ConteudoApoio` (app
+  `apoio`) é gerido pelo Django Admin.
+
+Endpoints do backend:
+
+- `GET /api/eventos/` — eventos da paciente autenticada (escopo por dono)
+- `GET /api/jornada/` — linha do tempo da paciente autenticada (escopo por dono)
+- `GET /api/apoio/` — conteúdos de apoio publicados (público); filtro `?categoria=`
+
 ## Segurança e Privacidade (LGPD)
 
 A Amare trata **dados pessoais sensíveis** (dados de saúde), então privacidade é
@@ -353,7 +387,8 @@ backend/
 ├── consultas/              consultas e especialidades (PROJ-1)
 ├── medicamentos/           checklist diário de medicamentos prescritos (PROJ-2)
 ├── area_medica/            área da médica com escopo por objeto (PROJ-19, PROJ-20)
-├── tratamentos/            tratamentos, etapas e orientações (PROJ-23, PROJ-18)
+├── tratamentos/            tratamentos, etapas, orientações e linha do tempo (PROJ-23, PROJ-18, PROJ-17)
+├── apoio/                  conteúdos de apoio emocional (PROJ-22)
 ├── requirements.txt
 └── README.md
 frontend/
@@ -365,22 +400,24 @@ frontend/
 │   │                       SearchBar, SelectField, Sidebar
 │   ├── contexts/           AuthContext + useAuth (sessão JWT)
 │   ├── layouts/            AppLayout (rotas internas) e AuthLayout (login)
-│   ├── pages/              AreaMedica, Bot, Ciclo, Consultas, Dicionario,
-│   │                       EmBreve, Especialidades, Home, Login, Medicamentos,
-│   │                       Orientacoes, Perfil, Tratamentos
+│   ├── pages/              ApoioEmocional, AreaMedica, Bot, Ciclo, Consultas,
+│   │                       Dicionario, EmBreve, Especialidades, Home,
+│   │                       LinhaDoTempo, Login, Medicamentos, Orientacoes,
+│   │                       Perfil, Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
-│   ├── services/           api, authService, consultasService, dicionarioService,
-│   │                       medicaService, medicamentosService, perfilService,
-│   │                       tratamentosService
+│   ├── services/           api, apoioService, authService, consultasService,
+│   │                       dicionarioService, linhaTempoService, medicaService,
+│   │                       medicamentosService, perfilService, tratamentosService
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/                area-medica, consultas, dicionario, layout-rotas,
+│   └── e2e/                apoio, area-medica, consultas, dicionario,
+│                           especialidades, layout-rotas, linha-do-tempo,
 │                           login, medicamentos, orientacoes, perfil,
 │                           polimento-ux-perfil, responsividade-mobile,
-│                           tratamentos (103 testes)
+│                           tratamentos (122 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)

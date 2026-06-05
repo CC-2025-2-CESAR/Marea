@@ -70,6 +70,26 @@ const consultasMock = [
 
 const proximasMock = [consultasMock[0], consultasMock[1]]
 
+// Eventos do tratamento (PROJ-15): um futuro (28/05) e um passado (15/05).
+const eventosMock = [
+  {
+    id: 1,
+    titulo: 'Ultrassom folicular',
+    descricao: 'Avaliação do crescimento dos folículos.',
+    data_horario: '2026-05-28T12:00:00Z',
+    tipo: 'procedimento',
+    tipo_label: 'Procedimento',
+  },
+  {
+    id: 2,
+    titulo: 'Exame de sangue',
+    descricao: 'Coleta em jejum.',
+    data_horario: '2026-05-15T11:00:00Z',
+    tipo: 'exame',
+    tipo_label: 'Exame',
+  },
+]
+
 // Fixa a data atual em 25 de maio de 2026 (meio-dia UTC). Garante que os
 // testes funcionem independentemente do dia em que rodam, já que os mocks
 // usam datas absolutas em maio/2026.
@@ -92,6 +112,8 @@ describe('Calendário de consultas da Amare', () => {
     fixarDataAtual()
     // O painel Lembretes agora carrega medicamentos via API.
     cy.intercept('GET', '**/api/medicamentos/', { body: [] })
+    // A página /calendario carrega consultas E eventos (Promise.all).
+    cy.intercept('GET', '**/api/eventos/', { body: [] })
   })
 
   it('exibe o título e o cabeçalho da página', () => {
@@ -194,7 +216,42 @@ describe('Calendário de consultas da Amare', () => {
     cy.get('[data-cy=consultas-mensagem-erro]')
       .should('be.visible')
       .and('have.attr', 'role', 'alert')
-      .and('contain', 'Não foi possível carregar suas consultas no momento.')
+      .and('contain', 'Não foi possível carregar sua agenda no momento.')
+  })
+
+  it('mostra eventos no calendário e no painel de próximos eventos (PROJ-15)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/eventos/', { body: eventosMock }).as('eventos')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@eventos')
+
+    // Dia 28 tem evento (e nenhuma consulta agendada) — marcador de evento.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="28"]')
+      .should('have.attr', 'data-com-evento', 'true')
+      .find('[data-cy=calendario-mes-marcador-evento]')
+      .should('contain', 'Ultrassom folicular')
+
+    // Painel lista só os eventos a partir de hoje (25/05): o de 28/05.
+    cy.get('[data-cy=painel-eventos]').should('be.visible')
+    cy.get('[data-cy=painel-eventos-item]').should('have.length', 1)
+    cy.get('[data-cy=painel-eventos-item]')
+      .first()
+      .should('contain', 'Ultrassom folicular')
+      .and('contain', 'Procedimento')
+  })
+
+  it('mostra mensagem quando não há eventos cadastrados', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/eventos/', { body: [] }).as('eventos')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@eventos')
+
+    cy.get('[data-cy=painel-eventos]').should('be.visible')
+    cy.get('[data-cy=eventos-mensagem-vazia]')
+      .should('be.visible')
+      .and('contain', 'Nenhum evento do tratamento cadastrado')
   })
 
   it('card de Lembretes renderiza o checklist de medicamentos e link "Ver todos"', () => {
