@@ -16,6 +16,7 @@ import Especialidades from '../pages/Especialidades/Especialidades'
 import LinhaDoTempo from '../pages/LinhaDoTempo/LinhaDoTempo'
 import ApoioEmocional from '../pages/ApoioEmocional/ApoioEmocional'
 import Sintomas from '../pages/Sintomas/Sintomas'
+import Busca from '../pages/Busca/Busca'
 import EmBreve from '../pages/EmBreve/EmBreve'
 import AreaMedica from '../pages/AreaMedica/AreaMedica'
 
@@ -59,6 +60,7 @@ function AppRoutes() {
           <Route path="/linha-do-tempo" element={<LinhaDoTempo />} />
           <Route path="/apoio" element={<ApoioEmocional />} />
           <Route path="/sintomas" element={<Sintomas />} />
+          <Route path="/busca" element={<Busca />} />
           <Route
             path="*"
             element={
