@@ -8,6 +8,8 @@ em cada momento, podendo (ou não) apontar para um tratamento e uma etapa.
 
 from django.db import models
 
+from usuarios.models import Paciente
+
 
 class Tratamento(models.Model):
     """Um tratamento oferecido pela clínica (ex.: Fertilização in vitro)."""
@@ -96,3 +98,49 @@ class OrientacaoTratamento(models.Model):
 
     def __str__(self):
         return self.titulo
+
+
+class EtapaJornada(models.Model):
+    """Progresso de uma paciente em uma etapa do seu tratamento (PROJ-17).
+
+    Liga a paciente a uma `EtapaTratamento` e guarda em que ponto ela está. A
+    linha do tempo da paciente é a lista das suas etapas, em ordem, com a etapa
+    atual destacada. A paciente só enxerga a própria jornada (escopo por dono).
+    """
+
+    STATUS_CONCLUIDA = 'concluida'
+    STATUS_ATUAL = 'atual'
+    STATUS_FUTURA = 'futura'
+
+    STATUS_CHOICES = [
+        (STATUS_CONCLUIDA, 'Concluída'),
+        (STATUS_ATUAL, 'Atual'),
+        (STATUS_FUTURA, 'Futura'),
+    ]
+
+    paciente = models.ForeignKey(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name='jornada',
+        verbose_name='Paciente',
+    )
+    etapa = models.ForeignKey(
+        EtapaTratamento,
+        on_delete=models.CASCADE,
+        related_name='jornadas',
+        verbose_name='Etapa do tratamento',
+    )
+    status = models.CharField(
+        'Status', max_length=20, choices=STATUS_CHOICES, default=STATUS_FUTURA
+    )
+    observacao = models.TextField('Observação', blank=True)
+    atualizado_em = models.DateTimeField('Atualizado em', auto_now=True)
+
+    class Meta:
+        ordering = ['etapa__ordem', 'etapa__id']
+        unique_together = ('paciente', 'etapa')
+        verbose_name = 'Etapa da jornada'
+        verbose_name_plural = 'Etapas da jornada'
+
+    def __str__(self):
+        return f'{self.paciente} — {self.etapa.titulo} ({self.get_status_display()})'

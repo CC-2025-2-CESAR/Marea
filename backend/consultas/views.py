@@ -15,8 +15,12 @@ from rest_framework.response import Response
 
 from usuarios.models import Paciente
 
-from .models import Consulta, Especialidade
-from .serializers import ConsultaSerializer, EspecialidadePublicaSerializer
+from .models import Consulta, Especialidade, EventoTratamento
+from .serializers import (
+    ConsultaSerializer,
+    EspecialidadePublicaSerializer,
+    EventoTratamentoSerializer,
+)
 
 
 def _obter_paciente(request):
@@ -82,4 +86,22 @@ def listar_especialidades(request):
         'medicas__perfil__usuario'
     )
     serializer = EspecialidadePublicaSerializer(especialidades, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_eventos(request):
+    """Lista os eventos do tratamento da paciente autenticada (PROJ-15).
+
+    Escopo por dono: a paciente só enxerga os próprios eventos.
+    """
+    paciente = _obter_paciente(request)
+    if paciente is None:
+        return Response(
+            {'detail': 'Apenas pacientes podem listar eventos.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    eventos = EventoTratamento.objects.filter(paciente=paciente)
+    serializer = EventoTratamentoSerializer(eventos, many=True)
     return Response(serializer.data)

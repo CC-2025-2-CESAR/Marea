@@ -38,6 +38,9 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/tratamentos/**', { body: [] })
     cy.intercept('GET', '**/api/orientacoes/**', { body: [] })
     cy.intercept('GET', '**/api/especialidades/', { body: [] })
+    cy.intercept('GET', '**/api/eventos/', { body: [] })
+    cy.intercept('GET', '**/api/jornada/', { body: [] })
+    cy.intercept('GET', '**/api/apoio/**', { body: [] })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
         username: 'paciente_teste',
@@ -167,6 +170,20 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-especialidades]').click()
     cy.location('pathname').should('eq', '/especialidades')
     cy.contains('h1', 'Especialidades').should('be.visible')
+
+    cy.get('[data-cy=nav-linha-do-tempo]').should(
+      'have.attr',
+      'href',
+      '/linha-do-tempo',
+    )
+    cy.get('[data-cy=nav-linha-do-tempo]').click()
+    cy.location('pathname').should('eq', '/linha-do-tempo')
+    cy.contains('h1', 'Linha do tempo').should('be.visible')
+
+    cy.get('[data-cy=nav-apoio]').should('have.attr', 'href', '/apoio')
+    cy.get('[data-cy=nav-apoio]').click()
+    cy.location('pathname').should('eq', '/apoio')
+    cy.contains('h1', 'Apoio emocional').should('be.visible')
   })
 
   it('abre Bot corretamente por rota direta', () => {

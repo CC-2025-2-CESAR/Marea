@@ -127,6 +127,20 @@
   word-break: break-word;
 }
 
+/* Marcador de evento do tratamento: cor distinta da consulta. */
+.calendario-mes__marcador--evento {
+  color: var(--cor-azul-link);
+}
+
+.calendario-mes__celula--com-evento:not(.calendario-mes__celula--hoje):not(.calendario-mes__celula--com-consulta) {
+  background: linear-gradient(
+      180deg,
+      rgba(193, 211, 222, 0.22),
+      transparent
+    ),
+    var(--cor-card);
+}
+
 .calendario-mes__celula--com-consulta:not(.calendario-mes__celula--hoje) {
   background: linear-gradient(
       180deg,

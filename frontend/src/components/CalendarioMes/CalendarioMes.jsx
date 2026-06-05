@@ -72,7 +72,26 @@ function rotuloDoDia(consultas) {
     : 'Consulta'
 }
 
-function CalendarioMes({ consultas = [], mesInicial }) {
+function rotuloEventos(eventos) {
+  if (eventos.length === 0) return ''
+  if (eventos.length > 1) return `${eventos.length} eventos`
+  return eventos[0].titulo || 'Evento'
+}
+
+function agruparPorData(itens) {
+  const mapa = new Map()
+  itens.forEach((item) => {
+    if (!item?.data_horario) return
+    const data = new Date(item.data_horario)
+    const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
+    const lista = mapa.get(chave) || []
+    lista.push(item)
+    mapa.set(chave, lista)
+  })
+  return mapa
+}
+
+function CalendarioMes({ consultas = [], eventos = [], mesInicial }) {
   const inicial = useMemo(() => {
     if (mesInicial instanceof Date) {
       return new Date(mesInicial.getFullYear(), mesInicial.getMonth(), 1)
@@ -88,22 +107,20 @@ function CalendarioMes({ consultas = [], mesInicial }) {
   const hoje = new Date()
   const celulas = useMemo(() => gerarCelulas(ano, mes), [ano, mes])
 
-  const consultasPorData = useMemo(() => {
-    const mapa = new Map()
-    consultas.forEach((consulta) => {
-      if (!consulta?.data_horario) return
-      const data = new Date(consulta.data_horario)
-      const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
-      const lista = mapa.get(chave) || []
-      lista.push(consulta)
-      mapa.set(chave, lista)
-    })
-    return mapa
-  }, [consultas])
+  const consultasPorData = useMemo(
+    () => agruparPorData(consultas),
+    [consultas],
+  )
+  const eventosPorData = useMemo(() => agruparPorData(eventos), [eventos])
 
   function consultasNoDia(data) {
     const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
     return consultasPorData.get(chave) || []
+  }
+
+  function eventosNoDia(data) {
+    const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
+    return eventosPorData.get(chave) || []
   }
 
   function irParaMesAnterior() {
@@ -172,13 +189,17 @@ function CalendarioMes({ consultas = [], mesInicial }) {
         {celulas.map((celula, indice) => {
           const consultasDoDia =
             celula.tipo === 'atual' ? consultasNoDia(celula.data) : []
+          const eventosDoDia =
+            celula.tipo === 'atual' ? eventosNoDia(celula.data) : []
           const ehHoje = mesmoDia(celula.data, hoje)
           const temConsulta = consultasDoDia.length > 0
+          const temEvento = eventosDoDia.length > 0
           const classes = [
             'calendario-mes__celula',
             `calendario-mes__celula--${celula.tipo}`,
             ehHoje && 'calendario-mes__celula--hoje',
             temConsulta && 'calendario-mes__celula--com-consulta',
+            temEvento && 'calendario-mes__celula--com-evento',
           ]
             .filter(Boolean)
             .join(' ')
@@ -190,6 +211,7 @@ function CalendarioMes({ consultas = [], mesInicial }) {
               data-cy="calendario-mes-dia"
               data-dia={celula.tipo === 'atual' ? celula.dia : ''}
               data-com-consulta={temConsulta ? 'true' : 'false'}
+              data-com-evento={temEvento ? 'true' : 'false'}
             >
               <span className="calendario-mes__numero">{celula.dia}</span>
               {temConsulta ? (
@@ -201,6 +223,15 @@ function CalendarioMes({ consultas = [], mesInicial }) {
                     .join(', ')}
                 >
                   {rotuloDoDia(consultasDoDia)}
+                </span>
+              ) : null}
+              {temEvento ? (
+                <span
+                  className="calendario-mes__marcador calendario-mes__marcador--evento"
+                  data-cy="calendario-mes-marcador-evento"
+                  title={eventosDoDia.map((e) => e.titulo).join(', ')}
+                >
+                  {rotuloEventos(eventosDoDia)}
                 </span>
               ) : null}
             </li>

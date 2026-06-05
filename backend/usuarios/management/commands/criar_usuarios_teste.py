@@ -22,8 +22,9 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from consultas.models import Consulta, Especialidade
+from consultas.models import Consulta, Especialidade, EventoTratamento
 from medicamentos.models import Medicamento
+from tratamentos.models import EtapaJornada, Tratamento
 from usuarios.models import Medica, Paciente, PerfilUsuario
 
 
@@ -115,6 +116,43 @@ PACIENTES = [
                 'instrucoes': 'Importante para dietas vegetarianas. Tomar junto com o ácido fólico.',
             },
         ],
+        'eventos': [
+            {
+                'titulo': 'Exame de sangue (hormônios basais)',
+                'descricao': 'Coleta em jejum para avaliar a reserva ovariana.',
+                'dias': -10,
+                'hora': (8, 0),
+                'tipo': EventoTratamento.TIPO_EXAME,
+            },
+            {
+                'titulo': 'Início da medicação de estímulo',
+                'descricao': 'Primeira aplicação da gonadotrofina, à noite.',
+                'dias': 2,
+                'hora': (20, 0),
+                'tipo': EventoTratamento.TIPO_MEDICACAO,
+            },
+            {
+                'titulo': 'Ultrassom de acompanhamento folicular',
+                'descricao': 'Avaliação do crescimento dos folículos.',
+                'dias': 9,
+                'hora': (9, 0),
+                'tipo': EventoTratamento.TIPO_PROCEDIMENTO,
+            },
+            {
+                'titulo': 'Lembrete: levar exames anteriores',
+                'descricao': 'Levar os exames recentes na próxima consulta.',
+                'dias': 12,
+                'hora': (8, 0),
+                'tipo': EventoTratamento.TIPO_LEMBRETE,
+            },
+        ],
+        'jornada': {
+            'tratamento': 'Fertilização in vitro (FIV)',
+            'status_por_ordem': {
+                1: EtapaJornada.STATUS_CONCLUIDA,
+                2: EtapaJornada.STATUS_ATUAL,
+            },
+        },
     },
     {
         'username': 'amanda',
@@ -178,6 +216,46 @@ PACIENTES = [
                 'instrucoes': 'Tomar após o almoço, conforme orientação da médica.',
             },
         ],
+        'eventos': [
+            {
+                'titulo': 'Transferência embrionária',
+                'descricao': 'Procedimento simples e indolor, na clínica.',
+                'dias': 5,
+                'hora': (10, 0),
+                'tipo': EventoTratamento.TIPO_PROCEDIMENTO,
+            },
+            {
+                'titulo': 'Lembrete: iniciar progesterona',
+                'descricao': 'Começar a progesterona conforme a prescrição.',
+                'dias': 5,
+                'hora': (8, 0),
+                'tipo': EventoTratamento.TIPO_MEDICACAO,
+            },
+            {
+                'titulo': 'Sessão de acompanhamento psicológico',
+                'descricao': 'Apoio emocional durante a fase de espera.',
+                'dias': 8,
+                'hora': (14, 0),
+                'tipo': EventoTratamento.TIPO_OUTRO,
+            },
+            {
+                'titulo': 'Teste de gravidez (Beta hCG)',
+                'descricao': 'Exame de sangue para confirmar a gestação.',
+                'dias': 19,
+                'hora': (8, 0),
+                'tipo': EventoTratamento.TIPO_EXAME,
+            },
+        ],
+        'jornada': {
+            'tratamento': 'Fertilização in vitro (FIV)',
+            'status_por_ordem': {
+                1: EtapaJornada.STATUS_CONCLUIDA,
+                2: EtapaJornada.STATUS_CONCLUIDA,
+                3: EtapaJornada.STATUS_CONCLUIDA,
+                4: EtapaJornada.STATUS_CONCLUIDA,
+                5: EtapaJornada.STATUS_ATUAL,
+            },
+        },
     },
 ]
 
@@ -319,6 +397,8 @@ class Command(BaseCommand):
         # depender de chaves naturais nas consultas.
         paciente.consultas.all().delete()
         paciente.medicamentos.all().delete()
+        paciente.eventos.all().delete()
+        paciente.jornada.all().delete()
 
         for c in dados['consultas']:
             Consulta.objects.create(
@@ -340,6 +420,45 @@ class Command(BaseCommand):
                 dose=m['dose'],
                 horario=time(*m['hora']),
                 instrucoes=m['instrucoes'],
+            )
+
+        for e in dados.get('eventos', []):
+            EventoTratamento.objects.create(
+                paciente=paciente,
+                titulo=e['titulo'],
+                descricao=e['descricao'],
+                data_horario=self._quando(e['dias'], e['hora']),
+                tipo=e['tipo'],
+            )
+
+        self._popular_jornada(paciente, dados.get('jornada'))
+
+    def _popular_jornada(self, paciente, jornada):
+        """Cria a linha do tempo da paciente sobre as etapas de um tratamento.
+
+        Depende das etapas carregadas pela fixture `tratamentos_iniciais`. Se o
+        tratamento ainda não existir (fixtures não carregadas), apenas avisa e
+        segue — o seed continua idempotente.
+        """
+        if not jornada:
+            return
+        tratamento = Tratamento.objects.filter(
+            nome=jornada['tratamento']
+        ).first()
+        if tratamento is None:
+            self.stdout.write(
+                f'  aviso: tratamento "{jornada["tratamento"]}" ausente; '
+                'linha do tempo não populada (carregue as fixtures antes).'
+            )
+            return
+        status_por_ordem = jornada.get('status_por_ordem', {})
+        for etapa in tratamento.etapas.all():
+            EtapaJornada.objects.create(
+                paciente=paciente,
+                etapa=etapa,
+                status=status_por_ordem.get(
+                    etapa.ordem, EtapaJornada.STATUS_FUTURA
+                ),
             )
 
     def _quando(self, dias, hora):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Consulta, Especialidade
+from .models import Consulta, Especialidade, EventoTratamento
 
 
 class EspecialidadeSerializer(serializers.ModelSerializer):
@@ -59,3 +59,20 @@ class ConsultaSerializer(serializers.ModelSerializer):
             return ''
         perfil = obj.medica.perfil
         return perfil.nome_completo or perfil.usuario.username
+
+
+class EventoTratamentoSerializer(serializers.ModelSerializer):
+    """Leitura dos eventos do calendário da paciente (PROJ-15)."""
+
+    tipo_label = serializers.CharField(source='get_tipo_display', read_only=True)
+
+    class Meta:
+        model = EventoTratamento
+        fields = (
+            'id',
+            'titulo',
+            'descricao',
+            'data_horario',
+            'tipo',
+            'tipo_label',
+        )

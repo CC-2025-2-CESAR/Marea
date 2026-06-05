@@ -8,4 +8,8 @@ function listarProximasConsultas() {
   return requisicao('/consultas/proximas/')
 }
 
-export { listarConsultas, listarProximasConsultas }
+function listarEventos() {
+  return requisicao('/eventos/')
+}
+
+export { listarConsultas, listarProximasConsultas, listarEventos }

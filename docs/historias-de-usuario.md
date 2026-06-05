@@ -478,6 +478,144 @@ seed `criar_usuarios_teste`.
 cada especialidade com as médicas relacionadas. 6 testes Cypress em
 `especialidades.cy.js` e testes de API em `consultas/tests.py`.
 
+## Etapa atual — Conteúdo da paciente II (PROJ-15, PROJ-17, PROJ-22)
+
+Mais conteúdo da paciente. Calendário de eventos e linha do tempo são
+**escopados por dono** (a paciente só vê o que é dela, garantido no backend);
+o apoio emocional é conteúdo de referência público gerido pelo Django Admin.
+
+### PROJ-15 — H6 Calendário do tratamento
+
+- Jira: [PROJ-15](https://afreis.atlassian.net/browse/PROJ-15)
+
+**História**: Como paciente, quero visualizar eventos do meu tratamento em um
+calendário, para acompanhar consultas, exames, procedimentos e lembretes
+importantes.
+
+**Critérios de aceitação**:
+
+- A paciente deve visualizar eventos cadastrados no calendário.
+- Cada evento deve ter título, data, horário, tipo e descrição.
+- Os eventos devem ser lidos do banco de dados.
+- A paciente deve visualizar apenas eventos vinculados ao próprio perfil.
+- Caso não existam eventos, o sistema deve exibir uma mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar eventos cadastrados
+  Dado que existem eventos cadastrados para a paciente
+  Quando ela acessa a página de calendário
+  Então o sistema deve exibir os eventos do tratamento
+
+Cenário: Nenhum evento cadastrado
+  Dado que não existem eventos cadastrados para a paciente
+  Quando ela acessa a página de calendário
+  Então o sistema deve informar que nenhum evento foi encontrado
+
+Cenário: Proteger eventos de outra paciente
+  Dado que existem eventos de outras pacientes no sistema
+  Quando a paciente acessa seu calendário
+  Então ela deve visualizar apenas os próprios eventos
+```
+
+**Dados envolvidos**: `Paciente`, `EventoTratamento` (app `consultas`),
+`Consulta`.
+
+**Notas de entrega**: o modelo `EventoTratamento` (paciente, título, data/hora,
+tipo, descrição) é exibido no `/calendario` junto das consultas, com marcador
+próprio na grade e painel "Próximos eventos". Endpoint `GET /api/eventos/`
+escopado por dono (`IsAuthenticated` + paciente do request). Eventos de
+demonstração no seed `criar_usuarios_teste`. Testes de escopo em
+`consultas/tests.py`; cenários no `consultas.cy.js`.
+
+### PROJ-17 — H8 Linha do tempo do tratamento
+
+- Jira: [PROJ-17](https://afreis.atlassian.net/browse/PROJ-17)
+
+**História**: Como paciente, quero visualizar as etapas do meu tratamento em uma
+linha do tempo, para entender em que fase estou e quais são os próximos passos.
+
+**Critérios de aceitação**:
+
+- A paciente deve visualizar as etapas cadastradas do tratamento.
+- Cada etapa deve exibir nome, descrição, status e ordem.
+- O sistema deve destacar a etapa atual.
+- Os dados devem ser lidos do banco de dados.
+- Caso não existam etapas, o sistema deve exibir uma mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar etapas do tratamento
+  Dado que existem etapas cadastradas para o tratamento da paciente
+  Quando ela acessa a linha do tempo
+  Então o sistema deve exibir as etapas em ordem
+
+Cenário: Destacar etapa atual
+  Dado que existe uma etapa marcada como atual
+  Quando a paciente visualiza a linha do tempo
+  Então o sistema deve destacar essa etapa
+
+Cenário: Nenhuma etapa cadastrada
+  Dado que não existem etapas cadastradas
+  Quando a paciente acessa a linha do tempo
+  Então o sistema deve informar que nenhuma etapa foi encontrada
+```
+
+**Dados envolvidos**: `Paciente`, `Tratamento`, `EtapaTratamento`.
+
+**Notas de entrega**: o modelo `EtapaJornada` (app `tratamentos`) liga a
+paciente às `EtapaTratamento` e guarda o status (`concluída`/`atual`/`futura`).
+A `/linha-do-tempo` mostra as etapas em ordem, com a atual destacada. Endpoint
+`GET /api/jornada/` escopado por dono. Jornada de demonstração no seed (carregue
+as fixtures de tratamentos antes). Testes em `tratamentos/tests.py` e
+`linha-do-tempo.cy.js`.
+
+### PROJ-22 — H13 Conteúdos de apoio emocional
+
+- Jira: [PROJ-22](https://afreis.atlassian.net/browse/PROJ-22)
+
+**História**: Como paciente, quero acessar mensagens e orientações de apoio
+emocional, para me sentir mais acolhida durante o tratamento.
+
+**Critérios de aceitação**:
+
+- A paciente deve visualizar conteúdos de apoio cadastrados.
+- Cada conteúdo deve ter título, texto, categoria e status de publicação.
+- Os conteúdos devem ser lidos do banco e geridos pelo Django Admin.
+- A página deve informar que o conteúdo não substitui acompanhamento
+  profissional.
+- Caso não existam conteúdos, o sistema deve exibir uma mensagem informativa.
+
+**Cenários BDD**:
+
+```
+Cenário: Visualizar conteúdos de apoio
+  Dado que existem conteúdos de apoio cadastrados
+  Quando a paciente acessa a página de apoio emocional
+  Então o sistema deve exibir os conteúdos disponíveis
+
+Cenário: Visualizar aviso de cuidado
+  Dado que a paciente está na página de apoio emocional
+  Quando os conteúdos são exibidos
+  Então o sistema deve informar que eles não substituem acompanhamento profissional
+
+Cenário: Nenhum conteúdo cadastrado
+  Dado que não existem conteúdos de apoio cadastrados
+  Quando a paciente acessa a página de apoio emocional
+  Então o sistema deve informar que nenhum conteúdo foi encontrado
+```
+
+**Dados envolvidos**: `ConteudoApoio` (app `apoio`). A categoria é um campo de
+texto no próprio conteúdo (sem modelo separado nesta entrega).
+
+**Notas de entrega**: app `apoio` com o modelo `ConteudoApoio` (título, texto,
+categoria, publicado), gerido pelo Django Admin. Endpoint público
+`GET /api/apoio/` (somente publicados; filtro `?categoria=`). A `/apoio` exibe
+o aviso fixo de que não substitui acompanhamento profissional. Conteúdo inicial
+em `apoio_inicial.json`. Testes em `apoio/tests.py` e `apoio.cy.js`.
+
 ## Próximas etapas (histórias planejadas, ainda não implementadas)
 
 - **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))

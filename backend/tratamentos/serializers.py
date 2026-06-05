@@ -1,6 +1,11 @@
 from rest_framework import serializers
 
-from .models import EtapaTratamento, OrientacaoTratamento, Tratamento
+from .models import (
+    EtapaJornada,
+    EtapaTratamento,
+    OrientacaoTratamento,
+    Tratamento,
+)
 
 
 def _serializar_termos(termos):
@@ -62,3 +67,41 @@ class OrientacaoTratamentoSerializer(serializers.ModelSerializer):
 
     def get_termos_relacionados(self, obj):
         return _serializar_termos(obj.termos_relacionados.all())
+
+
+class EtapaJornadaSerializer(serializers.ModelSerializer):
+    """Leitura da linha do tempo: resolve os dados da etapa para a tela."""
+
+    etapa_titulo = serializers.SerializerMethodField()
+    etapa_descricao = serializers.SerializerMethodField()
+    etapa_ordem = serializers.SerializerMethodField()
+    tratamento_nome = serializers.SerializerMethodField()
+    status_label = serializers.CharField(
+        source='get_status_display', read_only=True
+    )
+
+    class Meta:
+        model = EtapaJornada
+        fields = (
+            'id',
+            'status',
+            'status_label',
+            'observacao',
+            'etapa',
+            'etapa_titulo',
+            'etapa_descricao',
+            'etapa_ordem',
+            'tratamento_nome',
+        )
+
+    def get_etapa_titulo(self, obj):
+        return obj.etapa.titulo
+
+    def get_etapa_descricao(self, obj):
+        return obj.etapa.descricao
+
+    def get_etapa_ordem(self, obj):
+        return obj.etapa.ordem
+
+    def get_tratamento_nome(self, obj):
+        return obj.etapa.tratamento.nome

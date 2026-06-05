@@ -1,12 +1,13 @@
-"""Testes da API pública de especialidades (PROJ-24)."""
+"""Testes das APIs de especialidades (PROJ-24) e eventos (PROJ-15)."""
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIClient
 
-from usuarios.models import Medica, PerfilUsuario
+from usuarios.models import Medica, Paciente, PerfilUsuario
 
-from .models import Especialidade
+from .models import Especialidade, EventoTratamento
 
 
 class EspecialidadesAPITests(TestCase):
@@ -70,3 +71,58 @@ class EspecialidadesAPITests(TestCase):
         resp = self.client.get('/api/especialidades/')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 0)
+
+
+class EventosAPITests(TestCase):
+    """Eventos do calendário, com escopo por dono (PROJ-15)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        User = get_user_model()
+
+        u1 = User.objects.create_user(username='renata', password='x')
+        p1 = PerfilUsuario.objects.create(
+            usuario=u1,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Renata',
+        )
+        self.paciente1 = Paciente.objects.create(perfil=p1)
+        self.u1 = u1
+
+        u2 = User.objects.create_user(username='amanda', password='x')
+        p2 = PerfilUsuario.objects.create(
+            usuario=u2,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Amanda',
+        )
+        self.paciente2 = Paciente.objects.create(perfil=p2)
+
+        EventoTratamento.objects.create(
+            paciente=self.paciente1,
+            titulo='Exame da Renata',
+            data_horario=timezone.now(),
+            tipo=EventoTratamento.TIPO_EXAME,
+        )
+        EventoTratamento.objects.create(
+            paciente=self.paciente2,
+            titulo='Exame da Amanda',
+            data_horario=timezone.now(),
+            tipo=EventoTratamento.TIPO_EXAME,
+        )
+
+    def test_exige_autenticacao(self):
+        resp = self.client.get('/api/eventos/')
+        self.assertIn(resp.status_code, (401, 403))
+
+    def test_paciente_ve_apenas_os_proprios_eventos(self):
+        self.client.force_authenticate(user=self.u1)
+        resp = self.client.get('/api/eventos/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 1)
+        self.assertEqual(resp.data[0]['titulo'], 'Exame da Renata')
+
+    def test_evento_traz_tipo_label(self):
+        self.client.force_authenticate(user=self.u1)
+        resp = self.client.get('/api/eventos/')
+        self.assertEqual(resp.data[0]['tipo'], 'exame')
+        self.assertEqual(resp.data[0]['tipo_label'], 'Exame')

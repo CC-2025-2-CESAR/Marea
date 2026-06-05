@@ -1,11 +1,17 @@
 from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import OrientacaoTratamento, Tratamento
-from .serializers import OrientacaoTratamentoSerializer, TratamentoSerializer
+from usuarios.models import Paciente
+
+from .models import EtapaJornada, OrientacaoTratamento, Tratamento
+from .serializers import (
+    EtapaJornadaSerializer,
+    OrientacaoTratamentoSerializer,
+    TratamentoSerializer,
+)
 
 
 @api_view(['GET'])
@@ -64,4 +70,28 @@ def listar_orientacoes(request):
             Q(titulo__icontains=busca) | Q(conteudo__icontains=busca)
         )
     serializer = OrientacaoTratamentoSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listar_jornada(request):
+    """Linha do tempo da paciente: suas etapas em ordem (PROJ-17).
+
+    Escopo por dono: a paciente só enxerga a própria jornada. A etapa atual vem
+    com status 'atual' para a tela destacar.
+    """
+    try:
+        paciente = request.user.perfil.paciente
+    except (AttributeError, Paciente.DoesNotExist):
+        return Response(
+            {'detail': 'Apenas pacientes têm linha do tempo.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    jornada = (
+        EtapaJornada.objects.filter(paciente=paciente)
+        .select_related('etapa__tratamento')
+        .order_by('etapa__ordem', 'etapa__id')
+    )
+    serializer = EtapaJornadaSerializer(jornada, many=True)
     return Response(serializer.data)

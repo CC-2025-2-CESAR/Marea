@@ -1,0 +1,67 @@
+[
+  {
+    "model": "apoio.conteudoapoio",
+    "pk": 1,
+    "fields": {
+      "titulo": "Um dia de cada vez",
+      "texto": "O tratamento é uma jornada com altos e baixos. Tente focar na etapa de agora, sem antecipar todos os próximos passos de uma vez. Pequenas rotinas de autocuidado — uma caminhada leve, um banho tranquilo, uma conversa boa — ajudam a aliviar a tensão do dia.",
+      "categoria": "Ansiedade",
+      "publicado": true,
+      "ordem": 1,
+      "criado_em": "2026-06-01T10:00:00Z",
+      "atualizado_em": "2026-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "apoio.conteudoapoio",
+    "pk": 2,
+    "fields": {
+      "titulo": "A espera pelo resultado",
+      "texto": "O período entre um procedimento e o resultado costuma ser o mais difícil. É natural oscilar entre esperança e medo. Permita-se sentir, distraia a mente com atividades que te fazem bem e lembre que você não precisa passar por isso sozinha.",
+      "categoria": "Espera",
+      "publicado": true,
+      "ordem": 2,
+      "criado_em": "2026-06-01T10:00:00Z",
+      "atualizado_em": "2026-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "apoio.conteudoapoio",
+    "pk": 3,
+    "fields": {
+      "titulo": "Falar sobre o que sente",
+      "texto": "Compartilhar o que você está vivendo com pessoas de confiança alivia o peso emocional. Se sentir que precisa, procure apoio psicológico — pedir ajuda é um ato de cuidado com você mesma, não de fraqueza.",
+      "categoria": "Apoio",
+      "publicado": true,
+      "ordem": 3,
+      "criado_em": "2026-06-01T10:00:00Z",
+      "atualizado_em": "2026-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "apoio.conteudoapoio",
+    "pk": 4,
+    "fields": {
+      "titulo": "Lidando com perguntas dos outros",
+      "texto": "Nem sempre é fácil responder a perguntas sobre o tratamento. Tudo bem definir limites e contar apenas o que você quiser, para quem você quiser. Você não deve explicações sobre a sua jornada a ninguém.",
+      "categoria": "Relações",
+      "publicado": true,
+      "ordem": 4,
+      "criado_em": "2026-06-01T10:00:00Z",
+      "atualizado_em": "2026-06-01T10:00:00Z"
+    }
+  },
+  {
+    "model": "apoio.conteudoapoio",
+    "pk": 5,
+    "fields": {
+      "titulo": "Cuidar do corpo também é cuidar da mente",
+      "texto": "Sono regular, alimentação equilibrada e movimento leve ajudam a equilibrar as emoções ao longo do tratamento. Vá no seu ritmo, sem cobranças. Cada pequeno cuidado conta.",
+      "categoria": "Bem-estar",
+      "publicado": true,
+      "ordem": 5,
+      "criado_em": "2026-06-01T10:00:00Z",
+      "atualizado_em": "2026-06-01T10:00:00Z"
+    }
+  }
+]

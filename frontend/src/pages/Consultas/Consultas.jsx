@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import ChecklistMedicamentos from '../../components/ChecklistMedicamentos/ChecklistMedicamentos'
-import { listarConsultas } from '../../services/consultasService'
+import { listarConsultas, listarEventos } from '../../services/consultasService'
 import './Consultas.css'
 
 function formatarDataCurta(iso) {
@@ -25,6 +25,7 @@ function formatarHorario(iso) {
 
 function Consultas() {
   const [consultas, setConsultas] = useState([])
+  const [eventos, setEventos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
 
@@ -32,11 +33,17 @@ function Consultas() {
     let cancelado = false
     async function carregar() {
       try {
-        const dados = await listarConsultas()
-        if (!cancelado) setConsultas(Array.isArray(dados) ? dados : [])
+        const [dadosConsultas, dadosEventos] = await Promise.all([
+          listarConsultas(),
+          listarEventos(),
+        ])
+        if (!cancelado) {
+          setConsultas(Array.isArray(dadosConsultas) ? dadosConsultas : [])
+          setEventos(Array.isArray(dadosEventos) ? dadosEventos : [])
+        }
       } catch {
         if (!cancelado) {
-          setErro('Não foi possível carregar suas consultas no momento.')
+          setErro('Não foi possível carregar sua agenda no momento.')
         }
       } finally {
         if (!cancelado) setCarregando(false)
@@ -63,11 +70,22 @@ function Consultas() {
       .slice(0, 5)
   }, [agendadas])
 
+  const proximosEventos = useMemo(() => {
+    const agora = new Date()
+    return eventos
+      .filter((e) => new Date(e.data_horario) >= agora)
+      .sort((a, b) => new Date(a.data_horario) - new Date(b.data_horario))
+      .slice(0, 5)
+  }, [eventos])
+
   const mesInicial = useMemo(() => {
     if (proximas.length > 0) return new Date(proximas[0].data_horario)
+    if (proximosEventos.length > 0) {
+      return new Date(proximosEventos[0].data_horario)
+    }
     if (agendadas.length > 0) return new Date(agendadas[0].data_horario)
     return undefined
-  }, [proximas, agendadas])
+  }, [proximas, proximosEventos, agendadas])
 
   return (
     <section className="consultas-pagina" data-cy="page-calendario">
@@ -98,15 +116,17 @@ function Consultas() {
         <div className="consultas-layout" data-cy="consultas-layout">
           <CalendarioMes
             consultas={agendadas}
+            eventos={eventos}
             mesInicial={mesInicial}
             key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
           />
 
-          <aside className="consultas-painel" aria-label="Próximas consultas e lembretes">
+          <aside className="consultas-painel" aria-label="Próximas consultas, eventos e lembretes">
             <PainelProximas
               proximas={proximas}
               totalCadastrado={consultas.length}
             />
+            <PainelEventos proximos={proximosEventos} total={eventos.length} />
             <PainelLembretes />
           </aside>
         </div>
@@ -184,6 +204,47 @@ function PainelProximas({ proximas, totalCadastrado }) {
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+function PainelEventos({ proximos, total }) {
+  return (
+    <div
+      className="painel-card painel-card--eventos"
+      data-cy="painel-eventos"
+    >
+      <h2 className="painel-card__titulo">Próximos eventos</h2>
+      {total === 0 ? (
+        <p className="painel-card__vazio" data-cy="eventos-mensagem-vazia">
+          Nenhum evento do tratamento cadastrado no momento.
+        </p>
+      ) : proximos.length === 0 ? (
+        <p className="painel-card__vazio">Sem eventos a partir de hoje.</p>
+      ) : (
+        <ul className="painel-proximas__lista">
+          {proximos.map((evento) => (
+            <li
+              key={evento.id}
+              className="painel-proximas__item"
+              data-cy="painel-eventos-item"
+            >
+              <p className="painel-proximas__data">
+                {formatarDataCurta(evento.data_horario)}
+                <span className="painel-proximas__hora">
+                  {' às '}
+                  {formatarHorario(evento.data_horario)}
+                </span>
+              </p>
+              <p className="painel-proximas__detalhe">
+                <strong>{evento.titulo}</strong>
+                {evento.tipo_label ? ` · ${evento.tipo_label}` : ''}
+                {evento.descricao ? `: ${evento.descricao}` : ''}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
