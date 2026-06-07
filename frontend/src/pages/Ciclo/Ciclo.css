@@ -1,3 +1,258 @@
 .ciclo-pagina {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-lg);
+}
+
+.ciclo-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+}
+
+.ciclo-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+/* --- Previsões --- */
+.ciclo-previsoes {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-md);
+}
+
+.ciclo-previsoes__titulo {
+  margin: 0 0 var(--espaco-sm);
+  font-size: 1.1rem;
+}
+
+.ciclo-previsoes__grade {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-previsao {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--espaco-sm);
+  background: var(--cor-creme-claro);
+  border-radius: var(--raio-pequeno);
+}
+
+.ciclo-previsao__rotulo {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-previsao__valor {
+  font-size: 1.05rem;
+  color: var(--cor-marrom);
+}
+
+.ciclo-previsoes__vazia {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-previsoes__aviso {
+  margin: var(--espaco-sm) 0 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--cor-texto-suave);
+}
+
+/* --- Formulário --- */
+.ciclo-form {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.ciclo-form__titulo {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.ciclo-form__linha {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-md);
+}
+
+.ciclo-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.ciclo-campo__label {
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+}
+
+.ciclo-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--cor-texto);
+  background: var(--cor-creme-claro);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  padding: var(--espaco-sm);
+  resize: vertical;
+}
+
+.ciclo-textarea:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 1px;
+}
+
+.ciclo-form__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+/* --- Mensagens --- */
+.ciclo-mensagem {
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-mensagem--erro {
+  margin: 0;
+  color: var(--cor-erro);
+}
+
+.ciclo-mensagem--sucesso {
+  margin: 0;
+  color: var(--cor-sucesso);
+}
+
+/* --- Lista --- */
+.ciclo-lista-titulo {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.ciclo-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-item {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-rosa-principal);
+  border-radius: var(--raio-pequeno);
+  padding: var(--espaco-sm) var(--espaco-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.ciclo-item[data-etapa='menstruacao'] {
+  border-left-color: var(--cor-terracota);
+}
+
+.ciclo-item[data-etapa='ovulacao'] {
+  border-left-color: var(--cor-verde-confirmacao);
+}
+
+.ciclo-item__cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-item__etapa {
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+.ciclo-item__data {
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-item__observacoes {
+  margin: 0;
+  color: var(--cor-texto);
+}
+
+.ciclo-item__status {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-item__acoes,
+.ciclo-item__confirmar-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-xs);
+}
+
+.ciclo-item__botao {
+  min-height: 44px;
+  padding: 0 var(--espaco-md);
+  background: transparent;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-azul-link);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.ciclo-item__botao:hover {
+  background: var(--cor-creme-claro);
+}
+
+.ciclo-item__botao:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 1px;
+}
+
+.ciclo-item__botao--perigo {
+  color: var(--cor-erro);
+}
+
+.ciclo-item__confirmar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  margin-top: var(--espaco-xs);
+  padding: var(--espaco-sm);
+  background: var(--cor-creme-claro);
+  border-radius: var(--raio-pequeno);
+}
+
+/* --- Telas maiores --- */
+@media (min-width: 768px) {
+  .ciclo-previsoes__grade {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ciclo-form__linha {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ciclo-lista {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
