@@ -47,6 +47,10 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Busca global no cabeçalho (PROJ-25): procura em dicionário, tratamentos,
   orientações e especialidades de uma vez, com resultados agrupados por tipo em
   `/busca` e link para a página de origem.
+- Página de Ciclo menstrual (PROJ-5 e PROJ-6): a paciente registra, edita e
+  exclui as fases do ciclo e vê previsões (próxima menstruação e período fértil
+  estimado) calculadas a partir dos próprios registros — sempre como estimativa
+  que não substitui orientação médica.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
@@ -71,7 +75,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/calendario`: grade mensal de consultas e eventos do tratamento, com painel
   lateral de próximas consultas, próximos eventos e lembretes.
 - `/medicamentos`: checklist diário de remédios prescritos com marcar/desmarcar.
-- `/ciclo`: placeholder de ciclo.
+- `/ciclo`: ciclo menstrual da paciente — registro das fases (data, etapa,
+  observações, status) e previsões (próxima menstruação e período fértil
+  estimado), com aviso de que não substituem orientação médica.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
 - `/bot`: placeholder de bot.
 - `/tratamentos`: tratamentos da clínica com as etapas principais de cada um.
@@ -92,8 +98,9 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `AppLayout`: usado nas rotas internas, com sidebar, header, busca e área principal de
   conteúdo.
 
-As páginas internas ainda não possuem funcionalidades reais. Elas mostram apenas título e
-texto básico enquanto a navegação e a estrutura visual são preparadas.
+A maioria das páginas internas já tem funcionalidade real (ver **Status atual**).
+As restantes seguem como placeholders, mostrando apenas título e texto básico até
+serem desenvolvidas.
 
 ## Como rodar o backend
 
@@ -381,6 +388,31 @@ Não há models novos: a busca consulta o conteúdo já existente.
   `tipo_label`, `id`, `titulo`, `descricao` (trecho) e `url` (deep-link). Termo
   com menos de dois caracteres devolve lista vazia; há limite por tipo.
 
+## Ciclo menstrual (PROJ-5 e PROJ-6)
+
+Em [`/ciclo`](http://localhost:5173/ciclo) a paciente **registra** as fases do
+próprio ciclo (data, etapa — menstruação, fase folicular, ovulação ou fase
+lútea —, observações e status), edita e exclui (com confirmação) cada registro e
+vê **previsões** do próximo ciclo. É dado pessoal de saúde: cada paciente só
+acessa o que é dela, garantido no backend.
+
+As previsões usam **apenas os registros de etapa "menstruação"** como início de
+ciclo: a partir de dois ou mais inícios, estimam a próxima menstruação (pela
+média dos intervalos) e o período fértil (cerca de 14 dias antes). Com menos de
+dois inícios, a tela informa que ainda faltam dados. A previsão é sempre uma
+estimativa e traz o aviso de que **não substitui a orientação da equipe médica**.
+
+O modelo `RegistroCiclo` mora no app `ciclo`. Endpoints (exigem papel de
+paciente):
+
+- `GET /api/ciclo/registros/` — lista os registros da paciente autenticada
+- `POST /api/ciclo/registros/` — cria um registro (a dona vem da sessão)
+- `GET/PATCH/DELETE /api/ciclo/registros/<id>/` — lê, atualiza ou exclui um
+  registro da própria paciente
+- `GET /api/ciclo/previsoes/` — previsão a partir dos inícios de menstruação
+
+Registros de demonstração são criados pelo `criar_usuarios_teste`.
+
 ## Segurança e Privacidade (LGPD)
 
 A Amare trata **dados pessoais sensíveis** (dados de saúde), então privacidade é
@@ -455,11 +487,11 @@ frontend/
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx
 ├── cypress/
-│   └── e2e/                apoio, area-medica, busca, consultas, dicionario,
-│                           especialidades, layout-rotas, linha-do-tempo,
-│                           login, medicamentos, orientacoes, perfil,
-│                           polimento-ux-perfil, responsividade-mobile,
-│                           sintomas, tratamentos (134 testes)
+│   └── e2e/                apoio, area-medica, busca, ciclo, consultas,
+│                           dicionario, especialidades, layout-rotas,
+│                           linha-do-tempo, login, medicamentos, orientacoes,
+│                           perfil, polimento-ux-perfil, responsividade-mobile,
+│                           sintomas, tratamentos (144 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)

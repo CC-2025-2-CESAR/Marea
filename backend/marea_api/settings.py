@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'tratamentos',
     'apoio',
     'sintomas',
+    'ciclo',
     'busca',
 ]
 

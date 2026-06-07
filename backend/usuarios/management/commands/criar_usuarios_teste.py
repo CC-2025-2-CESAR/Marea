@@ -22,6 +22,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from ciclo.models import RegistroCiclo
 from consultas.models import Consulta, Especialidade, EventoTratamento
 from medicamentos.models import Medicamento
 from sintomas.models import RegistroSintoma
@@ -168,6 +169,26 @@ PACIENTES = [
                 'intensidade': 2,
             },
         ],
+        'ciclo': [
+            {
+                'dias': -30,
+                'etapa': 'menstruacao',
+                'status': 'concluido',
+                'observacoes': 'Início da menstruação, fluxo moderado.',
+            },
+            {
+                'dias': -16,
+                'etapa': 'ovulacao',
+                'status': 'concluido',
+                'observacoes': 'Período fértil estimado, leve dor pélvica.',
+            },
+            {
+                'dias': -2,
+                'etapa': 'menstruacao',
+                'status': 'registrado',
+                'observacoes': 'Início do ciclo atual.',
+            },
+        ],
     },
     {
         'username': 'amanda',
@@ -283,6 +304,26 @@ PACIENTES = [
                 'tipo': 'Cólica',
                 'descricao': 'Cólica leve, parecida com a da TPM.',
                 'intensidade': 2,
+            },
+        ],
+        'ciclo': [
+            {
+                'dias': -58,
+                'etapa': 'menstruacao',
+                'status': 'concluido',
+                'observacoes': 'Menstruação, fluxo intenso no segundo dia.',
+            },
+            {
+                'dias': -30,
+                'etapa': 'menstruacao',
+                'status': 'concluido',
+                'observacoes': 'Início da menstruação.',
+            },
+            {
+                'dias': -2,
+                'etapa': 'menstruacao',
+                'status': 'registrado',
+                'observacoes': 'Início do ciclo atual.',
             },
         ],
     },
@@ -429,6 +470,7 @@ class Command(BaseCommand):
         paciente.eventos.all().delete()
         paciente.jornada.all().delete()
         paciente.registros_sintomas.all().delete()
+        paciente.registros_ciclo.all().delete()
 
         for c in dados['consultas']:
             Consulta.objects.create(
@@ -469,6 +511,15 @@ class Command(BaseCommand):
                 tipo=s['tipo'],
                 descricao=s['descricao'],
                 intensidade=s.get('intensidade'),
+            )
+
+        for c in dados.get('ciclo', []):
+            RegistroCiclo.objects.create(
+                paciente=paciente,
+                data=hoje + timedelta(days=c['dias']),
+                etapa=c['etapa'],
+                observacoes=c.get('observacoes', ''),
+                status=c.get('status', RegistroCiclo.STATUS_REGISTRADO),
             )
 
         self._popular_jornada(paciente, dados.get('jornada'))
