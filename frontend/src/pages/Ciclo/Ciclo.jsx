@@ -12,17 +12,12 @@ import {
 import './Ciclo.css'
 
 const OPCOES_ETAPA = [
-  { valor: 'menstruacao', rotulo: 'Menstruação' },
-  { valor: 'folicular', rotulo: 'Fase folicular' },
-  { valor: 'ovulacao', rotulo: 'Ovulação' },
-  { valor: 'lutea', rotulo: 'Fase lútea' },
+  { valor: 'Menstruação', rotulo: 'Menstruação' },
+  { valor: 'Fase Folicular', rotulo: 'Fase Folicular' },
+  { valor: 'Ovulação', rotulo: 'Ovulação' },
+  { valor: 'Fase Lútea', rotulo: 'Fase Lútea' },
 ]
 
-const OPCOES_STATUS = [
-  { valor: 'registrado', rotulo: 'Registrado' },
-  { valor: 'em_andamento', rotulo: 'Em andamento' },
-  { valor: 'concluido', rotulo: 'Concluído' },
-]
 
 // A previsão é apenas uma estimativa — nunca substitui orientação médica.
 const AVISO_PREVISAO =
@@ -46,7 +41,6 @@ function Ciclo() {
 
   const [data, setData] = useState(hojeISO())
   const [etapa, setEtapa] = useState('menstruacao')
-  const [statusCiclo, setStatusCiclo] = useState('registrado')
   const [observacoes, setObservacoes] = useState('')
   const [editandoId, setEditandoId] = useState(null)
 
@@ -98,16 +92,14 @@ function Ciclo() {
   function limparFormulario() {
     setEditandoId(null)
     setData(hojeISO())
-    setEtapa('menstruacao')
-    setStatusCiclo('registrado')
+    setEtapa('Menstruação')
     setObservacoes('')
   }
 
   function iniciarEdicao(registro) {
     setEditandoId(registro.id)
     setData(registro.data)
-    setEtapa(registro.etapa)
-    setStatusCiclo(registro.status)
+    setEtapa(registro.etapa_ciclo)
     setObservacoes(registro.observacoes || '')
     setErroEnvio(null)
     setSucesso(null)
@@ -125,8 +117,7 @@ function Ciclo() {
 
     const payload = {
       data,
-      etapa,
-      status: statusCiclo,
+      etapa_ciclo: etapa,
       observacoes: observacoes.trim(),
     }
 
@@ -240,14 +231,6 @@ function Ciclo() {
             opcoes={OPCOES_ETAPA}
             dataCy="ciclo-etapa"
           />
-          <SelectField
-            id="ciclo-status"
-            label="Status"
-            value={statusCiclo}
-            onChange={(valor) => setStatusCiclo(valor)}
-            opcoes={OPCOES_STATUS}
-            dataCy="ciclo-status"
-          />
         </div>
 
         <div className="ciclo-campo">
@@ -319,11 +302,11 @@ function Ciclo() {
               key={registro.id}
               className="ciclo-item"
               data-cy="ciclo-item"
-              data-etapa={registro.etapa}
+              data-etapa={registro.etapa_ciclo}
             >
               <div className="ciclo-item__cabecalho">
                 <span className="ciclo-item__etapa">
-                  {registro.etapa_display}
+                  {registro.etapa_ciclo}
                 </span>
                 <span className="ciclo-item__data">
                   {formatarData(registro.data)}
@@ -332,9 +315,6 @@ function Ciclo() {
               {registro.observacoes ? (
                 <p className="ciclo-item__observacoes">{registro.observacoes}</p>
               ) : null}
-              <span className="ciclo-item__status">
-                {registro.status_display}
-              </span>
 
               {confirmandoId === registro.id ? (
                 <div
