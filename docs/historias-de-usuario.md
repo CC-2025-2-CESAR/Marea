@@ -716,8 +716,89 @@ agrupa os resultados por tipo. O dicionário abre filtrado via `?busca=`; os
 demais tipos levam à respectiva página de seção. Sem fixtures novas. Testes em
 `busca/tests.py` e `busca.cy.js`.
 
-## Próximas etapas (histórias planejadas, ainda não implementadas)
+## Ciclo menstrual — épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) (issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))
 
-- **Ciclo menstrual** (épico [PROJ-10](https://afreis.atlassian.net/browse/PROJ-10) — issue [#3](https://github.com/CC-2025-2-CESAR/Marea/issues/3))
-  - PROJ-5 — Registro e atualizações do ciclo — issue [#8](https://github.com/CC-2025-2-CESAR/Marea/issues/8)
-  - PROJ-6 — Previsões do ciclo — issue [#9](https://github.com/CC-2025-2-CESAR/Marea/issues/9)
+A página `/ciclo` deixou de ser placeholder: a paciente registra as fases do
+próprio ciclo e vê previsões simples. Dado pessoal de saúde, com escopo por dono
+(cada paciente só acessa os próprios registros). O app `ciclo` segue o padrão de
+escrita da paciente do app `sintomas`.
+
+### PROJ-5 — Registro e atualizações do ciclo (issue [#8](https://github.com/CC-2025-2-CESAR/Marea/issues/8))
+
+**História**: Como paciente, quero registrar informações do meu ciclo para
+acompanhar atualizações importantes do tratamento.
+
+**Critérios de aceitação**:
+- A paciente registra uma nova atualização do ciclo (data, etapa, observações e status).
+- A paciente visualiza os registros já cadastrados.
+- A paciente atualiza e exclui (com confirmação) um registro existente.
+- Os dados são lidos e gravados no banco; cada paciente só acessa os próprios.
+- Sem registros, o sistema exibe mensagem informativa.
+
+**Cenários BDD**:
+```
+Cenário: Registrar atualização do ciclo
+  Dado que a paciente está na página de ciclo
+  Quando ela preenche os dados de uma atualização e salva
+  Então o sistema grava o registro no banco de dados
+
+Cenário: Atualizar registro do ciclo
+  Dado que existe um registro de ciclo cadastrado
+  Quando a paciente altera as informações e salva
+  Então o sistema atualiza o registro no banco de dados
+
+Cenário: Excluir registro do ciclo
+  Dado que existe um registro de ciclo cadastrado
+  Quando a paciente confirma a exclusão
+  Então o sistema remove o registro do banco de dados
+```
+
+### PROJ-6 — Previsões do ciclo (issue [#9](https://github.com/CC-2025-2-CESAR/Marea/issues/9))
+
+**História**: Como paciente, quero visualizar previsões relacionadas ao meu
+ciclo para me preparar melhor para as próximas etapas do tratamento.
+
+**Critérios de aceitação**:
+- A página exibe previsões geradas a partir dos registros do banco.
+- A previsão usa **apenas os registros de etapa "menstruação"** como início de ciclo.
+- Com pelo menos dois inícios, o sistema indica a próxima menstruação e o período fértil estimado.
+- Com menos de dois inícios, o sistema informa que ainda não há dados suficientes.
+- A previsão é apresentada como estimativa e **não substitui orientação médica**.
+
+**Cenários BDD**:
+```
+Cenário: Visualizar previsão com dados suficientes
+  Dado que existem pelo menos dois inícios de menstruação cadastrados
+  Quando a paciente acessa a área de previsões do ciclo
+  Então o sistema exibe a próxima menstruação e o período fértil estimado
+
+Cenário: Falta de dados para previsão
+  Dado que não existem inícios de menstruação suficientes
+  Quando a paciente acessa a área de previsões
+  Então o sistema informa que ainda não há dados suficientes para gerar previsões
+
+Cenário: Atualização da previsão após novo registro
+  Dado que a paciente adicionou um novo início de menstruação
+  Quando o sistema recalcula as previsões
+  Então a previsão exibida considera o novo registro
+```
+
+**Dados envolvidos**: `Paciente` e `RegistroCiclo` (data, etapa, observações, status).
+
+**Notas de entrega**: app `ciclo` com o model `RegistroCiclo`, escrito pela
+paciente (escopo por dono, como em `sintomas`). Endpoints function-based:
+`GET/POST /api/ciclo/registros/`, `GET/PATCH/DELETE /api/ciclo/registros/<id>/` e
+`GET /api/ciclo/previsoes/`. A previsão estima a próxima menstruação pela média
+dos intervalos entre inícios e a janela fértil cerca de 14 dias antes, sempre
+com o aviso de que não substitui orientação médica. A página `/ciclo` traz
+formulário de registro/edição, lista com exclusão confirmada, card de previsões
+e estados de carregando/erro/vazio, responsiva para celular. Registros de
+demonstração nas personas (Renata e Amanda) via `criar_usuarios_teste`. Testes
+em `ciclo/tests.py` e `ciclo.cy.js`.
+
+## Próximas etapas
+
+As histórias do backlog inicial foram entregues. As próximas evoluções
+(migração para TypeScript, design system, mais interatividade das telas, área da
+médica integrada, painel administrativo no site e assistente orientativo) seguem
+no plano do programa, entregues PR a PR.

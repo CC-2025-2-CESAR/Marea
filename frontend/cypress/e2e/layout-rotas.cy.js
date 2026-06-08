@@ -1,9 +1,9 @@
 describe('Rotas e layout base da Amare', () => {
   // Páginas ainda em placeholder. Dicionário, Perfil, Calendário,
-  // Medicamentos, Tratamentos, Orientações e Especialidades foram removidos
-  // daqui porque agora têm implementação real (ver os specs correspondentes).
+  // Medicamentos, Tratamentos, Orientações, Especialidades e Ciclo foram
+  // removidos daqui porque agora têm implementação real (ver os specs
+  // correspondentes).
   const paginasPlaceholder = [
-    { rota: '/ciclo', titulo: 'Ciclo', dataCy: 'nav-ciclo' },
     { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
   ]
 
@@ -42,6 +42,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/jornada/', { body: [] })
     cy.intercept('GET', '**/api/apoio/**', { body: [] })
     cy.intercept('GET', '**/api/sintomas/', { body: [] })
+    cy.intercept('GET', '**/api/ciclo/**', { body: [] })
     cy.intercept('GET', '**/api/busca/**', { body: [] })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
@@ -191,6 +192,11 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-sintomas]').click()
     cy.location('pathname').should('eq', '/sintomas')
     cy.contains('h1', 'Sintomas e observações').should('be.visible')
+
+    cy.get('[data-cy=nav-ciclo]').should('have.attr', 'href', '/ciclo')
+    cy.get('[data-cy=nav-ciclo]').click()
+    cy.location('pathname').should('eq', '/ciclo')
+    cy.contains('h1', 'Meu ciclo').should('be.visible')
   })
 
   it('abre Bot corretamente por rota direta', () => {
