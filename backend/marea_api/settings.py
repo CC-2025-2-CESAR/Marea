@@ -84,7 +84,6 @@ INSTALLED_APPS = [
     'sintomas',
     'ciclo',
     'busca',
-    'ciclo',
 ]
 
 MIDDLEWARE = [

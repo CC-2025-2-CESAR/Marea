@@ -7,6 +7,7 @@ from .models import RegistroCiclo
 
 class RegistroCicloSerializer(serializers.ModelSerializer):
     dias_restantes_fase = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = RegistroCiclo
@@ -16,11 +17,13 @@ class RegistroCicloSerializer(serializers.ModelSerializer):
             'etapa_ciclo',
             'observacoes',
             'dias_restantes_fase',
+            'status',
             'criado_em',
         )
         read_only_fields = (
             'id',
             'dias_restantes_fase',
+            'status',
             'criado_em',
         )
 
@@ -40,3 +43,14 @@ class RegistroCicloSerializer(serializers.ModelSerializer):
             return max(14 - dias_passados, 0)
 
         return 0
+
+    def get_status(self, obj):
+        dias = self.get_dias_restantes_fase(obj)
+
+        if dias > 0:
+            return (
+                f'Faltam {dias} dias para acabar '
+                f'a fase {obj.etapa_ciclo}'
+            )
+
+        return f'{obj.etapa_ciclo} encerrada'
