@@ -653,7 +653,7 @@ Aprendizado prático: a Amare não deve competir em volume de funcionalidades. D
 ## Artefatos e links do projeto
 
 - Clínica parceira: [site oficial da Clínica Amare](https://clinicaamare.com/)
-- Site do projeto do grupo: [Google Sites - Maréa](https://sites.google.com/cesar.school/marea/home)
+- Site do projeto do grupo: [Google Sites - Cesar Unified](https://sites.google.com/cesar.school/cesarunified/home?authuser=1)
 - Matriz de pesquisa: [Figma Board](https://www.figma.com/board/cHnSL4PJFX6hUpjrfkIbKY/matriz-de-pesquisa?node-id=0-1&t=lz3TiODBaHzbTfmV-1)
 - Persona: [Figma Design](https://www.figma.com/design/zhsCkmDpmJWLEErBN7jMgj/Persona?node-id=0-1&t=iC3nAk7Bc6UZrwpT-1)
 - Ideação: [FigJam](https://www.figma.com/board/wsmsoRGorPJMUXdpqb7Dp4/Sem-t%C3%ADtulo?node-id=0-1&t=OgXX1tJBl1CKz1aD-1)

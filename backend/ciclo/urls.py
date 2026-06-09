@@ -1,25 +1,17 @@
+"""URLs do ciclo menstrual (montadas em /api/ciclo/)."""
+
 from django.urls import path
 
-from .views import (
-    listar_criar_ciclo,
-    detalhar_atualizar_ciclo,
-    previsao_ciclo,
-)
+from .views import detalhe_registro, listar_criar_registros, previsoes
 
 app_name = 'ciclo'
 
 urlpatterns = [
-    path('', listar_criar_ciclo, name='ciclo-listar-criar'),
-
+    path('registros/', listar_criar_registros, name='ciclo-registros'),
     path(
-    'previsao/',
-    previsao_ciclo,
-    name='ciclo-previsao',
+        'registros/<int:registro_id>/',
+        detalhe_registro,
+        name='ciclo-registro-detalhe',
     ),
-    
-    path(
-        '<int:registro_id>/',
-        detalhar_atualizar_ciclo,
-        name='ciclo-detalhar-atualizar',
-    ),
+    path('previsoes/', previsoes, name='ciclo-previsoes'),
 ]

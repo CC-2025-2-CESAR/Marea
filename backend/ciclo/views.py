@@ -1,4 +1,12 @@
-from datetime import date, timedelta
+"""Views do ciclo menstrual da paciente (PROJ-5 registro, PROJ-6 previsões).
+
+Function-based com `@api_view` (regra da disciplina). A paciente escreve e lê
+os próprios registros (escopo por dono — nunca expõe outra paciente). As
+previsões são estimativas calculadas a partir dos inícios de menstruação e
+trazem sempre o aviso de que não substituem orientação médica.
+"""
+
+from datetime import timedelta
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -10,8 +18,17 @@ from usuarios.permissions import IsPaciente
 from .models import RegistroCiclo
 from .serializers import RegistroCicloSerializer
 
+AVISO_PREVISAO = (
+    'Estimativa baseada nos seus registros. Não substitui a orientação da '
+    'equipe médica.'
+)
+
+_PACIENTE_NAO_ENCONTRADA = {'detail': 'Paciente não encontrada.'}
+_REGISTRO_NAO_ENCONTRADO = {'detail': 'Registro não encontrado.'}
+
 
 def _obter_paciente(request):
+    """Devolve a Paciente associada ao usuário autenticado, ou None."""
     try:
         return request.user.perfil.paciente
     except (AttributeError, Paciente.DoesNotExist):
@@ -20,186 +37,113 @@ def _obter_paciente(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsPaciente])
-def listar_criar_ciclo(request):
+def listar_criar_registros(request):
+    """Lista (GET) ou cria (POST) registros de ciclo da paciente logada."""
     paciente = _obter_paciente(request)
-
     if paciente is None:
         return Response(
-            {'detail': 'Paciente não encontrada.'},
-            status=status.HTTP_404_NOT_FOUND,
+            _PACIENTE_NAO_ENCONTRADA, status=status.HTTP_404_NOT_FOUND
         )
 
     if request.method == 'POST':
         serializer = RegistroCicloSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(paciente=paciente)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(
-            serializer.data,
-            status=status.HTTP_201_CREATED,
-        )
-
-    registros = RegistroCiclo.objects.filter(
-        paciente=paciente
-    )
-
-    serializer = RegistroCicloSerializer(
-        registros,
-        many=True
-    )
-
+    registros = RegistroCiclo.objects.filter(paciente=paciente)
+    serializer = RegistroCicloSerializer(registros, many=True)
     return Response(serializer.data)
 
 
-@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsPaciente])
-def detalhar_atualizar_ciclo(request, registro_id):
+def detalhe_registro(request, registro_id):
+    """Lê, atualiza ou exclui um registro — só o da própria paciente."""
     paciente = _obter_paciente(request)
-
     if paciente is None:
         return Response(
-            {'detail': 'Paciente não encontrada.'},
-            status=status.HTTP_404_NOT_FOUND,
+            _PACIENTE_NAO_ENCONTRADA, status=status.HTTP_404_NOT_FOUND
         )
 
-    try:
-        registro = RegistroCiclo.objects.get(
-            id=registro_id,
-            paciente=paciente,
-        )
-    except RegistroCiclo.DoesNotExist:
+    registro = RegistroCiclo.objects.filter(
+        paciente=paciente, pk=registro_id
+    ).first()
+    if registro is None:
         return Response(
-            {'detail': 'Registro não encontrado.'},
-            status=status.HTTP_404_NOT_FOUND,
+            _REGISTRO_NAO_ENCONTRADO, status=status.HTTP_404_NOT_FOUND
         )
 
-    if request.method == 'GET':
-        serializer = RegistroCicloSerializer(registro)
-        return Response(serializer.data)
-    
     if request.method == 'DELETE':
         registro.delete()
-        return Response(
-            status=status.HTTP_204_NO_CONTENT
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method == 'PATCH':
+        serializer = RegistroCicloSerializer(
+            registro, data=request.data, partial=True
         )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
-    parcial = request.method == 'PATCH'
-
-    serializer = RegistroCicloSerializer(
-        registro,
-        data=request.data,
-        partial=parcial,
-    )
-
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-
+    serializer = RegistroCicloSerializer(registro)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 @permission_classes([IsPaciente])
-def previsao_ciclo(request):
-    paciente = _obter_paciente(request)
+def previsoes(request):
+    """Previsão simples do ciclo (PROJ-6) a partir dos inícios de menstruação.
 
+    Usa apenas registros com etapa "menstruação" como início de ciclo. Com
+    menos de dois inícios não há base para estimar e devolve `tem_dados=False`.
+    A estimativa é informativa e não substitui orientação médica.
+    """
+    paciente = _obter_paciente(request)
     if paciente is None:
         return Response(
-            {'detail': 'Paciente não encontrada.'},
-            status=status.HTTP_404_NOT_FOUND,
+            _PACIENTE_NAO_ENCONTRADA, status=status.HTTP_404_NOT_FOUND
         )
 
-    registros = list(
-        RegistroCiclo.objects
-        .filter(
-            paciente=paciente,
-            etapa_ciclo='Menstruação',
+    inicios = list(
+        RegistroCiclo.objects.filter(
+            paciente=paciente, etapa=RegistroCiclo.ETAPA_MENSTRUACAO
         )
         .order_by('data')
+        .values_list('data', flat=True)
     )
 
-    if len(registros) == 0:
-        return Response({
-            'detail': 'É necessário pelo menos 1 registro de menstruação para gerar previsões.'
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    if len(registros) == 1:
-        ciclo_medio = 28
-    else:
-        duracoes = []
-
-        for i in range(1, len(registros)):
-            diferenca = (
-                registros[i].data -
-                registros[i - 1].data
-            ).days
-
-            duracoes.append(diferenca)
-
-        ciclo_medio = round(
-            sum(duracoes) / len(duracoes)
+    if len(inicios) < 2:
+        return Response(
+            {
+                'tem_dados': False,
+                'mensagem': (
+                    'Ainda não há registros suficientes de menstruação para '
+                    'gerar previsões. Registre pelo menos dois inícios de '
+                    'menstruação.'
+                ),
+                'aviso': AVISO_PREVISAO,
+            }
         )
 
-    ultima_menstruacao = registros[-1].data
+    intervalos = [
+        (inicios[i + 1] - inicios[i]).days for i in range(len(inicios) - 1)
+    ]
+    ciclo_medio = round(sum(intervalos) / len(intervalos))
+    ultima = inicios[-1]
+    proxima = ultima + timedelta(days=ciclo_medio)
+    ovulacao = proxima - timedelta(days=14)
+    fertil_inicio = ovulacao - timedelta(days=4)
+    fertil_fim = ovulacao + timedelta(days=1)
 
-    hoje = date.today()
-
-    dias_passados = (
-        hoje - ultima_menstruacao
-    ).days
-
-    if dias_passados < 5:
-        fase_atual = 'Menstruação'
-        dias_restantes_fase = 5 - dias_passados
-
-    elif dias_passados < 14:
-        fase_atual = 'Fase Folicular'
-        dias_restantes_fase = 14 - dias_passados
-
-    elif dias_passados < 15:
-        fase_atual = 'Ovulação'
-        dias_restantes_fase = 15 - dias_passados
-
-    elif dias_passados < ciclo_medio:
-        fase_atual = 'Fase Lútea'
-        dias_restantes_fase = ciclo_medio - dias_passados
-
-    else:
-        fase_atual = 'Novo ciclo esperado'
-        dias_restantes_fase = 0
-
-    proxima_menstruacao = (
-        ultima_menstruacao +
-        timedelta(days=ciclo_medio)
+    return Response(
+        {
+            'tem_dados': True,
+            'ciclo_medio_dias': ciclo_medio,
+            'proxima_menstruacao': proxima.isoformat(),
+            'ovulacao_estimada': ovulacao.isoformat(),
+            'janela_fertil_inicio': fertil_inicio.isoformat(),
+            'janela_fertil_fim': fertil_fim.isoformat(),
+            'aviso': AVISO_PREVISAO,
+        }
     )
-
-    ovulacao_prevista = (
-        proxima_menstruacao -
-        timedelta(days=14)
-    )
-
-    janela_fertil_inicio = (
-        ovulacao_prevista -
-        timedelta(days=5)
-    )
-
-    janela_fertil_fim = (
-        ovulacao_prevista +
-        timedelta(days=1)
-    )
-
-    previsao = {
-        'fase_atual': fase_atual,
-        'dias_restantes_fase': dias_restantes_fase,
-        'ciclo_medio_dias': ciclo_medio,
-        'ultima_menstruacao': ultima_menstruacao,
-        'fim_menstruacao': (
-            ultima_menstruacao +
-            timedelta(days=5)
-        ),
-        'ovulacao_prevista': ovulacao_prevista,
-        'janela_fertil_inicio': janela_fertil_inicio,
-        'janela_fertil_fim': janela_fertil_fim,
-        'proxima_menstruacao': proxima_menstruacao,
-    }
-
-    return Response(previsao)
