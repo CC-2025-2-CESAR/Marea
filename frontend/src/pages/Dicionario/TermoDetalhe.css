@@ -1,0 +1,121 @@
+.termo-detalhe {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.termo-detalhe__voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--cor-azul-link);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.termo-detalhe__voltar:hover {
+  text-decoration: underline;
+}
+
+.termo-detalhe__voltar:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.termo-detalhe__conteudo {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.termo-detalhe__cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-sm);
+}
+
+.termo-detalhe__cabecalho h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--cor-marrom);
+}
+
+.termo-detalhe__tag {
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-marrom);
+  background: var(--cor-borda);
+}
+
+.termo-detalhe__definicao {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.termo-detalhe__bloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  padding-top: var(--espaco-md);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.termo-detalhe__bloco p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.termo-detalhe__subtitulo {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--cor-texto-suave);
+}
+
+.termo-detalhe__artigos {
+  margin: 0;
+  padding-left: var(--espaco-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.termo-detalhe__artigo {
+  color: var(--cor-azul-link);
+}
+
+.termo-detalhe__artigo:hover {
+  color: var(--cor-marrom);
+}
+
+.termo-detalhe__mensagem {
+  margin: 0;
+  padding: var(--espaco-lg);
+  text-align: center;
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
+
+.termo-detalhe__mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+.termo-detalhe__acao {
+  color: var(--cor-azul-link);
+  font-weight: 600;
+}
