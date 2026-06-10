@@ -1,0 +1,101 @@
+.anel-ciclo {
+  position: relative;
+  width: clamp(220px, 64vw, 300px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+.anel-ciclo__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.anel-ciclo__trilha {
+  fill: none;
+  stroke: var(--cor-creme-claro);
+  stroke-width: 9;
+}
+
+.anel-ciclo__progresso {
+  fill: none;
+  stroke: var(--cor-rosa-secundario);
+  stroke-width: 9;
+  stroke-linecap: round;
+  transition: stroke-dasharray var(--duracao-lenta) var(--easing-saida);
+}
+
+/* Cor do anel e da fase por etapa do ciclo. */
+.anel-ciclo[data-etapa='menstruacao'] .anel-ciclo__progresso {
+  stroke: var(--cor-terracota);
+}
+.anel-ciclo[data-etapa='folicular'] .anel-ciclo__progresso {
+  stroke: var(--cor-rosa-secundario);
+}
+.anel-ciclo[data-etapa='ovulacao'] .anel-ciclo__progresso {
+  stroke: var(--cor-azul-link);
+}
+.anel-ciclo[data-etapa='lutea'] .anel-ciclo__progresso {
+  stroke: var(--cor-verde-confirmacao);
+}
+
+.anel-ciclo__centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 18%;
+  gap: 4px;
+}
+
+.anel-ciclo__rotulo {
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.anel-ciclo__fase {
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cor-marrom);
+}
+
+.anel-ciclo[data-etapa='menstruacao'] .anel-ciclo__fase {
+  color: var(--cor-terracota);
+}
+.anel-ciclo[data-etapa='ovulacao'] .anel-ciclo__fase {
+  color: var(--cor-azul-link);
+}
+.anel-ciclo[data-etapa='lutea'] .anel-ciclo__fase {
+  color: var(--cor-verde-confirmacao);
+}
+
+.anel-ciclo__restante {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.anel-ciclo__dia {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-marrom);
+  box-shadow: var(--sombra-suave);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anel-ciclo__progresso {
+    transition: none;
+  }
+}

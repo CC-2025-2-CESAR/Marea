@@ -177,3 +177,47 @@
     min-height: 44px;
   }
 }
+
+/* --- Marcações do ciclo menstrual (página /ciclo) --- */
+.calendario-mes__ponto {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--cor-rosa-secundario);
+}
+
+.calendario-mes__ponto--menstruacao {
+  background: var(--cor-terracota);
+}
+.calendario-mes__ponto--fertil {
+  background: var(--cor-rosa-secundario);
+}
+.calendario-mes__ponto--ovulacao {
+  background: var(--cor-azul-link);
+}
+.calendario-mes__ponto--previsto {
+  background: var(--cor-card);
+  border: 1px dashed var(--cor-terracota);
+}
+
+/* Tinta suave nos dias de menstruação e fértil (sem brigar com "hoje"). */
+.calendario-mes__celula--ciclo-menstruacao:not(.calendario-mes__celula--hoje):not(
+    .calendario-mes__celula--com-consulta
+  ):not(.calendario-mes__celula--com-evento) {
+  background: linear-gradient(180deg, rgba(175, 90, 63, 0.16), transparent),
+    var(--cor-card);
+}
+.calendario-mes__celula--ciclo-fertil:not(.calendario-mes__celula--hoje):not(
+    .calendario-mes__celula--com-consulta
+  ):not(.calendario-mes__celula--com-evento) {
+  background: linear-gradient(180deg, rgba(220, 151, 164, 0.18), transparent),
+    var(--cor-card);
+}
+
+.calendario-mes__celula--hoje .calendario-mes__ponto--previsto {
+  background: #fff;
+  border-color: #fff;
+}

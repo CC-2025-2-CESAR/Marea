@@ -6,10 +6,11 @@ inícios de menstruação (incluindo a falta de dados e o fato de ignorar outras
 etapas).
 """
 
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from usuarios.models import Medica, Paciente, PerfilUsuario
@@ -198,3 +199,54 @@ class CicloAPITests(TestCase):
         resp = self.client.get('/api/ciclo/previsoes/')
         # Ainda só 1 menstruação => insuficiente.
         self.assertFalse(resp.data['tem_dados'])
+
+    def _semear_menstruacoes(self, *offsets):
+        """Recria os inícios de menstruação da paciente1 a partir de hoje."""
+        RegistroCiclo.objects.filter(paciente=self.paciente1).delete()
+        hoje = timezone.localdate()
+        for offset in offsets:
+            RegistroCiclo.objects.create(
+                paciente=self.paciente1,
+                data=hoje + timedelta(days=offset),
+                etapa=RegistroCiclo.ETAPA_MENSTRUACAO,
+            )
+
+    def test_previsao_resumo_fase_menstrual(self):
+        # Início hoje + um ciclo de 28 dias => dia 1, fase menstrual.
+        self.client.force_authenticate(user=self.u1)
+        self._semear_menstruacoes(-28, 0)
+        resp = self.client.get('/api/ciclo/previsoes/')
+        self.assertTrue(resp.data['tem_dados'])
+        self.assertEqual(resp.data['ciclo_medio_dias'], 28)
+        self.assertEqual(resp.data['total_do_ciclo'], 28)
+        self.assertEqual(resp.data['dia_do_ciclo'], 1)
+        self.assertEqual(
+            resp.data['etapa_atual'], RegistroCiclo.ETAPA_MENSTRUACAO
+        )
+        self.assertEqual(resp.data['etapa_atual_display'], 'Fase menstrual')
+        self.assertEqual(resp.data['dias_para_proxima'], 28)
+        self.assertFalse(resp.data['atrasada'])
+        self.assertEqual(resp.data['chance_gravidez'], 'baixa')
+
+    def test_previsao_resumo_fase_ovulatoria_chance_alta(self):
+        # Última menstruação há 14 dias num ciclo de 28 => ovulação hoje.
+        self.client.force_authenticate(user=self.u1)
+        self._semear_menstruacoes(-42, -14)
+        resp = self.client.get('/api/ciclo/previsoes/')
+        self.assertEqual(resp.data['dia_do_ciclo'], 15)
+        self.assertEqual(
+            resp.data['etapa_atual'], RegistroCiclo.ETAPA_OVULACAO
+        )
+        self.assertEqual(resp.data['etapa_atual_display'], 'Fase ovulatória')
+        self.assertEqual(resp.data['dias_para_proxima'], 14)
+        self.assertEqual(resp.data['chance_gravidez'], 'alta')
+
+    def test_previsao_resumo_atrasada(self):
+        # Próxima menstruação já passou => marca como atrasada, fase lútea.
+        self.client.force_authenticate(user=self.u1)
+        self._semear_menstruacoes(-70, -42)
+        resp = self.client.get('/api/ciclo/previsoes/')
+        self.assertTrue(resp.data['atrasada'])
+        self.assertEqual(resp.data['dias_para_proxima'], -14)
+        self.assertEqual(resp.data['etapa_atual'], RegistroCiclo.ETAPA_LUTEA)
+        self.assertEqual(resp.data['chance_gravidez'], 'baixa')

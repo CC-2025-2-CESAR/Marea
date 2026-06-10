@@ -790,11 +790,17 @@ paciente (escopo por dono, como em `sintomas`). Endpoints function-based:
 `GET/POST /api/ciclo/registros/`, `GET/PATCH/DELETE /api/ciclo/registros/<id>/` e
 `GET /api/ciclo/previsoes/`. A previsão estima a próxima menstruação pela média
 dos intervalos entre inícios e a janela fértil cerca de 14 dias antes, sempre
-com o aviso de que não substitui orientação médica. A página `/ciclo` traz
-formulário de registro/edição, lista com exclusão confirmada, card de previsões
-e estados de carregando/erro/vazio, responsiva para celular. Registros de
-demonstração nas personas (Renata e Amanda) via `criar_usuarios_teste`. Testes
-em `ciclo/tests.py` e `ciclo.cy.js`.
+com o aviso de que não substitui orientação médica. A página `/ciclo` é um
+**painel visual** (a partir do protótipo do time de design): anel da fase atual
+(fase, dia do ciclo e dias restantes), cards de resumo (próxima menstruação,
+chances de gravidez e ciclo médio) e calendário do mês com os dias de
+menstruação, janela fértil, ovulação e previsão marcados — além do formulário de
+registro/edição, lista com exclusão confirmada e estados de carregando/erro/vazio,
+responsiva para celular. O endpoint `previsoes` também devolve a fase atual, o
+dia do ciclo, os dias para a próxima menstruação e as chances de gravidez
+(estimadas pela janela fértil). Registros de demonstração nas personas (Renata e
+Amanda) via `criar_usuarios_teste`. Testes em `ciclo/tests.py` (15) e
+`ciclo.cy.js` (13).
 
 ## Próximas etapas
 

@@ -8,6 +8,7 @@ trazem sempre o aviso de que não substituem orientação médica.
 
 from datetime import timedelta
 
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -25,6 +26,30 @@ AVISO_PREVISAO = (
 
 _PACIENTE_NAO_ENCONTRADA = {'detail': 'Paciente não encontrada.'}
 _REGISTRO_NAO_ENCONTRADO = {'detail': 'Registro não encontrado.'}
+
+# Texto curto de cada fase para o anel do painel (estimativa, não diagnóstico).
+_FASES_DISPLAY = {
+    RegistroCiclo.ETAPA_MENSTRUACAO: 'Fase menstrual',
+    RegistroCiclo.ETAPA_FOLICULAR: 'Fase folicular',
+    RegistroCiclo.ETAPA_OVULACAO: 'Fase ovulatória',
+    RegistroCiclo.ETAPA_LUTEA: 'Fase lútea',
+}
+
+
+def _etapa_no_dia(dia_do_ciclo, ciclo_medio):
+    """Estima a fase do ciclo a partir do dia atual.
+
+    É só uma estimativa de calendário (não é diagnóstico): a ovulação fica
+    ~14 dias antes da próxima menstruação e a janela em volta dela é a fértil.
+    """
+    dia_ovulacao = ciclo_medio - 13
+    if dia_do_ciclo <= 5:
+        return RegistroCiclo.ETAPA_MENSTRUACAO
+    if dia_do_ciclo < dia_ovulacao - 1:
+        return RegistroCiclo.ETAPA_FOLICULAR
+    if dia_do_ciclo <= dia_ovulacao + 1:
+        return RegistroCiclo.ETAPA_OVULACAO
+    return RegistroCiclo.ETAPA_LUTEA
 
 
 def _obter_paciente(request):
@@ -136,6 +161,23 @@ def previsoes(request):
     fertil_inicio = ovulacao - timedelta(days=4)
     fertil_fim = ovulacao + timedelta(days=1)
 
+    # Momento atual do ciclo: alimenta o anel de fase e os cards do painel.
+    hoje = timezone.localdate()
+    dia_do_ciclo = max(1, (hoje - ultima).days + 1)
+    dias_para_proxima = (proxima - hoje).days
+    etapa_atual = _etapa_no_dia(dia_do_ciclo, ciclo_medio)
+
+    if fertil_inicio <= hoje <= fertil_fim:
+        chance_gravidez = 'alta'
+    elif (
+        fertil_inicio - timedelta(days=2)
+        <= hoje
+        <= fertil_fim + timedelta(days=2)
+    ):
+        chance_gravidez = 'media'
+    else:
+        chance_gravidez = 'baixa'
+
     return Response(
         {
             'tem_dados': True,
@@ -144,6 +186,13 @@ def previsoes(request):
             'ovulacao_estimada': ovulacao.isoformat(),
             'janela_fertil_inicio': fertil_inicio.isoformat(),
             'janela_fertil_fim': fertil_fim.isoformat(),
+            'etapa_atual': etapa_atual,
+            'etapa_atual_display': _FASES_DISPLAY[etapa_atual],
+            'dia_do_ciclo': dia_do_ciclo,
+            'total_do_ciclo': ciclo_medio,
+            'dias_para_proxima': dias_para_proxima,
+            'atrasada': dias_para_proxima < 0,
+            'chance_gravidez': chance_gravidez,
             'aviso': AVISO_PREVISAO,
         }
     )
