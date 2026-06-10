@@ -12,14 +12,14 @@ function criarRegistroCiclo(dados) {
 }
 
 function atualizarRegistroCiclo(id, dados) {
-  return requisicao(`/ciclo/registros/${id}/`, {
+  return requisicao(/ciclo/registros/${id}/, {
     method: 'PATCH',
     body: JSON.stringify(dados),
   })
 }
 
 function excluirRegistroCiclo(id) {
-  return requisicao(`/ciclo/registros/${id}/`, { method: 'DELETE' })
+  return requisicao(/ciclo/registros/${id}/, { method: 'DELETE' })
 }
 
 function obterPrevisoesCiclo() {
