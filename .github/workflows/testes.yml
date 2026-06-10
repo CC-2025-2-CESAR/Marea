@@ -58,6 +58,10 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
+      - name: Checagem de tipos (tsc)
+        working-directory: frontend
+        run: npm run typecheck
+
       - name: Build de produção
         working-directory: frontend
         run: npm run build

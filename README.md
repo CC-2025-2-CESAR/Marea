@@ -60,11 +60,12 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Backend: Django (Python)
 - API: Django REST Framework
 - Autenticação: JSON Web Tokens (`djangorestframework-simplejwt`)
-- Frontend: React (JavaScript)
+- Frontend: React (JavaScript, em migração incremental para TypeScript)
 - Build do frontend: Vite
 - Animações: Motion (microinterações e transições suaves)
 - Testes E2E: Cypress
 - Padronização: ESLint e Prettier
+- Tipos: TypeScript incremental (`allowJs`) — `services/` e `src/types/` tipados; checagem `tsc --noEmit` (`npm run typecheck`) no CI
 - Banco: SQLite em desenvolvimento; PostgreSQL (Neon) em produção
 - Hospedagem: Azure App Service (Linux, F1) servindo o Django e o build do React
   via WhiteNoise; deploy por pacote zip
@@ -490,10 +491,11 @@ frontend/
 │   │                       LinhaDoTempo, Login, Medicamentos, Orientacoes,
 │   │                       Perfil, Sintomas, Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
-│   ├── services/           api, apoioService, authService, cicloService,
+│   ├── services/           (TypeScript) api, apoioService, authService, cicloService,
 │   │                       consultasService, dicionarioService, linhaTempoService,
 │   │                       medicaService, medicamentosService, perfilService,
 │   │                       sintomasService, tratamentosService
+│   ├── types/              index.ts (tipos do domínio da API)
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
@@ -506,6 +508,7 @@ frontend/
 │                           sintomas, tratamentos (147 testes)
 ├── cypress.config.js
 ├── package.json
+├── tsconfig.json            TypeScript incremental (allowJs, strict, noEmit)
 └── vite.config.js          porta fixa 5173 (strictPort)
 docs/                       guias de Django, React, Cypress, Motion, ESLint,
                             Git, configuração e histórias de usuário
