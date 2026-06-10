@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import Header from '../../components/Header/Header'
 import PageTransition from '../../components/PageTransition/PageTransition'
 import Sidebar from '../../components/Sidebar/Sidebar'
+import Footer from '../../components/Footer/Footer'
 import './AppLayout.css'
 
 /**
@@ -50,6 +51,10 @@ function AppLayout() {
 
   return (
     <div className="app-layout" data-cy="app-layout">
+      <a className="skip-link" href="#conteudo-principal">
+        Pular para o conteúdo
+      </a>
+
       <div className="app-layout__sidebar-desktop">
         <Sidebar />
       </div>
@@ -88,11 +93,12 @@ function AppLayout() {
 
       <div className="app-layout__conteudo">
         <Header onAbrirMenu={() => setMenuAberto(true)} />
-        <main className="app-layout__principal">
+        <main className="app-layout__principal" id="conteudo-principal">
           <PageTransition>
             <Outlet />
           </PageTransition>
         </main>
+        <Footer />
       </div>
     </div>
   )
