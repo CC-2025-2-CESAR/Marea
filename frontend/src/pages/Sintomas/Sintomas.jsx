@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Button from '../../components/Button/Button'
 import InputField from '../../components/InputField/InputField'
 import SelectField from '../../components/SelectField/SelectField'
+import { useToast } from '../../components/ui/Toast/useToast'
 import { criarSintoma, listarSintomas } from '../../services/sintomasService'
 import './Sintomas.css'
 
@@ -36,7 +37,8 @@ function Sintomas() {
 
   const [enviando, setEnviando] = useState(false)
   const [erroEnvio, setErroEnvio] = useState(null)
-  const [sucesso, setSucesso] = useState(false)
+
+  const { mostrarToast } = useToast()
 
   useEffect(() => {
     let cancelado = false
@@ -69,7 +71,6 @@ function Sintomas() {
   async function handleSubmit(evento) {
     evento.preventDefault()
     setErroEnvio(null)
-    setSucesso(false)
 
     if (!data || !tipo.trim() || !descricao.trim()) {
       setErroEnvio('Preencha a data, o tipo e a descrição.')
@@ -89,7 +90,7 @@ function Sintomas() {
       setDescricao('')
       setIntensidade('')
       setData(hojeISO())
-      setSucesso(true)
+      mostrarToast('Registro salvo.', 'sucesso')
     } catch {
       setErroEnvio('Não foi possível salvar o registro. Tente novamente.')
     } finally {
@@ -157,12 +158,6 @@ function Sintomas() {
             {erroEnvio}
           </p>
         ) : null}
-        {sucesso ? (
-          <p className="sintomas-mensagem--sucesso" role="status" data-cy="sintomas-sucesso">
-            Registro salvo.
-          </p>
-        ) : null}
-
         <div className="sintomas-form__acoes">
           <Button type="submit" disabled={enviando} dataCy="sintomas-enviar">
             {enviando ? 'Salvando...' : 'Salvar registro'}

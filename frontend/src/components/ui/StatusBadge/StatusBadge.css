@@ -1,0 +1,46 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.status-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.85;
+}
+
+.status-badge--neutro {
+  background: var(--cor-creme-claro);
+  color: var(--cor-marrom);
+  border-color: var(--cor-borda);
+}
+
+.status-badge--info {
+  background: rgba(111, 151, 168, 0.16);
+  color: var(--cor-azul-link);
+}
+
+.status-badge--sucesso {
+  background: rgba(114, 147, 104, 0.16);
+  color: var(--cor-verde-confirmacao);
+}
+
+.status-badge--aviso {
+  background: rgba(212, 150, 104, 0.18);
+  color: var(--cor-caramelo);
+}
+
+.status-badge--perigo {
+  background: rgba(209, 29, 70, 0.12);
+  color: var(--cor-terracota);
+}
