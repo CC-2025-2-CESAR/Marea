@@ -1,0 +1,63 @@
+/* Acessibilidade — foco visível, skip-link e conteúdo só para leitores de tela. */
+
+/* Link "pular para o conteúdo": fica fora da tela até receber foco do teclado. */
+.skip-link {
+  position: absolute;
+  left: var(--espaco-sm);
+  top: -72px;
+  z-index: 1200;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px var(--espaco-md);
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  border: 2px solid var(--cor-terracota);
+  border-radius: var(--raio-pequeno);
+  font-family: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--duracao-media) var(--easing-saida);
+}
+
+.skip-link:focus {
+  top: var(--espaco-sm);
+  outline: none;
+}
+
+/* Conteúdo apenas para tecnologia assistiva (sai do visual, fica no leitor). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Foco visível consistente nos elementos interativos. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--cor-terracota);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respeita quem pediu menos movimento (complementa o MotionConfig). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
