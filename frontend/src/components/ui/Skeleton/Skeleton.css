@@ -1,0 +1,37 @@
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.skeleton__linha {
+  height: 16px;
+  border-radius: var(--raio-pequeno);
+  background: linear-gradient(
+    90deg,
+    var(--cor-creme-claro) 25%,
+    var(--cor-borda) 37%,
+    var(--cor-creme-claro) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-brilho 1.4s ease infinite;
+}
+
+.skeleton__linha--curta {
+  width: 60%;
+}
+
+@keyframes skeleton-brilho {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__linha {
+    animation: none;
+  }
+}

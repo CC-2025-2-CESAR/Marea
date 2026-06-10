@@ -12,40 +12,51 @@
  */
 
 import { CHAVE_STORAGE } from '../contexts/authStorage'
+import type { Sessao } from '../types'
 
 // URL base da API. Se `VITE_API_BASE_URL` estiver definida, ela manda. Caso
 // contrário: em build de produção o frontend é servido pelo próprio Django no
 // mesmo domínio, então a API fica em `/api` (relativo — dispensa CORS); em
 // desenvolvimento, aponta para o backend local na porta 8000.
-const API_BASE_URL =
+const API_BASE_URL: string =
   import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.PROD ? '/api' : 'http://localhost:8000/api')
 
-function lerSessao() {
+/** Opções de `requisicao`: um `RequestInit` com cabeçalhos em objeto simples. */
+export type OpcoesRequisicao = Omit<RequestInit, 'headers'> & {
+  headers?: Record<string, string>
+  /** Marca interna: evita laço infinito de refresh ao repetir a chamada. */
+  _jaTentouRefresh?: boolean
+}
+
+/** Erro de chamada à API, com o status HTTP e o corpo de detalhe (se houver). */
+export type ErroRequisicao = Error & { status?: number; detalhe?: unknown }
+
+function lerSessao(): Sessao | null {
   try {
     const cru = window.localStorage.getItem(CHAVE_STORAGE)
     if (!cru) return null
-    return JSON.parse(cru)
+    return JSON.parse(cru) as Sessao
   } catch {
     return null
   }
 }
 
-function salvarSessao(sessao) {
+function salvarSessao(sessao: Sessao): void {
   window.localStorage.setItem(CHAVE_STORAGE, JSON.stringify(sessao))
 }
 
-function limparSessao() {
+function limparSessao(): void {
   window.localStorage.removeItem(CHAVE_STORAGE)
 }
 
-function dispararLogout() {
+function dispararLogout(): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('marea:logout'))
   }
 }
 
-async function tentarRefresh() {
+async function tentarRefresh(): Promise<Sessao | null> {
   const sessao = lerSessao()
   if (!sessao?.refresh) return null
 
@@ -57,17 +68,20 @@ async function tentarRefresh() {
 
   if (!resposta.ok) return null
 
-  const dados = await resposta.json()
+  const dados = (await resposta.json()) as { access?: string }
   if (!dados?.access) return null
 
-  const novaSessao = { ...sessao, access: dados.access }
+  const novaSessao: Sessao = { ...sessao, access: dados.access }
   salvarSessao(novaSessao)
   return novaSessao
 }
 
-async function executar(caminho, opcoes) {
+async function executar(
+  caminho: string,
+  opcoes: OpcoesRequisicao,
+): Promise<Response> {
   const sessao = lerSessao()
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(opcoes.headers || {}),
   }
@@ -78,7 +92,10 @@ async function executar(caminho, opcoes) {
   return fetch(`${API_BASE_URL}${caminho}`, { ...opcoes, headers })
 }
 
-async function requisicao(caminho, opcoes = {}) {
+async function requisicao<T = unknown>(
+  caminho: string,
+  opcoes: OpcoesRequisicao = {},
+): Promise<T> {
   let resposta = await executar(caminho, opcoes)
 
   if (resposta.status === 401 && !opcoes._jaTentouRefresh) {
@@ -93,23 +110,25 @@ async function requisicao(caminho, opcoes = {}) {
   }
 
   if (!resposta.ok) {
-    let detalhe
+    let detalhe: unknown
     try {
       detalhe = await resposta.json()
     } catch {
       detalhe = undefined
     }
-    const erro = new Error(`Falha ${resposta.status} ao chamar ${caminho}`)
+    const erro = new Error(
+      `Falha ${resposta.status} ao chamar ${caminho}`,
+    ) as ErroRequisicao
     erro.status = resposta.status
     erro.detalhe = detalhe
     throw erro
   }
 
   if (resposta.status === 204) {
-    return null
+    return null as T
   }
 
-  return resposta.json()
+  return (await resposta.json()) as T
 }
 
 export { API_BASE_URL, requisicao }

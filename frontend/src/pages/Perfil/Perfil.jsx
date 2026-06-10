@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import Button from '../../components/Button/Button'
 import SelectField from '../../components/SelectField/SelectField'
 import { atualizarPerfil, obterPerfil } from '../../services/perfilService'
+import { useToast } from '../../components/ui/Toast/useToast'
 import { formatarTelefone, telefoneValido } from '../../utils/formatadores'
 import './Perfil.css'
 
@@ -63,6 +64,7 @@ function Perfil() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState(null)
   const [feedback, setFeedback] = useState(null)
+  const { mostrarToast } = useToast()
 
   useEffect(() => {
     let cancelado = false
@@ -122,10 +124,7 @@ function Perfil() {
     try {
       const atualizado = await atualizarPerfil(carga)
       setPerfil(atualizado)
-      setFeedback({
-        tipo: 'sucesso',
-        texto: 'Perfil atualizado com sucesso.',
-      })
+      mostrarToast('Perfil atualizado com sucesso.', 'sucesso')
     } catch {
       setFeedback({
         tipo: 'erro',
