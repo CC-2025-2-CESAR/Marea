@@ -141,7 +141,7 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-enviar]').click()
     cy.wait('@criar')
 
-    cy.get('[data-cy=ciclo-sucesso]').should('be.visible')
+    cy.get('[data-cy=toast]').should('be.visible')
     cy.get('[data-cy=ciclo-item]').should('have.length', 1)
     cy.get('[data-cy=ciclo-lista]').should('contain', 'Novo ciclo.')
   })
@@ -166,7 +166,7 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-enviar]').click()
     cy.wait('@atualizar')
 
-    cy.get('[data-cy=ciclo-sucesso]')
+    cy.get('[data-cy=toast]')
       .should('be.visible')
       .and('contain', 'atualizado')
     cy.get('[data-cy=ciclo-lista]').should('contain', 'Observação editada.')

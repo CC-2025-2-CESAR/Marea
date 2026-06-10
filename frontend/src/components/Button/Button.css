@@ -33,3 +33,18 @@
 .botao--primary:active:not(:disabled) {
   transform: translateY(0);
 }
+
+.botao--perigo {
+  background-color: var(--cor-terracota);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(175, 90, 63, 0.35);
+}
+
+.botao--perigo:hover:not(:disabled) {
+  background-color: var(--cor-vermelho-alerta);
+  transform: translateY(-1px);
+}
+
+.botao--perigo:active:not(:disabled) {
+  transform: translateY(0);
+}

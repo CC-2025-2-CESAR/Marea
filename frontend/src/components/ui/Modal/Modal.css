@@ -1,0 +1,95 @@
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: var(--espaco-md);
+  background: rgba(52, 51, 62, 0.45);
+}
+
+.modal {
+  width: min(92vw, 440px);
+  max-height: min(86vh, 680px);
+  overflow-y: auto;
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-lg);
+  outline: none;
+}
+
+.modal__cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espaco-sm);
+}
+
+.modal__titulo {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--cor-marrom);
+}
+
+.modal__fechar {
+  flex-shrink: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.modal__fechar:hover,
+.modal__fechar:focus-visible {
+  background: var(--cor-creme-claro);
+  color: var(--cor-texto);
+}
+
+.modal__corpo {
+  margin-top: var(--espaco-sm);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.modal__rodape {
+  margin-top: var(--espaco-lg);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--espaco-sm);
+}
+
+/* Folha inferior no celular: cola embaixo, ocupa a largura toda e arredonda
+   só o topo. As ações empilham e ficam de fácil alcance para o polegar. */
+@media (max-width: 480px) {
+  .modal-fundo {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .modal__rodape {
+    flex-direction: column;
+  }
+
+  .modal__rodape > * {
+    width: 100%;
+  }
+}

@@ -5,6 +5,9 @@ import Button from '../../components/Button/Button'
 import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import InputField from '../../components/InputField/InputField'
 import SelectField from '../../components/SelectField/SelectField'
+import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
+import StatusBadge from '../../components/ui/StatusBadge/StatusBadge'
+import { useToast } from '../../components/ui/Toast/useToast'
 import {
   atualizarRegistroCiclo,
   criarRegistroCiclo,
@@ -26,6 +29,13 @@ const OPCOES_STATUS = [
   { valor: 'em_andamento', rotulo: 'Em andamento' },
   { valor: 'concluido', rotulo: 'Concluído' },
 ]
+
+// Cor do selo de status na lista de registros.
+const TOM_STATUS = {
+  registrado: 'info',
+  em_andamento: 'aviso',
+  concluido: 'sucesso',
+}
 
 const CHANCE_TEXTO = { alta: 'Alta', media: 'Média', baixa: 'Baixa' }
 
@@ -88,9 +98,10 @@ function Ciclo() {
 
   const [enviando, setEnviando] = useState(false)
   const [erroEnvio, setErroEnvio] = useState(null)
-  const [sucesso, setSucesso] = useState(null)
   const [confirmandoId, setConfirmandoId] = useState(null)
+  const [excluindo, setExcluindo] = useState(false)
 
+  const { mostrarToast } = useToast()
   const formRef = useRef(null)
 
   useEffect(() => {
@@ -148,7 +159,6 @@ function Ciclo() {
     setStatusCiclo(registro.status)
     setObservacoes(registro.observacoes || '')
     setErroEnvio(null)
-    setSucesso(null)
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
@@ -156,14 +166,12 @@ function Ciclo() {
     limparFormulario()
     if (etapaInicial) setEtapa(etapaInicial)
     setErroEnvio(null)
-    setSucesso(null)
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   async function handleSubmit(evento) {
     evento.preventDefault()
     setErroEnvio(null)
-    setSucesso(null)
 
     if (!data || !etapa) {
       setErroEnvio('Informe a data e a etapa do ciclo.')
@@ -184,11 +192,11 @@ function Ciclo() {
         setRegistros((atuais) =>
           atuais.map((r) => (r.id === editandoId ? atualizado : r)),
         )
-        setSucesso('Registro atualizado.')
+        mostrarToast('Registro atualizado.', 'sucesso')
       } else {
         const criado = await criarRegistroCiclo(payload)
         setRegistros((atuais) => [criado, ...atuais])
-        setSucesso('Registro salvo.')
+        mostrarToast('Registro salvo.', 'sucesso')
       }
       limparFormulario()
       recarregarPrevisoes()
@@ -200,6 +208,7 @@ function Ciclo() {
   }
 
   async function confirmarExclusao(id) {
+    setExcluindo(true)
     try {
       await excluirRegistroCiclo(id)
       setRegistros((atuais) => atuais.filter((r) => r.id !== id))
@@ -207,10 +216,16 @@ function Ciclo() {
       if (editandoId === id) {
         limparFormulario()
       }
+      mostrarToast('Registro excluído.', 'sucesso')
       recarregarPrevisoes()
     } catch {
-      setErroEnvio('Não foi possível excluir o registro. Tente novamente.')
       setConfirmandoId(null)
+      mostrarToast(
+        'Não foi possível excluir o registro. Tente novamente.',
+        'erro',
+      )
+    } finally {
+      setExcluindo(false)
     }
   }
 
@@ -404,12 +419,6 @@ function Ciclo() {
             {erroEnvio}
           </p>
         ) : null}
-        {sucesso ? (
-          <p className="ciclo-mensagem--sucesso" role="status" data-cy="ciclo-sucesso">
-            {sucesso}
-          </p>
-        ) : null}
-
         <div className="ciclo-form__acoes">
           <Button type="submit" disabled={enviando} dataCy="ciclo-enviar">
             {enviando
@@ -489,59 +498,51 @@ function Ciclo() {
               {registro.observacoes ? (
                 <p className="ciclo-item__observacoes">{registro.observacoes}</p>
               ) : null}
-              <span className="ciclo-item__status">
-                {registro.status_display}
-              </span>
+              <div className="ciclo-item__status">
+                <StatusBadge tom={TOM_STATUS[registro.status] || 'neutro'}>
+                  {registro.status_display}
+                </StatusBadge>
+              </div>
 
-              {confirmandoId === registro.id ? (
-                <div
-                  className="ciclo-item__confirmar"
-                  data-cy="ciclo-confirmar-exclusao"
+              <div className="ciclo-item__acoes">
+                <button
+                  type="button"
+                  className="ciclo-item__botao"
+                  onClick={() => iniciarEdicao(registro)}
+                  data-cy="ciclo-item-editar"
                 >
-                  <span>Excluir este registro?</span>
-                  <div className="ciclo-item__confirmar-acoes">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => confirmarExclusao(registro.id)}
-                      dataCy="ciclo-confirmar-sim"
-                    >
-                      Sim, excluir
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => setConfirmandoId(null)}
-                      dataCy="ciclo-confirmar-nao"
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="ciclo-item__acoes">
-                  <button
-                    type="button"
-                    className="ciclo-item__botao"
-                    onClick={() => iniciarEdicao(registro)}
-                    data-cy="ciclo-item-editar"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    className="ciclo-item__botao ciclo-item__botao--perigo"
-                    onClick={() => setConfirmandoId(registro.id)}
-                    data-cy="ciclo-item-excluir"
-                  >
-                    Excluir
-                  </button>
-                </div>
-              )}
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  className="ciclo-item__botao ciclo-item__botao--perigo"
+                  onClick={() => setConfirmandoId(registro.id)}
+                  data-cy="ciclo-item-excluir"
+                >
+                  Excluir
+                </button>
+              </div>
             </li>
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        aberto={confirmandoId !== null}
+        titulo="Excluir registro?"
+        descricao="Esta ação não pode ser desfeita. O registro sai do seu histórico e das estimativas."
+        rotuloConfirmar="Sim, excluir"
+        rotuloCancelar="Cancelar"
+        perigo
+        carregando={excluindo}
+        onConfirmar={() =>
+          confirmandoId !== null && confirmarExclusao(confirmandoId)
+        }
+        onCancelar={() => setConfirmandoId(null)}
+        dataCy="ciclo-confirmar-exclusao"
+        dataCyConfirmar="ciclo-confirmar-sim"
+        dataCyCancelar="ciclo-confirmar-nao"
+      />
     </section>
   )
 }

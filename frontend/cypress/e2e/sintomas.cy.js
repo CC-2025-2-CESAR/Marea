@@ -84,7 +84,7 @@ describe('Sintomas e observações da Amare', () => {
     cy.get('[data-cy=sintomas-enviar]').click()
     cy.wait('@criar')
 
-    cy.get('[data-cy=sintomas-sucesso]').should('be.visible')
+    cy.get('[data-cy=toast]').should('be.visible')
     cy.get('[data-cy=sintomas-item]').should('have.length', 1)
     cy.get('[data-cy=sintomas-lista]').should('contain', 'Dor de cabeça')
   })
