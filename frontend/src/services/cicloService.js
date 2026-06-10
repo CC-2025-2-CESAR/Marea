@@ -19,7 +19,7 @@ function atualizarRegistroCiclo(id, dados) {
 }
 
 function excluirRegistroCiclo(id) {
-  return requisicao(/ciclo/registros/${id}/, { method: 'DELETE' })
+  return requisicao('/ciclo/registros/${id}/', { method: 'DELETE' })
 }
 
 function obterPrevisoesCiclo() {
