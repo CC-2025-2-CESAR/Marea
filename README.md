@@ -63,6 +63,7 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Frontend: React (JavaScript, em migração incremental para TypeScript)
 - Build do frontend: Vite
 - Animações: Motion (microinterações e transições suaves)
+- Design system: primitivos em `components/ui/` (Toast com `aria-live`, EmptyState, Skeleton) + rodapé e shell acessível (skip-link, foco visível, `prefers-reduced-motion`)
 - Testes E2E: Cypress
 - Padronização: ESLint e Prettier
 - Tipos: TypeScript incremental (`allowJs`) — `services/` e `src/types/` tipados; checagem `tsc --noEmit` (`npm run typecheck`) no CI
@@ -496,7 +497,7 @@ frontend/
 │   │                       medicaService, medicamentosService, perfilService,
 │   │                       sintomasService, tratamentosService
 │   ├── types/              index.ts (tipos do domínio da API)
-│   ├── styles/             variables.css, global.css
+│   ├── styles/             variables.css, global.css, a11y.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
 │   └── main.jsx

@@ -160,7 +160,7 @@ describe('Polimento UX do perfil', () => {
     cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 99999-7777')
     cy.get('[data-cy=perfil-salvar]').click()
     cy.wait('@salvar')
-    cy.get('[data-cy=perfil-feedback]')
+    cy.get('[data-cy=toast]')
       .should('be.visible')
       .and('contain', 'Perfil atualizado com sucesso.')
   })

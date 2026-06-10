@@ -83,6 +83,11 @@ describe('Rotas e layout base da Amare', () => {
       'placeholder',
       'Buscar na Amare',
     )
+
+    // Shell do design system (PR3): rodapé, skip-link e landmark do conteúdo.
+    cy.get('[data-cy=rodape]').should('exist')
+    cy.get('.skip-link').should('have.attr', 'href', '#conteudo-principal')
+    cy.get('#conteudo-principal').should('exist')
   })
 
   it('redireciona para /login quando tenta acessar rota interna sem sessao', () => {
