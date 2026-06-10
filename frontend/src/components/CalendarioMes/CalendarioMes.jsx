@@ -18,6 +18,23 @@ const NOMES_MES = [
 
 const DIAS_SEMANA_CURTOS = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.']
 
+// Rótulos das marcações do ciclo (menstruação/fértil/ovulação/previsão).
+const ROTULO_CICLO = {
+  menstruacao: 'Menstruação',
+  fertil: 'Período fértil',
+  ovulacao: 'Ovulação',
+  previsto: 'Próxima menstruação (previsão)',
+}
+
+// Chave dia-a-dia (mês 0-based) tolerante a Date e a string ISO 'YYYY-MM-DD'.
+function chaveData(valor) {
+  if (valor instanceof Date) {
+    return `${valor.getFullYear()}-${valor.getMonth()}-${valor.getDate()}`
+  }
+  const [ano, mes, dia] = String(valor).slice(0, 10).split('-').map(Number)
+  return `${ano}-${mes - 1}-${dia}`
+}
+
 function mesmoDia(a, b) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -91,7 +108,12 @@ function agruparPorData(itens) {
   return mapa
 }
 
-function CalendarioMes({ consultas = [], eventos = [], mesInicial }) {
+function CalendarioMes({
+  consultas = [],
+  eventos = [],
+  marcacoes = [],
+  mesInicial,
+}) {
   const inicial = useMemo(() => {
     if (mesInicial instanceof Date) {
       return new Date(mesInicial.getFullYear(), mesInicial.getMonth(), 1)
@@ -112,6 +134,21 @@ function CalendarioMes({ consultas = [], eventos = [], mesInicial }) {
     [consultas],
   )
   const eventosPorData = useMemo(() => agruparPorData(eventos), [eventos])
+
+  const marcacoesPorData = useMemo(() => {
+    const mapa = new Map()
+    marcacoes.forEach((mc) => {
+      if (!mc?.data) return
+      const chave = chaveData(mc.data)
+      // Marcações reais (menstruação) vêm primeiro e têm prioridade no dia.
+      if (!mapa.has(chave)) mapa.set(chave, mc.tipo)
+    })
+    return mapa
+  }, [marcacoes])
+
+  function cicloNoDia(data) {
+    return marcacoesPorData.get(chaveData(data)) || ''
+  }
 
   function consultasNoDia(data) {
     const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
@@ -194,12 +231,14 @@ function CalendarioMes({ consultas = [], eventos = [], mesInicial }) {
           const ehHoje = mesmoDia(celula.data, hoje)
           const temConsulta = consultasDoDia.length > 0
           const temEvento = eventosDoDia.length > 0
+          const cicloTipo = cicloNoDia(celula.data)
           const classes = [
             'calendario-mes__celula',
             `calendario-mes__celula--${celula.tipo}`,
             ehHoje && 'calendario-mes__celula--hoje',
             temConsulta && 'calendario-mes__celula--com-consulta',
             temEvento && 'calendario-mes__celula--com-evento',
+            cicloTipo && `calendario-mes__celula--ciclo-${cicloTipo}`,
           ]
             .filter(Boolean)
             .join(' ')
@@ -233,6 +272,15 @@ function CalendarioMes({ consultas = [], eventos = [], mesInicial }) {
                 >
                   {rotuloEventos(eventosDoDia)}
                 </span>
+              ) : null}
+              {cicloTipo ? (
+                <span
+                  className={`calendario-mes__ponto calendario-mes__ponto--${cicloTipo}`}
+                  data-cy="calendario-mes-ciclo"
+                  data-ciclo={cicloTipo}
+                  title={ROTULO_CICLO[cicloTipo] || ''}
+                  aria-hidden="true"
+                />
               ) : null}
             </li>
           )

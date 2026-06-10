@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+import AnelCiclo from '../../components/AnelCiclo/AnelCiclo'
 import Button from '../../components/Button/Button'
+import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import InputField from '../../components/InputField/InputField'
 import SelectField from '../../components/SelectField/SelectField'
 import {
@@ -24,6 +27,8 @@ const OPCOES_STATUS = [
   { valor: 'concluido', rotulo: 'Concluído' },
 ]
 
+const CHANCE_TEXTO = { alta: 'Alta', media: 'Média', baixa: 'Baixa' }
+
 // A previsão é apenas uma estimativa — nunca substitui orientação médica.
 const AVISO_PREVISAO =
   'Estimativa baseada nos seus registros. Não substitui a orientação da equipe médica.'
@@ -36,6 +41,37 @@ function formatarData(iso) {
   if (!iso) return ''
   const [ano, mes, dia] = iso.split('-')
   return `${dia}/${mes}/${ano}`
+}
+
+function textoEmDias(dias, atrasada) {
+  if (dias === null || dias === undefined) return ''
+  if (atrasada) {
+    const n = Math.abs(dias)
+    return `há ${n} ${n === 1 ? 'dia' : 'dias'}`
+  }
+  if (dias <= 0) return 'hoje'
+  return `em ${dias} ${dias === 1 ? 'dia' : 'dias'}`
+}
+
+// Enumera as datas (ISO) entre início e fim, inclusive — usado para marcar a
+// janela fértil no calendário.
+function intervaloISO(inicioISO, fimISO) {
+  const datas = []
+  if (!inicioISO || !fimISO) return datas
+  const [ai, mi, di] = inicioISO.split('-').map(Number)
+  const [af, mf, df] = fimISO.split('-').map(Number)
+  const atual = new Date(ai, mi - 1, di)
+  const fim = new Date(af, mf - 1, df)
+  let guarda = 0
+  while (atual <= fim && guarda < 60) {
+    const y = atual.getFullYear()
+    const m = String(atual.getMonth() + 1).padStart(2, '0')
+    const d = String(atual.getDate()).padStart(2, '0')
+    datas.push(`${y}-${m}-${d}`)
+    atual.setDate(atual.getDate() + 1)
+    guarda += 1
+  }
+  return datas
 }
 
 function Ciclo() {
@@ -54,6 +90,8 @@ function Ciclo() {
   const [erroEnvio, setErroEnvio] = useState(null)
   const [sucesso, setSucesso] = useState(null)
   const [confirmandoId, setConfirmandoId] = useState(null)
+
+  const formRef = useRef(null)
 
   useEffect(() => {
     let cancelado = false
@@ -111,6 +149,15 @@ function Ciclo() {
     setObservacoes(registro.observacoes || '')
     setErroEnvio(null)
     setSucesso(null)
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  function irParaFormulario(etapaInicial) {
+    limparFormulario()
+    if (etapaInicial) setEtapa(etapaInicial)
+    setErroEnvio(null)
+    setSucesso(null)
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   async function handleSubmit(evento) {
@@ -169,56 +216,143 @@ function Ciclo() {
 
   const temPrevisao = previsoes && previsoes.tem_dados
 
+  const marcacoes = useMemo(() => {
+    const lista = []
+    registros.forEach((r) => {
+      if (r.etapa === 'menstruacao' && r.data) {
+        lista.push({ data: r.data, tipo: 'menstruacao' })
+      }
+    })
+    if (temPrevisao) {
+      intervaloISO(
+        previsoes.janela_fertil_inicio,
+        previsoes.janela_fertil_fim,
+      ).forEach((dataFertil) => lista.push({ data: dataFertil, tipo: 'fertil' }))
+      if (previsoes.ovulacao_estimada) {
+        lista.push({ data: previsoes.ovulacao_estimada, tipo: 'ovulacao' })
+      }
+      if (previsoes.proxima_menstruacao) {
+        lista.push({ data: previsoes.proxima_menstruacao, tipo: 'previsto' })
+      }
+    }
+    return lista
+  }, [registros, previsoes, temPrevisao])
+
   return (
     <section className="ciclo-pagina" data-cy="page-ciclo">
       <header className="ciclo-cabecalho">
         <h1>Meu ciclo</h1>
         <p>
-          Registre as fases do seu ciclo para acompanhar e ver uma estimativa
+          Acompanhe a fase atual, registre o que sentir e veja uma estimativa
           dos próximos dias. Só você vê os seus registros.
         </p>
       </header>
 
-      <section
-        className="ciclo-previsoes"
-        data-cy="ciclo-previsoes"
-        aria-label="Previsões do ciclo"
-      >
-        <h2 className="ciclo-previsoes__titulo">Previsões</h2>
-        {temPrevisao ? (
-          <div className="ciclo-previsoes__grade">
-            <div className="ciclo-previsao" data-cy="ciclo-previsao-proxima">
-              <span className="ciclo-previsao__rotulo">Próxima menstruação</span>
-              <strong className="ciclo-previsao__valor">
-                {formatarData(previsoes.proxima_menstruacao)}
-              </strong>
+      <section className="ciclo-painel" aria-label="Resumo do ciclo">
+        <div className="ciclo-painel__anel">
+          {temPrevisao ? (
+            <AnelCiclo
+              etapa={previsoes.etapa_atual}
+              etapaDisplay={previsoes.etapa_atual_display}
+              diaDoCiclo={previsoes.dia_do_ciclo}
+              totalDoCiclo={previsoes.total_do_ciclo}
+              diasParaProxima={previsoes.dias_para_proxima}
+              atrasada={previsoes.atrasada}
+            />
+          ) : (
+            <div className="ciclo-anel-vazio" data-cy="ciclo-anel-vazio">
+              <span className="ciclo-anel-vazio__titulo">
+                Seu ciclo aparece aqui
+              </span>
+              <p>
+                Registre pelo menos dois inícios de menstruação para ver a fase
+                atual e as estimativas.
+              </p>
             </div>
-            <div className="ciclo-previsao" data-cy="ciclo-previsao-fertil">
-              <span className="ciclo-previsao__rotulo">Período fértil estimado</span>
-              <strong className="ciclo-previsao__valor">
-                {formatarData(previsoes.janela_fertil_inicio)} a{' '}
-                {formatarData(previsoes.janela_fertil_fim)}
-              </strong>
+          )}
+        </div>
+
+        <div
+          className="ciclo-cards"
+          data-cy="ciclo-previsoes"
+          aria-label="Previsões do ciclo"
+        >
+          {temPrevisao ? (
+            <div className="ciclo-cards__grade">
+              <article className="ciclo-card" data-cy="ciclo-previsao-proxima">
+                <span className="ciclo-card__rotulo">Próxima menstruação</span>
+                <strong className="ciclo-card__valor">
+                  {formatarData(previsoes.proxima_menstruacao)}
+                </strong>
+                <span className="ciclo-card__detalhe">
+                  {textoEmDias(previsoes.dias_para_proxima, previsoes.atrasada)}
+                </span>
+              </article>
+
+              <article
+                className={`ciclo-card ciclo-card--chance-${previsoes.chance_gravidez}`}
+                data-cy="ciclo-chance"
+                data-chance={previsoes.chance_gravidez}
+              >
+                <span className="ciclo-card__rotulo">Chances de gravidez</span>
+                <strong className="ciclo-card__valor">
+                  {CHANCE_TEXTO[previsoes.chance_gravidez] || '—'}
+                </strong>
+                <span className="ciclo-card__detalhe" data-cy="ciclo-previsao-fertil">
+                  Período fértil: {formatarData(previsoes.janela_fertil_inicio)} a{' '}
+                  {formatarData(previsoes.janela_fertil_fim)}
+                </span>
+              </article>
+
+              <article className="ciclo-card">
+                <span className="ciclo-card__rotulo">Sobre o seu ciclo</span>
+                <strong className="ciclo-card__valor">
+                  {previsoes.ciclo_medio_dias} dias
+                </strong>
+                <span className="ciclo-card__detalhe">
+                  duração média estimada
+                </span>
+              </article>
             </div>
-            <div className="ciclo-previsao">
-              <span className="ciclo-previsao__rotulo">Ciclo médio</span>
-              <strong className="ciclo-previsao__valor">
-                {previsoes.ciclo_medio_dias} dias
-              </strong>
-            </div>
-          </div>
-        ) : (
-          <p className="ciclo-previsoes__vazia" data-cy="ciclo-previsao-vazia">
-            {previsoes?.mensagem ||
-              'Registre pelo menos dois inícios de menstruação para ver as previsões.'}
+          ) : (
+            <p className="ciclo-cards__vazia" data-cy="ciclo-previsao-vazia">
+              {previsoes?.mensagem ||
+                'Registre pelo menos dois inícios de menstruação para ver as previsões.'}
+            </p>
+          )}
+          <p className="ciclo-cards__aviso" data-cy="ciclo-aviso">
+            {AVISO_PREVISAO}
           </p>
-        )}
-        <p className="ciclo-previsoes__aviso" data-cy="ciclo-aviso">
-          {AVISO_PREVISAO}
-        </p>
+        </div>
       </section>
 
-      <form className="ciclo-form" onSubmit={handleSubmit} data-cy="ciclo-form">
+      <div className="ciclo-acoes" data-cy="ciclo-acoes">
+        <Button
+          type="button"
+          onClick={() => irParaFormulario('menstruacao')}
+          dataCy="ciclo-acao-menstruacao"
+        >
+          Registrar menstruação
+        </Button>
+        <Link className="ciclo-acao-link" to="/sintomas" data-cy="ciclo-acao-sintomas">
+          Registrar sintomas
+        </Link>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => irParaFormulario()}
+          dataCy="ciclo-acao-algo"
+        >
+          Registrar algo
+        </Button>
+      </div>
+
+      <form
+        className="ciclo-form"
+        onSubmit={handleSubmit}
+        data-cy="ciclo-form"
+        ref={formRef}
+      >
         <h2 className="ciclo-form__titulo">
           {editandoId ? 'Editar registro' : 'Novo registro'}
         </h2>
@@ -296,6 +430,29 @@ function Ciclo() {
           ) : null}
         </div>
       </form>
+
+      <section className="ciclo-calendario" aria-label="Calendário do ciclo">
+        <h2 className="ciclo-lista-titulo">Seu calendário</h2>
+        <CalendarioMes marcacoes={marcacoes} />
+        <ul className="ciclo-legenda" data-cy="ciclo-legenda">
+          <li>
+            <span className="ciclo-legenda__cor ciclo-legenda__cor--menstruacao" />
+            Menstruação
+          </li>
+          <li>
+            <span className="ciclo-legenda__cor ciclo-legenda__cor--fertil" />
+            Período fértil
+          </li>
+          <li>
+            <span className="ciclo-legenda__cor ciclo-legenda__cor--ovulacao" />
+            Ovulação
+          </li>
+          <li>
+            <span className="ciclo-legenda__cor ciclo-legenda__cor--previsto" />
+            Previsão
+          </li>
+        </ul>
+      </section>
 
       <h2 className="ciclo-lista-titulo">Seus registros</h2>
 

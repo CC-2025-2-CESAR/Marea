@@ -47,10 +47,12 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Busca global no cabeçalho (PROJ-25): procura em dicionário, tratamentos,
   orientações e especialidades de uma vez, com resultados agrupados por tipo em
   `/busca` e link para a página de origem.
-- Página de Ciclo menstrual (PROJ-5 e PROJ-6): a paciente registra, edita e
-  exclui as fases do ciclo e vê previsões (próxima menstruação e período fértil
-  estimado) calculadas a partir dos próprios registros — sempre como estimativa
-  que não substitui orientação médica.
+- Página de Ciclo menstrual (PROJ-5 e PROJ-6): painel com **anel da fase atual**,
+  cards de resumo (próxima menstruação, chances de gravidez e ciclo médio) e
+  calendário com os dias marcados; a paciente registra, edita e exclui as fases
+  do ciclo e vê previsões (próxima menstruação e período fértil estimado)
+  calculadas a partir dos próprios registros — sempre como estimativa que não
+  substitui orientação médica.
 - Demais páginas internas seguem como placeholders para evolução futura.
 
 ## Tecnologias
@@ -75,7 +77,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - `/calendario`: grade mensal de consultas e eventos do tratamento, com painel
   lateral de próximas consultas, próximos eventos e lembretes.
 - `/medicamentos`: checklist diário de remédios prescritos com marcar/desmarcar.
-- `/ciclo`: ciclo menstrual da paciente — registro das fases (data, etapa,
+- `/ciclo`: ciclo menstrual da paciente — painel com anel da fase atual, cards de
+  resumo e calendário marcado, além do registro das fases (data, etapa,
   observações, status) e previsões (próxima menstruação e período fértil
   estimado), com aviso de que não substituem orientação médica.
 - `/dicionario`: dicionário de termos médicos com busca, lista e detalhes.
@@ -402,6 +405,13 @@ média dos intervalos) e o período fértil (cerca de 14 dias antes). Com menos 
 dois inícios, a tela informa que ainda faltam dados. A previsão é sempre uma
 estimativa e traz o aviso de que **não substitui a orientação da equipe médica**.
 
+No alto da página, um **painel visual** resume o momento do ciclo: um anel mostra
+a **fase atual** (menstrual, folicular, ovulatória ou lútea), o dia do ciclo e
+quantos dias faltam para a próxima menstruação; três cards trazem a próxima
+menstruação, as **chances de gravidez** (estimadas pela janela fértil) e a
+duração média; e o calendário do mês destaca os dias de menstruação, a janela
+fértil, a ovulação e a previsão. Tudo é estimativa e convive com o mesmo aviso.
+
 O modelo `RegistroCiclo` mora no app `ciclo`. Endpoints (exigem papel de
 paciente):
 
@@ -410,6 +420,8 @@ paciente):
 - `GET/PATCH/DELETE /api/ciclo/registros/<id>/` — lê, atualiza ou exclui um
   registro da própria paciente
 - `GET /api/ciclo/previsoes/` — previsão a partir dos inícios de menstruação
+  (próxima menstruação, janela fértil, fase atual, dia do ciclo e chances de
+  gravidez), sempre como estimativa
 
 Registros de demonstração são criados pelo `criar_usuarios_teste`.
 
@@ -467,8 +479,8 @@ backend/
 frontend/
 ├── src/
 │   ├── assets/
-│   ├── components/         BannerProximaConsulta, Button, CalendarioMes, Header,
-│   │                       IconeChevron, IconeFechar, IconeLogout, IconeLupa,
+│   ├── components/         AnelCiclo, BannerProximaConsulta, Button, CalendarioMes,
+│   │                       Header, IconeChevron, IconeFechar, IconeLogout, IconeLupa,
 │   │                       IconeMenu, InputField, PageTransition, ProtectedRoute,
 │   │                       SearchBar, SelectField, Sidebar
 │   ├── contexts/           AuthContext + useAuth (sessão JWT)
@@ -478,10 +490,10 @@ frontend/
 │   │                       LinhaDoTempo, Login, Medicamentos, Orientacoes,
 │   │                       Perfil, Sintomas, Tratamentos
 │   ├── routes/             AppRoutes (mapeamento de rotas + ProtectedRoute)
-│   ├── services/           api, apoioService, authService, consultasService,
-│   │                       dicionarioService, linhaTempoService, medicaService,
-│   │                       medicamentosService, perfilService, sintomasService,
-│   │                       tratamentosService
+│   ├── services/           api, apoioService, authService, cicloService,
+│   │                       consultasService, dicionarioService, linhaTempoService,
+│   │                       medicaService, medicamentosService, perfilService,
+│   │                       sintomasService, tratamentosService
 │   ├── styles/             variables.css, global.css
 │   ├── utils/              formatadores (telefone)
 │   ├── App.jsx             MotionConfig + AuthProvider + AppRoutes
@@ -491,7 +503,7 @@ frontend/
 │                           dicionario, especialidades, layout-rotas,
 │                           linha-do-tempo, login, medicamentos, orientacoes,
 │                           perfil, polimento-ux-perfil, responsividade-mobile,
-│                           sintomas, tratamentos (144 testes)
+│                           sintomas, tratamentos (147 testes)
 ├── cypress.config.js
 ├── package.json
 └── vite.config.js          porta fixa 5173 (strictPort)

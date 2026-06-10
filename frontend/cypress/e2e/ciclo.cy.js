@@ -46,6 +46,13 @@ const previsoesComDados = {
   ovulacao_estimada: '2026-06-12',
   janela_fertil_inicio: '2026-06-08',
   janela_fertil_fim: '2026-06-13',
+  etapa_atual: 'ovulacao',
+  etapa_atual_display: 'Fase ovulatória',
+  dia_do_ciclo: 13,
+  total_do_ciclo: 28,
+  dias_para_proxima: 14,
+  atrasada: false,
+  chance_gravidez: 'alta',
   aviso: 'Estimativa baseada nos seus registros. Não substitui a orientação da equipe médica.',
 }
 
@@ -206,6 +213,48 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-erro]')
       .should('be.visible')
       .and('contain', 'Não foi possível carregar seu ciclo no momento.')
+  })
+
+  it('exibe o anel de fase, a chance de gravidez e o calendário', () => {
+    cy.intercept('GET', ROTA_REGISTROS, { body: registrosMock }).as('listar')
+    cy.intercept('GET', ROTA_PREVISOES, { body: previsoesComDados }).as('prever')
+    visitarCiclo()
+    cy.wait('@listar')
+    cy.wait('@prever')
+
+    cy.get('[data-cy=ciclo-anel]').should('be.visible')
+    cy.get('[data-cy=ciclo-fase]').should('contain', 'Fase ovulatória')
+    cy.get('[data-cy=ciclo-dia]').should('contain', '13')
+    cy.get('[data-cy=ciclo-chance]')
+      .should('be.visible')
+      .and('contain', 'Alta')
+    cy.get('[data-cy=calendario-mes]').should('be.visible')
+  })
+
+  it('mostra o estado vazio do anel quando faltam dados', () => {
+    cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
+    cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
+    visitarCiclo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=ciclo-anel-vazio]').should('be.visible')
+    cy.get('[data-cy=ciclo-anel]').should('not.exist')
+  })
+
+  it('tem atalhos de registro e leva ao formulário', () => {
+    cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
+    cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
+    visitarCiclo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=ciclo-acao-sintomas]').should(
+      'have.attr',
+      'href',
+      '/sintomas',
+    )
+    cy.get('[data-cy=ciclo-acao-menstruacao]').click()
+    cy.get('[data-cy=ciclo-form]').should('be.visible')
+    cy.contains('h2', 'Novo registro').should('be.visible')
   })
 
   it('funciona no celular (viewport mobile)', () => {
