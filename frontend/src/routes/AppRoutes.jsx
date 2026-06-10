@@ -12,6 +12,7 @@ import TermoDetalhe from '../pages/Dicionario/TermoDetalhe'
 import Medicamentos from '../pages/Medicamentos/Medicamentos'
 import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
+import TratamentoDetalhe from '../pages/Tratamentos/TratamentoDetalhe'
 import Orientacoes from '../pages/Orientacoes/Orientacoes'
 import Especialidades from '../pages/Especialidades/Especialidades'
 import LinhaDoTempo from '../pages/LinhaDoTempo/LinhaDoTempo'
@@ -57,6 +58,7 @@ function AppRoutes() {
           <Route path="/medicamentos" element={<Medicamentos />} />
           <Route path="/bot" element={<Bot />} />
           <Route path="/tratamentos" element={<Tratamentos />} />
+          <Route path="/tratamentos/:id" element={<TratamentoDetalhe />} />
           <Route path="/orientacoes" element={<Orientacoes />} />
           <Route path="/especialidades" element={<Especialidades />} />
           <Route path="/linha-do-tempo" element={<LinhaDoTempo />} />
