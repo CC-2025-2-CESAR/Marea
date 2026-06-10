@@ -146,11 +146,18 @@ export interface RegistroSintoma {
 
 // ===== Conteúdo de referência =====
 
+export interface ArtigoRelacionado {
+  titulo: string
+  url?: string
+}
+
 export interface TermoDicionario {
   id: number
   termo: string
   definicao: string
-  artigos_relacionados?: TermoDicionario[]
+  categoria?: string
+  exemplo?: string
+  artigos_relacionados?: ArtigoRelacionado[]
 }
 
 export interface EtapaTratamento {

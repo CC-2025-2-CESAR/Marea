@@ -154,6 +154,22 @@
   color: var(--cor-texto);
 }
 
+.dicionario-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dicionario-card__link:hover {
+  color: var(--cor-terracota);
+  text-decoration: underline;
+}
+
+.dicionario-card__link:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .dicionario-card__definicao {
   margin: 0;
   line-height: 1.5;

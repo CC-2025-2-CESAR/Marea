@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import IconeLupa from '../../components/IconeLupa/IconeLupa'
 import { listarTermos } from '../../services/dicionarioService'
 import './Dicionario.css'
@@ -204,7 +204,15 @@ function Dicionario() {
                 data-cy="dicionario-card"
                 data-categoria={termo.categoria || ''}
               >
-                <h2 className="dicionario-card__titulo">{termo.termo}</h2>
+                <h2 className="dicionario-card__titulo">
+                  <Link
+                    className="dicionario-card__link"
+                    to={`/dicionario/${termo.id}`}
+                    data-cy="dicionario-card-link"
+                  >
+                    {termo.termo}
+                  </Link>
+                </h2>
                 <p className="dicionario-card__definicao">{termo.definicao}</p>
                 {artigos.length > 0 ? (
                   <p

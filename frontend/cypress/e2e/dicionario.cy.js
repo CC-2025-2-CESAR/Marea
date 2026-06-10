@@ -203,4 +203,79 @@ describe('Dicionário da Amare', () => {
       .should('be.visible')
       .and('contain', 'Não foi possível carregar os termos no momento.')
   })
+
+  it('abre o detalhe do termo ao clicar no título do card', () => {
+    cy.intercept('GET', '**/api/dicionario/termos/', { body: termosMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', '**/api/dicionario/termos/2/', {
+      body: termosMock[1],
+    }).as('detalhe')
+    visitarDicionario()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=dicionario-card]')
+      .filter(':contains("Endometriose")')
+      .find('[data-cy=dicionario-card-link]')
+      .click()
+    cy.wait('@detalhe')
+
+    cy.location('pathname').should('eq', '/dicionario/2')
+    cy.get('[data-cy=page-termo-detalhe]').should('be.visible')
+    cy.contains('h1', 'Endometriose').should('be.visible')
+    cy.get('[data-cy=termo-detalhe-definicao]').should(
+      'contain',
+      'tecido cresce fora do útero',
+    )
+  })
+
+  it('mostra o detalhe completo ao acessar /dicionario/:id direto', () => {
+    cy.intercept('GET', '**/api/dicionario/termos/1/', {
+      body: termosMock[0],
+    }).as('detalhe')
+    visitarDicionario('/dicionario/1')
+    cy.wait('@detalhe')
+
+    cy.contains('h1', 'Beta hCG').should('be.visible')
+    cy.get('[data-cy=termo-detalhe-tag]').should('contain', 'Exame')
+    cy.get('[data-cy=termo-detalhe-definicao]').should(
+      'contain',
+      'Hormônio produzido durante a gravidez.',
+    )
+    cy.get('[data-cy=termo-detalhe-exemplo]').should(
+      'contain',
+      'transferência de embriões',
+    )
+    cy.get('[data-cy=termo-detalhe-artigos]').should(
+      'contain',
+      'Como entender o resultado',
+    )
+  })
+
+  it('mostra estado de não encontrado quando o termo não existe', () => {
+    cy.intercept('GET', '**/api/dicionario/termos/999/', {
+      statusCode: 404,
+      body: { detail: 'Termo não encontrado.' },
+    }).as('detalhe')
+    visitarDicionario('/dicionario/999')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=termo-detalhe-nao-encontrado]').should('be.visible')
+  })
+
+  it('o botão voltar retorna à lista do dicionário', () => {
+    cy.intercept('GET', '**/api/dicionario/termos/1/', {
+      body: termosMock[0],
+    }).as('detalhe')
+    cy.intercept('GET', '**/api/dicionario/termos/', { body: termosMock }).as(
+      'listar',
+    )
+    visitarDicionario('/dicionario/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=termo-detalhe-voltar]').click()
+    cy.wait('@listar')
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.get('[data-cy=page-dicionario]').should('be.visible')
+  })
 })
