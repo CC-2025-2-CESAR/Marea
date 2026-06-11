@@ -122,3 +122,61 @@ class Medica(models.Model):
 
     def __str__(self):
         return str(self.perfil)
+
+
+class EquipeCuidadoPaciente(models.Model):
+    """Vínculo de cuidado entre uma médica e uma paciente, além da responsável.
+
+    A responsável principal continua sendo `Paciente.medica_responsavel`. Este
+    modelo registra os vínculos adicionais — uma médica que colabora no
+    acompanhamento ou que assumiu o atendimento em cobertura/plantão. Há, no
+    máximo, um vínculo `ativa=True` por par (paciente, médica); vínculos
+    encerrados permanecem como linhas `ativa=False`, preservando o histórico.
+    """
+
+    PAPEL_RESPONSAVEL = 'responsavel'
+    PAPEL_COLABORADORA = 'colaboradora'
+    PAPEL_SUBSTITUTA = 'substituta'
+    PAPEIS = [
+        (PAPEL_RESPONSAVEL, 'Responsável'),
+        (PAPEL_COLABORADORA, 'Colaboradora'),
+        (PAPEL_SUBSTITUTA, 'Substituta'),
+    ]
+
+    paciente = models.ForeignKey(
+        Paciente,
+        on_delete=models.CASCADE,
+        related_name='equipe_cuidado',
+        verbose_name='Paciente',
+    )
+    medica = models.ForeignKey(
+        Medica,
+        on_delete=models.CASCADE,
+        related_name='vinculos_cuidado',
+        verbose_name='Médica',
+    )
+    papel = models.CharField(
+        'Papel no cuidado',
+        max_length=20,
+        choices=PAPEIS,
+        default=PAPEL_COLABORADORA,
+    )
+    ativa = models.BooleanField('Vínculo ativo', default=True)
+    criada_em = models.DateTimeField('Criada em', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-criada_em', '-id']
+        verbose_name = 'Vínculo de equipe de cuidado'
+        verbose_name_plural = 'Equipe de cuidado das pacientes'
+        constraints = [
+            # No máximo um vínculo ativo por par médica↔paciente; o histórico
+            # encerrado (ativa=False) pode ter quantas linhas precisar.
+            models.UniqueConstraint(
+                fields=['paciente', 'medica'],
+                condition=models.Q(ativa=True),
+                name='vinculo_cuidado_ativo_unico',
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.medica} — {self.get_papel_display()} de {self.paciente}'
