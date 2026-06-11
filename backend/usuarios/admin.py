@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from .models import Medica, Paciente, PerfilUsuario
+from .models import EquipeCuidadoPaciente, Medica, Paciente, PerfilUsuario
 
 
 class PacienteInline(admin.StackedInline):
@@ -50,3 +50,16 @@ class MedicaAdmin(admin.ModelAdmin):
         'crm',
         'especialidade',
     )
+
+
+@admin.register(EquipeCuidadoPaciente)
+class EquipeCuidadoPacienteAdmin(admin.ModelAdmin):
+    list_display = ('paciente', 'medica', 'papel', 'ativa', 'criada_em')
+    list_filter = ('papel', 'ativa')
+    search_fields = (
+        'paciente__perfil__nome_completo',
+        'medica__perfil__nome_completo',
+    )
+    autocomplete_fields = ('paciente', 'medica')
+    readonly_fields = ('criada_em',)
+    date_hierarchy = 'criada_em'
