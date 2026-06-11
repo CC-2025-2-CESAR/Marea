@@ -126,13 +126,18 @@ export interface EventoTratamento {
   tipo_label?: string
 }
 
+export type StatusDiaMedicamento = 'tomado' | 'atrasado' | 'pendente'
+
 export interface Medicamento {
   id: number
   nome: string
   dose?: string
   horario?: string
   instrucoes?: string
+  armazenamento?: string
   tomado?: boolean
+  status_dia?: StatusDiaMedicamento
+  status_dia_label?: string
 }
 
 // ===== Sintomas (PROJ-21) =====

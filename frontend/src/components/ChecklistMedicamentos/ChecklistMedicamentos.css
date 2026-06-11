@@ -109,9 +109,30 @@
   line-height: 1.3;
 }
 
+.checklist-medicamentos__nome-link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--raio-pequeno);
+}
+
+.checklist-medicamentos__nome-link:hover strong {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.checklist-medicamentos__nome-link:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
 .checklist-medicamentos__dose {
   color: var(--cor-texto-suave);
   font-weight: 500;
+}
+
+.checklist-medicamentos__status {
+  display: inline-flex;
+  margin-top: 4px;
 }
 
 .checklist-medicamentos__horario {

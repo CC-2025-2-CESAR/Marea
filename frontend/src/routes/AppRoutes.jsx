@@ -10,6 +10,7 @@ import Ciclo from '../pages/Ciclo/Ciclo'
 import Dicionario from '../pages/Dicionario/Dicionario'
 import TermoDetalhe from '../pages/Dicionario/TermoDetalhe'
 import Medicamentos from '../pages/Medicamentos/Medicamentos'
+import MedicamentoDetalhe from '../pages/Medicamentos/MedicamentoDetalhe'
 import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
 import TratamentoDetalhe from '../pages/Tratamentos/TratamentoDetalhe'
@@ -58,6 +59,7 @@ function AppRoutes() {
           <Route path="/dicionario" element={<Dicionario />} />
           <Route path="/dicionario/:id" element={<TermoDetalhe />} />
           <Route path="/medicamentos" element={<Medicamentos />} />
+          <Route path="/medicamentos/:id" element={<MedicamentoDetalhe />} />
           <Route path="/bot" element={<Bot />} />
           <Route path="/tratamentos" element={<Tratamentos />} />
           <Route path="/tratamentos/:id" element={<TratamentoDetalhe />} />

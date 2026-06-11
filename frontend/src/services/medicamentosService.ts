@@ -5,6 +5,10 @@ function listarMedicamentos(): Promise<Medicamento[]> {
   return requisicao<Medicamento[]>('/medicamentos/')
 }
 
+function obterMedicamento(id: number): Promise<Medicamento> {
+  return requisicao<Medicamento>(`/medicamentos/${id}/`)
+}
+
 function alternarTomada(id: number, tomado: boolean): Promise<Medicamento> {
   return requisicao<Medicamento>(`/medicamentos/${id}/toma/`, {
     method: 'PATCH',
@@ -12,4 +16,4 @@ function alternarTomada(id: number, tomado: boolean): Promise<Medicamento> {
   })
 }
 
-export { listarMedicamentos, alternarTomada }
+export { listarMedicamentos, obterMedicamento, alternarTomada }

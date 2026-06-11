@@ -264,3 +264,204 @@ describe('Checklist de medicamentos da Amare', () => {
     cy.contains('h1', 'Medicamentos').should('be.visible')
   })
 })
+
+// ===== PR5: status do dia + página de detalhe (/medicamentos/:id) =====
+
+const ROTA_DETALHE = '**/api/medicamentos/1/'
+
+// Mock com o status do dia explícito vindo da API (atrasado / tomado /
+// pendente), além do campo de armazenamento usado no detalhe.
+const medicamentosComStatus = [
+  {
+    id: 1,
+    nome: 'Gonadotrofina',
+    dose: '225 UI',
+    horario: '20:00:00',
+    instrucoes: 'Aplicação subcutânea no fim do dia, sempre no mesmo horário.',
+    armazenamento: 'Manter refrigerada entre 2°C e 8°C; não congelar.',
+    tomado: false,
+    status_dia: 'atrasado',
+    status_dia_label: 'Atrasado',
+  },
+  {
+    id: 2,
+    nome: 'Ácido fólico',
+    dose: '1 comprimido 5mg',
+    horario: '08:00:00',
+    instrucoes: 'Tomar após o café da manhã.',
+    armazenamento: '',
+    tomado: true,
+    status_dia: 'tomado',
+    status_dia_label: 'Tomado',
+  },
+  {
+    id: 3,
+    nome: 'Vitamina D',
+    dose: '1 gota',
+    horario: '23:00:00',
+    instrucoes: '',
+    armazenamento: '',
+    tomado: false,
+    status_dia: 'pendente',
+    status_dia_label: 'Pendente',
+  },
+]
+
+const detalheMock = medicamentosComStatus[0]
+
+function semScrollHorizontal() {
+  cy.window().then((janela) => {
+    const documento = janela.document.documentElement
+    expect(
+      documento.scrollWidth,
+      'scrollWidth deve caber dentro da viewport',
+    ).to.be.lte(janela.innerWidth)
+  })
+}
+
+describe('Status do dia e detalhe do medicamento (PR5)', () => {
+  beforeEach(() => {
+    cy.clearLocalStorage()
+  })
+
+  it('a lista mostra o selo de status do dia de cada medicamento', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: medicamentosComStatus }).as(
+      'listar',
+    )
+    visitarMedicamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=medicamentos-item][data-id="1"]')
+      .find('[data-cy=medicamentos-status]')
+      .should('have.attr', 'data-status', 'atrasado')
+      .and('contain', 'Atrasado')
+
+    cy.get('[data-cy=medicamentos-item][data-id="2"]')
+      .find('[data-cy=medicamentos-status]')
+      .should('have.attr', 'data-status', 'tomado')
+      .and('contain', 'Tomado')
+
+    cy.get('[data-cy=medicamentos-item][data-id="3"]')
+      .find('[data-cy=medicamentos-status]')
+      .should('have.attr', 'data-status', 'pendente')
+      .and('contain', 'Pendente')
+  })
+
+  it('o nome de cada medicamento aponta para a página de detalhe', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: medicamentosComStatus }).as(
+      'listar',
+    )
+    visitarMedicamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=medicamentos-item][data-id="1"]')
+      .find('[data-cy=medicamentos-nome]')
+      .should('have.attr', 'href', '/medicamentos/1')
+  })
+
+  it('clicar no nome navega para a página de detalhe', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: medicamentosComStatus }).as(
+      'listar',
+    )
+    cy.intercept('GET', ROTA_DETALHE, { body: detalheMock }).as('detalhe')
+    visitarMedicamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=medicamentos-item][data-id="1"]')
+      .find('[data-cy=medicamentos-nome]')
+      .click()
+
+    cy.wait('@detalhe')
+    cy.get('[data-cy=page-medicamento-detalhe]').should('be.visible')
+    cy.get('[data-cy=medicamento-detalhe-titulo]').should(
+      'contain',
+      'Gonadotrofina',
+    )
+  })
+
+  it('o detalhe mostra dose, horário, instruções, armazenamento e status', () => {
+    cy.intercept('GET', ROTA_DETALHE, { body: detalheMock }).as('detalhe')
+    visitarMedicamentos('/medicamentos/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=medicamento-detalhe-titulo]').should(
+      'contain',
+      'Gonadotrofina',
+    )
+    cy.get('[data-cy=medicamento-detalhe-dose]').should('contain', '225 UI')
+    cy.get('[data-cy=medicamento-detalhe-horario]').should('contain', '20:00')
+    cy.get('[data-cy=medicamento-detalhe-instrucoes]').should(
+      'contain',
+      'Aplicação subcutânea',
+    )
+    cy.get('[data-cy=medicamento-detalhe-armazenamento]').should(
+      'contain',
+      'refrigerada',
+    )
+    cy.get('[data-cy=medicamento-detalhe-status]').should(
+      'have.attr',
+      'data-status',
+      'atrasado',
+    )
+    cy.get('[data-cy=medicamento-detalhe-aviso]').should('be.visible')
+  })
+
+  it('marca como tomado no detalhe (PATCH) e atualiza o selo', () => {
+    cy.intercept('GET', ROTA_DETALHE, { body: detalheMock }).as('detalhe')
+    cy.intercept('PATCH', ROTA_TOMA_RE, (req) => {
+      expect(req.body).to.deep.equal({ tomado: true })
+      req.reply({
+        body: {
+          ...detalheMock,
+          tomado: true,
+          status_dia: 'tomado',
+          status_dia_label: 'Tomado',
+        },
+      })
+    }).as('marcar')
+    visitarMedicamentos('/medicamentos/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=medicamento-detalhe-marcar]')
+      .should('have.attr', 'aria-pressed', 'false')
+      .and('contain', 'Marcar como tomado')
+      .click()
+
+    cy.wait('@marcar')
+
+    cy.get('[data-cy=medicamento-detalhe-marcar]')
+      .should('have.attr', 'aria-pressed', 'true')
+      .and('contain', 'Tomado hoje')
+    cy.get('[data-cy=medicamento-detalhe-status]').should(
+      'have.attr',
+      'data-status',
+      'tomado',
+    )
+  })
+
+  it('o detalhe de um medicamento inexistente mostra "não encontrado" (404)', () => {
+    cy.intercept('GET', '**/api/medicamentos/999/', {
+      statusCode: 404,
+      body: { detail: 'Medicamento não encontrado.' },
+    }).as('detalhe404')
+    visitarMedicamentos('/medicamentos/999')
+    cy.wait('@detalhe404')
+
+    cy.get('[data-cy=medicamento-detalhe-nao-encontrado]').should('be.visible')
+  })
+
+  it('o detalhe funciona no celular (viewport mobile) sem rolagem horizontal', () => {
+    cy.viewport(390, 844)
+    cy.intercept('GET', ROTA_DETALHE, { body: detalheMock }).as('detalhe')
+    visitarMedicamentos('/medicamentos/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=page-medicamento-detalhe]').should('be.visible')
+    cy.get('[data-cy=medicamento-detalhe-marcar]')
+      .should('be.visible')
+      .then(($botao) => {
+        expect($botao[0].getBoundingClientRect().height).to.be.gte(44)
+      })
+    semScrollHorizontal()
+  })
+})

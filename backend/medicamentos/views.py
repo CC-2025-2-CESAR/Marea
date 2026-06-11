@@ -35,6 +35,35 @@ def listar_medicamentos(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def detalhar_medicamento(request, pk):
+    """Detalha um medicamento ativo da paciente autenticada (owner-only).
+
+    Retorna 404 quando o medicamento não existe, está inativo ou pertence a
+    outra paciente — sem vazar a existência do registro.
+    """
+    paciente = _obter_paciente(request)
+    if paciente is None:
+        return Response(
+            {'detail': 'Medicamento não encontrado.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    try:
+        medicamento = Medicamento.objects.get(
+            pk=pk, paciente=paciente, ativo=True,
+        )
+    except Medicamento.DoesNotExist:
+        return Response(
+            {'detail': 'Medicamento não encontrado.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    serializer = MedicamentoSerializer(medicamento)
+    return Response(serializer.data)
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def alternar_tomada(request, pk):

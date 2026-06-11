@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import StatusBadge from '../ui/StatusBadge/StatusBadge'
 import {
   alternarTomada,
   listarMedicamentos,
@@ -8,6 +10,26 @@ import './ChecklistMedicamentos.css'
 function formatarHorario(horario) {
   if (!horario) return 'sem horário fixo'
   return horario.slice(0, 5)
+}
+
+const ROTULO_STATUS = {
+  tomado: 'Tomado',
+  atrasado: 'Atrasado',
+  pendente: 'Pendente',
+}
+
+const TOM_STATUS = {
+  tomado: 'sucesso',
+  atrasado: 'aviso',
+  pendente: 'neutro',
+}
+
+// Resolve o status do dia de um medicamento para exibição. Dá prioridade ao
+// `tomado` local (atualização otimista ao marcar) e cai no `status_dia` vindo
+// da API; sem dado, assume "pendente".
+function statusDoDia(medicamento) {
+  if (medicamento.tomado) return 'tomado'
+  return medicamento.status_dia || 'pendente'
 }
 
 function ChecklistMedicamentos({ modo = 'completo' }) {
@@ -181,7 +203,13 @@ function ChecklistMedicamentos({ modo = 'completo' }) {
 
             <div className="checklist-medicamentos__info">
               <p className="checklist-medicamentos__nome">
-                <strong data-cy="medicamentos-nome">{med.nome}</strong>
+                <Link
+                  className="checklist-medicamentos__nome-link"
+                  to={`/medicamentos/${med.id}`}
+                  data-cy="medicamentos-nome"
+                >
+                  <strong>{med.nome}</strong>
+                </Link>
                 {med.dose ? (
                   <span className="checklist-medicamentos__dose">
                     {' — '}
@@ -195,6 +223,17 @@ function ChecklistMedicamentos({ modo = 'completo' }) {
               >
                 {formatarHorario(med.horario)}
               </p>
+              {modo === 'completo' ? (
+                <span
+                  className="checklist-medicamentos__status"
+                  data-cy="medicamentos-status"
+                  data-status={statusDoDia(med)}
+                >
+                  <StatusBadge tom={TOM_STATUS[statusDoDia(med)]}>
+                    {ROTULO_STATUS[statusDoDia(med)]}
+                  </StatusBadge>
+                </span>
+              ) : null}
               {modo === 'completo' && med.instrucoes ? (
                 <p
                   className="checklist-medicamentos__instrucoes"
