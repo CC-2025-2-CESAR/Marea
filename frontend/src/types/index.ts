@@ -209,12 +209,18 @@ export interface ConteudoApoio {
 
 // ===== Linha do tempo (jornada FIV) =====
 
+export type StatusEtapaJornada = 'concluida' | 'atual' | 'futura'
+
 export interface EtapaJornada {
   id: number
-  titulo: string
-  descricao?: string
-  ordem?: number
-  status?: string
+  status: StatusEtapaJornada
+  status_label?: string
+  observacao?: string
+  etapa: number
+  etapa_titulo: string
+  etapa_descricao?: string
+  etapa_ordem?: number
+  tratamento_nome?: string
 }
 
 // ===== Busca global (PROJ-25) =====
