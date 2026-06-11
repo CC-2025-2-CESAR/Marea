@@ -110,6 +110,7 @@ PACIENTES = [
                 'dose': 'Conforme prescrição',
                 'hora': (20, 0),
                 'instrucoes': 'Aplicação subcutânea no fim do dia, sempre no mesmo horário.',
+                'armazenamento': 'Manter refrigerada entre 2°C e 8°C; não congelar.',
             },
             {
                 'nome': 'Vitamina B12',
@@ -238,6 +239,7 @@ PACIENTES = [
                 'dose': '1 cápsula 200mg',
                 'hora': (8, 0),
                 'instrucoes': 'Via vaginal, sempre no mesmo horário da manhã. Apoia a fase de implantação.',
+                'armazenamento': 'Conservar em temperatura ambiente, protegida da luz.',
             },
             {
                 'nome': 'Ácido fólico',
@@ -492,6 +494,7 @@ class Command(BaseCommand):
                 dose=m['dose'],
                 horario=time(*m['hora']),
                 instrucoes=m['instrucoes'],
+                armazenamento=m.get('armazenamento', ''),
             )
 
         for e in dados.get('eventos', []):

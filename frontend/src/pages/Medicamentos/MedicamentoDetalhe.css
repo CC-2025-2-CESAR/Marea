@@ -1,0 +1,194 @@
+.medicamento-detalhe {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.medicamento-detalhe__voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--cor-azul-link);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.medicamento-detalhe__voltar:hover {
+  text-decoration: underline;
+}
+
+.medicamento-detalhe__voltar:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.medicamento-detalhe__conteudo {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-top: 4px solid var(--cor-rosa-secundario);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.medicamento-detalhe__cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.medicamento-detalhe__titulo-linha {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+.medicamento-detalhe__titulo-linha h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--cor-marrom);
+}
+
+.medicamento-detalhe__status {
+  display: inline-flex;
+}
+
+.medicamento-detalhe__dose {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.medicamento-detalhe__campos {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  padding-top: var(--espaco-md);
+  border-top: 1px solid var(--cor-borda);
+}
+
+.medicamento-detalhe__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.medicamento-detalhe__campo dt {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--cor-rosa-secundario);
+}
+
+.medicamento-detalhe__campo dd {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.medicamento-detalhe__acoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.medicamento-detalhe__marcar {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0 var(--espaco-lg);
+  border: 2px solid var(--cor-verde-confirmacao);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-verde-confirmacao);
+  color: #fff;
+  font-family: var(--fonte-base);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease-out,
+    transform 0.1s ease-out;
+}
+
+.medicamento-detalhe__marcar[aria-pressed='false'] {
+  background: var(--cor-card);
+  color: var(--cor-verde-confirmacao);
+}
+
+.medicamento-detalhe__marcar:hover {
+  filter: brightness(0.97);
+}
+
+.medicamento-detalhe__marcar:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.medicamento-detalhe__marcar:active {
+  transform: scale(0.98);
+}
+
+.medicamento-detalhe__marcar:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.medicamento-detalhe__erro-toast {
+  margin: 0;
+  padding: var(--espaco-xs) var(--espaco-sm);
+  background: rgba(209, 29, 70, 0.08);
+  color: var(--cor-erro);
+  border-left: 3px solid var(--cor-erro);
+  border-radius: var(--raio-pequeno);
+  font-size: 0.85rem;
+}
+
+.medicamento-detalhe__aviso {
+  margin: 0;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background: var(--cor-creme-claro);
+  border-radius: var(--raio-pequeno);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--cor-texto-suave);
+}
+
+.medicamento-detalhe__mensagem {
+  margin: 0;
+  padding: var(--espaco-lg);
+  text-align: center;
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
+
+.medicamento-detalhe__mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+.medicamento-detalhe__acao {
+  color: var(--cor-azul-link);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medicamento-detalhe__marcar {
+    transition: none;
+  }
+
+  .medicamento-detalhe__marcar:active {
+    transform: none;
+  }
+}
