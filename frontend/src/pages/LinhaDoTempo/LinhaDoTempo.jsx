@@ -1,6 +1,25 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { listarJornada } from '../../services/linhaTempoService'
 import './LinhaDoTempo.css'
+
+// Atalhos da etapa atual ("o que fazer agora"): levam às áreas onde a paciente
+// age sobre o tratamento neste momento.
+const ACOES_ETAPA_ATUAL = [
+  { to: '/calendario', rotulo: 'Ver a agenda', cy: 'linha-do-tempo-acao-calendario' },
+  {
+    to: '/medicamentos',
+    rotulo: 'Meus medicamentos',
+    cy: 'linha-do-tempo-acao-medicamentos',
+  },
+  { to: '/sintomas', rotulo: 'Registrar um sintoma', cy: 'linha-do-tempo-acao-sintomas' },
+  { to: '/ciclo', rotulo: 'Registrar o ciclo', cy: 'linha-do-tempo-acao-ciclo' },
+  {
+    to: '/orientacoes',
+    rotulo: 'Ver orientações',
+    cy: 'linha-do-tempo-acao-orientacoes',
+  },
+]
 
 function LinhaDoTempo() {
   const [etapas, setEtapas] = useState([])
@@ -112,6 +131,31 @@ function LinhaDoTempo() {
                     <p className="linha-tempo-item__observacao">
                       {etapa.observacao}
                     </p>
+                  ) : null}
+                  {etapa.status === 'atual' ? (
+                    <div
+                      className="linha-tempo-item__acoes"
+                      data-cy="linha-do-tempo-acoes"
+                    >
+                      <h3 className="linha-tempo-item__acoes-titulo">
+                        O que fazer agora
+                      </h3>
+                      <p className="linha-tempo-item__acoes-texto">
+                        Atalhos para cuidar desta etapa do seu tratamento.
+                      </p>
+                      <div className="linha-tempo-item__acoes-grade">
+                        {ACOES_ETAPA_ATUAL.map((acao) => (
+                          <Link
+                            key={acao.to}
+                            className="linha-tempo-acao"
+                            to={acao.to}
+                            data-cy={acao.cy}
+                          >
+                            {acao.rotulo}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   ) : null}
                 </div>
               </li>

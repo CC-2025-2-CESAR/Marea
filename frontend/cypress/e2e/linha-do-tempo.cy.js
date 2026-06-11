@@ -99,6 +99,66 @@ describe('Linha do tempo da Amare', () => {
       })
   })
 
+  it('mostra o painel "O que fazer agora" só na etapa atual, com os atalhos', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: jornadaMock }).as('listar')
+    visitarLinhaDoTempo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=linha-do-tempo-item][data-status="atual"]').within(() => {
+      cy.get('[data-cy=linha-do-tempo-acoes]')
+        .should('be.visible')
+        .and('contain', 'O que fazer agora')
+      cy.get('[data-cy=linha-do-tempo-acao-calendario]').should(
+        'have.attr',
+        'href',
+        '/calendario',
+      )
+      cy.get('[data-cy=linha-do-tempo-acao-medicamentos]').should(
+        'have.attr',
+        'href',
+        '/medicamentos',
+      )
+      cy.get('[data-cy=linha-do-tempo-acao-sintomas]').should(
+        'have.attr',
+        'href',
+        '/sintomas',
+      )
+      cy.get('[data-cy=linha-do-tempo-acao-ciclo]').should(
+        'have.attr',
+        'href',
+        '/ciclo',
+      )
+      cy.get('[data-cy=linha-do-tempo-acao-orientacoes]').should(
+        'have.attr',
+        'href',
+        '/orientacoes',
+      )
+    })
+
+    // Concluída e futura não têm o painel de ações.
+    cy.get('[data-cy=linha-do-tempo-item][data-status="concluida"]').within(
+      () => {
+        cy.get('[data-cy=linha-do-tempo-acoes]').should('not.exist')
+      },
+    )
+    cy.get('[data-cy=linha-do-tempo-item][data-status="futura"]').within(() => {
+      cy.get('[data-cy=linha-do-tempo-acoes]').should('not.exist')
+    })
+  })
+
+  it('atalho da etapa atual leva à área correspondente', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: jornadaMock }).as('listar')
+    cy.intercept('GET', '**/api/ciclo/registros/', { body: [] })
+    cy.intercept('GET', '**/api/ciclo/previsoes/', {
+      body: { tem_dados: false },
+    })
+    visitarLinhaDoTempo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=linha-do-tempo-acao-ciclo]').click()
+    cy.location('pathname').should('eq', '/ciclo')
+  })
+
   it('exibe mensagem quando não há etapas', () => {
     cy.intercept('GET', ROTA_LISTA, { body: [] }).as('listar')
     visitarLinhaDoTempo()
