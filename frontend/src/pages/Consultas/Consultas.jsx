@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import ChecklistMedicamentos from '../../components/ChecklistMedicamentos/ChecklistMedicamentos'
 import { listarConsultas, listarEventos } from '../../services/consultasService'
+import { listarMedicamentos } from '../../services/medicamentosService'
 import './Consultas.css'
 
 function formatarDataCurta(iso) {
@@ -26,6 +27,7 @@ function formatarHorario(iso) {
 function Consultas() {
   const [consultas, setConsultas] = useState([])
   const [eventos, setEventos] = useState([])
+  const [medicamentos, setMedicamentos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
 
@@ -33,13 +35,20 @@ function Consultas() {
     let cancelado = false
     async function carregar() {
       try {
-        const [dadosConsultas, dadosEventos] = await Promise.all([
-          listarConsultas(),
-          listarEventos(),
-        ])
+        // Medicamentos são secundários no calendário (rotina do dia no drawer):
+        // uma falha neles não pode derrubar a agenda, então degradam para [].
+        const [dadosConsultas, dadosEventos, dadosMedicamentos] =
+          await Promise.all([
+            listarConsultas(),
+            listarEventos(),
+            listarMedicamentos().catch(() => []),
+          ])
         if (!cancelado) {
           setConsultas(Array.isArray(dadosConsultas) ? dadosConsultas : [])
           setEventos(Array.isArray(dadosEventos) ? dadosEventos : [])
+          setMedicamentos(
+            Array.isArray(dadosMedicamentos) ? dadosMedicamentos : [],
+          )
         }
       } catch {
         if (!cancelado) {
@@ -117,6 +126,7 @@ function Consultas() {
           <CalendarioMes
             consultas={agendadas}
             eventos={eventos}
+            medicamentos={medicamentos}
             mesInicial={mesInicial}
             diaClicavel
             key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}

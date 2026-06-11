@@ -113,6 +113,8 @@ function CalendarioMes({
   consultas = [],
   eventos = [],
   marcacoes = [],
+  // Rotina de medicamentos da paciente; o drawer só mostra os do dia de hoje.
+  medicamentos = [],
   mesInicial,
   // Quando true, os dias do mês viram botões que abrem o drawer do dia.
   // A página /ciclo usa o calendário só para marcações e mantém isso desligado.
@@ -316,6 +318,8 @@ function CalendarioMes({
         data={diaSelecionado}
         consultas={diaSelecionado ? consultasNoDia(diaSelecionado) : []}
         eventos={diaSelecionado ? eventosNoDia(diaSelecionado) : []}
+        medicamentos={medicamentos}
+        ehHoje={diaSelecionado ? mesmoDia(diaSelecionado, hoje) : false}
         onFechar={() => setDiaSelecionado(null)}
       />
     </div>

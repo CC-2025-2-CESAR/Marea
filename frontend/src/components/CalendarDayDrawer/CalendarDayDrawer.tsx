@@ -1,5 +1,12 @@
+import { Link } from 'react-router-dom'
 import Modal from '../ui/Modal/Modal'
-import type { Consulta, EventoTratamento } from '../../types'
+import StatusBadge from '../ui/StatusBadge/StatusBadge'
+import type {
+  Consulta,
+  EventoTratamento,
+  Medicamento,
+  StatusDiaMedicamento,
+} from '../../types'
 import './CalendarDayDrawer.css'
 
 interface Props {
@@ -9,6 +16,24 @@ interface Props {
   data: Date | null
   consultas: Consulta[]
   eventos: EventoTratamento[]
+  /** Rotina de medicamentos da paciente (lista diária). */
+  medicamentos?: Medicamento[]
+  /** Se o dia selecionado é hoje — só então os medicamentos do dia aparecem. */
+  ehHoje?: boolean
+}
+
+// Tom do selo e rótulo por status do dia do medicamento (mesmo mapa da
+// checklist), usados quando a API não traz o label pronto.
+const TOM_STATUS: Record<StatusDiaMedicamento, 'sucesso' | 'aviso' | 'neutro'> = {
+  tomado: 'sucesso',
+  atrasado: 'aviso',
+  pendente: 'neutro',
+}
+
+const ROTULO_STATUS: Record<StatusDiaMedicamento, string> = {
+  tomado: 'Tomado',
+  atrasado: 'Atrasado',
+  pendente: 'Pendente',
 }
 
 function formatarHorario(iso: string) {
@@ -16,6 +41,12 @@ function formatarHorario(iso: string) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+// O horário do medicamento é um `time` ('HH:MM:SS'), não um instante ISO.
+function formatarHora(horario?: string) {
+  if (!horario) return 'Sem horário fixo'
+  return horario.slice(0, 5)
 }
 
 function tituloDoDia(data: Date | null) {
@@ -30,8 +61,10 @@ function tituloDoDia(data: Date | null) {
 
 /**
  * Drawer do dia do calendário: ao tocar num dia, abre um painel (folha inferior
- * no celular) com as consultas e os eventos do tratamento daquele dia. Construído
- * sobre o `Modal` (foco preso, Escape, scroll travado).
+ * no celular) com as consultas e os eventos do tratamento daquele dia. No dia de
+ * hoje, lista também a rotina de medicamentos com o status do dia — cada item
+ * leva ao detalhe do medicamento. Construído sobre o `Modal` (foco preso,
+ * Escape, scroll travado).
  */
 function CalendarDayDrawer({
   aberto,
@@ -39,8 +72,15 @@ function CalendarDayDrawer({
   data,
   consultas,
   eventos,
+  medicamentos = [],
+  ehHoje = false,
 }: Props) {
-  const vazio = consultas.length === 0 && eventos.length === 0
+  const temConsultas = consultas.length > 0
+  const temEventos = eventos.length > 0
+  // Medicamentos são a rotina diária; o status (tomado/atrasado/pendente) só
+  // faz sentido hoje, então a seção aparece apenas no dia de hoje.
+  const temMedicamentos = ehHoje && medicamentos.length > 0
+  const vazio = !temConsultas && !temEventos && !temMedicamentos
 
   return (
     <Modal
@@ -55,7 +95,7 @@ function CalendarDayDrawer({
         </p>
       ) : (
         <div className="calendario-dia">
-          {consultas.length > 0 ? (
+          {temConsultas ? (
             <section className="calendario-dia__bloco">
               <h3 className="calendario-dia__subtitulo">Consultas</h3>
               <ul className="calendario-dia__lista">
@@ -90,7 +130,7 @@ function CalendarDayDrawer({
             </section>
           ) : null}
 
-          {eventos.length > 0 ? (
+          {temEventos ? (
             <section className="calendario-dia__bloco">
               <h3 className="calendario-dia__subtitulo">
                 Eventos do tratamento
@@ -114,6 +154,58 @@ function CalendarDayDrawer({
                     ) : null}
                   </li>
                 ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {temMedicamentos ? (
+            <section
+              className="calendario-dia__bloco"
+              data-cy="calendario-dia-medicamentos"
+            >
+              <h3 className="calendario-dia__subtitulo">Medicamentos de hoje</h3>
+              <ul className="calendario-dia__lista">
+                {medicamentos.map((medicamento) => {
+                  const status = medicamento.status_dia
+                  return (
+                    <li
+                      key={medicamento.id}
+                      className="calendario-dia__item calendario-dia__item--medicamento"
+                      data-cy="calendario-dia-medicamento"
+                    >
+                      <p className="calendario-dia__hora">
+                        {formatarHora(medicamento.horario)}
+                      </p>
+                      <p className="calendario-dia__nome">
+                        <Link
+                          to={`/medicamentos/${medicamento.id}`}
+                          className="calendario-dia__link"
+                          data-cy="calendario-dia-medicamento-link"
+                          onClick={onFechar}
+                        >
+                          {medicamento.nome}
+                        </Link>
+                        {medicamento.dose ? (
+                          <span className="calendario-dia__dose">
+                            {' — '}
+                            {medicamento.dose}
+                          </span>
+                        ) : null}
+                      </p>
+                      {status ? (
+                        <span className="calendario-dia__status">
+                          <StatusBadge
+                            tom={TOM_STATUS[status]}
+                            dataCy="calendario-dia-medicamento-status"
+                          >
+                            {medicamento.status_dia_label ||
+                              ROTULO_STATUS[status]}
+                          </StatusBadge>
+                        </span>
+                      ) : null}
+                    </li>
+                  )
+                })}
               </ul>
             </section>
           ) : null}
