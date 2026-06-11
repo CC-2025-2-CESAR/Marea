@@ -26,4 +26,13 @@ function listarOrientacoes({
   return requisicao<Orientacao[]>(`/orientacoes/${query}`)
 }
 
-export { listarTratamentos, obterTratamento, listarOrientacoes }
+function obterOrientacao(id: number): Promise<Orientacao> {
+  return requisicao<Orientacao>(`/orientacoes/${id}/`)
+}
+
+export {
+  listarTratamentos,
+  obterTratamento,
+  listarOrientacoes,
+  obterOrientacao,
+}

@@ -181,6 +181,10 @@ export interface Orientacao {
   titulo: string
   conteudo?: string
   categoria?: string
+  tratamento?: number | null
+  tratamento_nome?: string
+  etapa?: number | null
+  etapa_titulo?: string
   termos_relacionados?: TermoDicionario[]
 }
 

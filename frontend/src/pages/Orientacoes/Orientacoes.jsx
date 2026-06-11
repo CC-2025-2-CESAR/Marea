@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import TermosRelacionados from '../../components/TermosRelacionados/TermosRelacionados'
 import { listarOrientacoes } from '../../services/tratamentosService'
 import './Orientacoes.css'
@@ -142,7 +143,13 @@ function Orientacoes() {
                 data-categoria={orientacao.categoria || ''}
               >
                 <h2 className="orientacoes-card__titulo">
-                  {orientacao.titulo}
+                  <Link
+                    className="orientacoes-card__link"
+                    to={`/orientacoes/${orientacao.id}`}
+                    data-cy="orientacoes-card-link"
+                  >
+                    {orientacao.titulo}
+                  </Link>
                 </h2>
                 <p className="orientacoes-card__conteudo">
                   {orientacao.conteudo}

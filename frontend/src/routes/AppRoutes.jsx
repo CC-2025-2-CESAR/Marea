@@ -14,6 +14,7 @@ import Bot from '../pages/Bot/Bot'
 import Tratamentos from '../pages/Tratamentos/Tratamentos'
 import TratamentoDetalhe from '../pages/Tratamentos/TratamentoDetalhe'
 import Orientacoes from '../pages/Orientacoes/Orientacoes'
+import OrientacaoDetalhe from '../pages/Orientacoes/OrientacaoDetalhe'
 import Especialidades from '../pages/Especialidades/Especialidades'
 import EspecialidadeDetalhe from '../pages/Especialidades/EspecialidadeDetalhe'
 import LinhaDoTempo from '../pages/LinhaDoTempo/LinhaDoTempo'
@@ -61,6 +62,7 @@ function AppRoutes() {
           <Route path="/tratamentos" element={<Tratamentos />} />
           <Route path="/tratamentos/:id" element={<TratamentoDetalhe />} />
           <Route path="/orientacoes" element={<Orientacoes />} />
+          <Route path="/orientacoes/:id" element={<OrientacaoDetalhe />} />
           <Route path="/especialidades" element={<Especialidades />} />
           <Route
             path="/especialidades/:id"

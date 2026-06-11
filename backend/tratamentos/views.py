@@ -74,6 +74,28 @@ def listar_orientacoes(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def detalhar_orientacao(request, pk):
+    """Detalha uma orientação ativa, com os termos do dicionário relacionados.
+
+    Conteúdo público (como a listagem). 404 se não existir ou estiver inativa.
+    """
+    try:
+        orientacao = (
+            OrientacaoTratamento.objects.select_related('tratamento', 'etapa')
+            .prefetch_related('termos_relacionados')
+            .get(pk=pk, ativo=True)
+        )
+    except OrientacaoTratamento.DoesNotExist:
+        return Response(
+            {'detail': 'Orientação não encontrada.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    serializer = OrientacaoTratamentoSerializer(orientacao)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def listar_jornada(request):
     """Linha do tempo da paciente: suas etapas em ordem (PROJ-17).
