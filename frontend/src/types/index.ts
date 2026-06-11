@@ -145,6 +145,7 @@ export interface Medicamento {
 export interface RegistroSintoma {
   id: number
   data?: string
+  tipo?: string
   descricao?: string
   intensidade?: number
   criado_em?: string

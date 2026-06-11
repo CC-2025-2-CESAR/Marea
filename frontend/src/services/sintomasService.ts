@@ -12,4 +12,18 @@ function criarSintoma(dados: Partial<RegistroSintoma>): Promise<RegistroSintoma>
   })
 }
 
-export { listarSintomas, criarSintoma }
+function atualizarSintoma(
+  id: number,
+  dados: Partial<RegistroSintoma>,
+): Promise<RegistroSintoma> {
+  return requisicao<RegistroSintoma>(`/sintomas/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(dados),
+  })
+}
+
+function excluirSintoma(id: number): Promise<void> {
+  return requisicao<void>(`/sintomas/${id}/`, { method: 'DELETE' })
+}
+
+export { listarSintomas, criarSintoma, atualizarSintoma, excluirSintoma }

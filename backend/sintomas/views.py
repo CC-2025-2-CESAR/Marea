@@ -44,3 +44,44 @@ def listar_criar_sintomas(request):
     registros = RegistroSintoma.objects.filter(paciente=paciente)
     serializer = RegistroSintomaSerializer(registros, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET', 'PATCH', 'DELETE'])
+@permission_classes([IsPaciente])
+def detalhe_sintoma(request, registro_id):
+    """Lê, atualiza (PATCH) ou exclui (DELETE) um registro da própria paciente.
+
+    Escopo por dono: o filtro inclui a paciente logada, então o id de outra
+    paciente — ou inexistente — cai em 404 sem revelar que o registro existe.
+    A exclusão é definitiva (o dado é da paciente e ela pode removê-lo).
+    """
+    paciente = _obter_paciente(request)
+    if paciente is None:
+        return Response(
+            {'detail': 'Paciente não encontrada.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    registro = RegistroSintoma.objects.filter(
+        paciente=paciente, pk=registro_id
+    ).first()
+    if registro is None:
+        return Response(
+            {'detail': 'Registro não encontrado.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == 'DELETE':
+        registro.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method == 'PATCH':
+        serializer = RegistroSintomaSerializer(
+            registro, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    serializer = RegistroSintomaSerializer(registro)
+    return Response(serializer.data)

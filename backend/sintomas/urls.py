@@ -2,11 +2,12 @@
 
 from django.urls import path
 
-from .views import listar_criar_sintomas
+from .views import detalhe_sintoma, listar_criar_sintomas
 
 
 app_name = 'sintomas'
 
 urlpatterns = [
     path('', listar_criar_sintomas, name='sintomas-listar-criar'),
+    path('<int:registro_id>/', detalhe_sintoma, name='sintomas-detalhe'),
 ]
