@@ -287,6 +287,61 @@ describe('Calendário de consultas da Amare', () => {
         cy.get('[data-cy=medicamentos-item]').should('have.length', 1)
       })
   })
+
+  it('abre o drawer do dia ao clicar num dia com consulta agendada', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="27"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+
+    cy.get('[data-cy=calendario-dia-drawer]')
+      .should('be.visible')
+      .within(() => {
+        cy.get('[data-cy=calendario-dia-consulta]')
+          .should('have.length', 1)
+          .and('contain', 'Reprodução humana')
+          .and('contain', 'Dra. Helena Costa')
+      })
+  })
+
+  it('mostra os eventos do tratamento do dia no drawer (PROJ-15)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/eventos/', { body: eventosMock }).as('eventos')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@eventos')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="28"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+
+    cy.get('[data-cy=calendario-dia-drawer]')
+      .should('be.visible')
+      .within(() => {
+        cy.get('[data-cy=calendario-dia-evento]')
+          .should('have.length', 1)
+          .and('contain', 'Ultrassom folicular')
+      })
+  })
+
+  it('drawer de um dia sem compromissos mostra mensagem vazia e fecha', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+
+    cy.get('[data-cy=calendario-dia-drawer]').should('be.visible')
+    cy.get('[data-cy=calendario-dia-vazio]').should('be.visible')
+
+    cy.get('[data-cy=calendario-dia-drawer-fechar]').click()
+    cy.get('[data-cy=calendario-dia-drawer]').should('not.exist')
+  })
 })
 
 describe('Banner de próxima consulta na Home', () => {

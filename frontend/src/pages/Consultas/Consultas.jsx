@@ -118,6 +118,7 @@ function Consultas() {
             consultas={agendadas}
             eventos={eventos}
             mesInicial={mesInicial}
+            diaClicavel
             key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
           />
 

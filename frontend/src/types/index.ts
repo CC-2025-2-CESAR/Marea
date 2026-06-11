@@ -123,6 +123,7 @@ export interface EventoTratamento {
   data_horario: string
   descricao?: string
   tipo?: string
+  tipo_label?: string
 }
 
 export interface Medicamento {
