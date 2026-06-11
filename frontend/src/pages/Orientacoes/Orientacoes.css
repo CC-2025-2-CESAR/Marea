@@ -78,6 +78,22 @@
   color: var(--cor-texto);
 }
 
+.orientacoes-card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.orientacoes-card__link:hover {
+  color: var(--cor-terracota);
+  text-decoration: underline;
+}
+
+.orientacoes-card__link:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .orientacoes-card__conteudo {
   margin: 0;
   line-height: 1.5;

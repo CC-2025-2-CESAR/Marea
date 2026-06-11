@@ -122,7 +122,7 @@ class OrientacoesAPITests(TestCase):
             conteudo='Respire fundo e busque apoio quando precisar.',
             categoria='Apoio emocional',
         )
-        OrientacaoTratamento.objects.create(
+        self.orientacao_inativa = OrientacaoTratamento.objects.create(
             titulo='Orientação inativa',
             conteudo='...',
             categoria='Procedimentos',
@@ -170,6 +170,33 @@ class OrientacoesAPITests(TestCase):
             '/api/orientacoes/', {'categoria': 'Apoio emocional'}
         )
         self.assertEqual(resp.data[0]['termos_relacionados'], [])
+
+    def test_detalhe_orientacao_ativa(self):
+        resp = self.client.get(f'/api/orientacoes/{self.orientacao.id}/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['titulo'], 'Como se preparar para a coleta')
+        self.assertEqual(resp.data['tratamento_nome'], 'FIV')
+        self.assertEqual(resp.data['etapa_titulo'], 'Coleta de óvulos')
+
+    def test_detalhe_publico_sem_autenticacao(self):
+        resp = self.client.get(f'/api/orientacoes/{self.orientacao.id}/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_detalhe_inclui_termos_relacionados(self):
+        resp = self.client.get(f'/api/orientacoes/{self.orientacao.id}/')
+        termos = resp.data['termos_relacionados']
+        self.assertEqual(len(termos), 1)
+        self.assertEqual(termos[0]['termo'], 'Folículo')
+
+    def test_detalhe_orientacao_inativa_404(self):
+        resp = self.client.get(
+            f'/api/orientacoes/{self.orientacao_inativa.id}/'
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    def test_detalhe_orientacao_inexistente_404(self):
+        resp = self.client.get('/api/orientacoes/99999/')
+        self.assertEqual(resp.status_code, 404)
 
 
 class JornadaAPITests(TestCase):

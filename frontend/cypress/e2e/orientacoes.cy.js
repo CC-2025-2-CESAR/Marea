@@ -181,3 +181,91 @@ describe('Orientações da Amare', () => {
       .and('contain', 'Não foi possível carregar as orientações no momento.')
   })
 })
+
+describe('Detalhe da orientação', () => {
+  // Padrões exatos: o da lista NÃO casa com /1/ e o de detalhe NÃO casa com a
+  // lista, então interceptam endpoints disjuntos sem ambiguidade.
+  const ROTA_LISTA_EXATA = '**/api/orientacoes/'
+  const ROTA_DETALHE_1 = '**/api/orientacoes/1/'
+  const ROTA_DETALHE_2 = '**/api/orientacoes/2/'
+  const ROTA_DETALHE_999 = '**/api/orientacoes/999/'
+
+  it('abre o detalhe ao clicar no título do card', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: orientacoesMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', ROTA_DETALHE_1, { body: orientacoesMock[0] }).as(
+      'detalhar',
+    )
+    visitarOrientacoes()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=orientacoes-card]')
+      .filter(':contains("Como se preparar para a coleta de óvulos")')
+      .within(() => {
+        cy.get('[data-cy=orientacoes-card-link]').click()
+      })
+
+    cy.wait('@detalhar')
+    cy.location('pathname').should('eq', '/orientacoes/1')
+    cy.get('[data-cy=page-orientacao-detalhe]').should('be.visible')
+    cy.get('[data-cy=orientacao-detalhe-titulo]').should(
+      'contain',
+      'Como se preparar para a coleta de óvulos',
+    )
+    cy.get('[data-cy=orientacao-detalhe-tag]').should('contain', 'Procedimentos')
+    cy.get('[data-cy=orientacao-detalhe-relacao]')
+      .should('contain', 'Fertilização in vitro (FIV)')
+      .and('contain', 'Coleta dos óvulos')
+  })
+
+  it('acessa o detalhe diretamente e mostra conteúdo e termos', () => {
+    cy.intercept('GET', ROTA_DETALHE_1, { body: orientacoesMock[0] }).as(
+      'detalhar',
+    )
+    visitarOrientacoes('/orientacoes/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=orientacao-detalhe-conteudo]').should('be.visible')
+    cy.get('[data-cy=termos-relacionados]').should('be.visible')
+    cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
+  })
+
+  it('não mostra relação nem termos quando a orientação não tem vínculos', () => {
+    cy.intercept('GET', ROTA_DETALHE_2, { body: orientacoesMock[1] }).as(
+      'detalhar',
+    )
+    visitarOrientacoes('/orientacoes/2')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=orientacao-detalhe-titulo]').should(
+      'contain',
+      'Lidando com a ansiedade da espera',
+    )
+    cy.get('[data-cy=orientacao-detalhe-relacao]').should('not.exist')
+    cy.get('[data-cy=termos-relacionados]').should('not.exist')
+  })
+
+  it('mostra o estado de não encontrado quando a API responde 404', () => {
+    cy.intercept('GET', ROTA_DETALHE_999, {
+      statusCode: 404,
+      body: { detail: 'Orientação não encontrada.' },
+    }).as('detalhar')
+    visitarOrientacoes('/orientacoes/999')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=orientacao-detalhe-nao-encontrado]').should('be.visible')
+  })
+
+  it('volta para a listagem pelo link de voltar', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: orientacoesMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', ROTA_DETALHE_1, { body: orientacoesMock[0] }).as(
+      'detalhar',
+    )
+    visitarOrientacoes('/orientacoes/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=orientacao-detalhe-voltar]').click()
+    cy.wait('@listar')
+    cy.location('pathname').should('eq', '/orientacoes')
+    cy.get('[data-cy=page-orientacoes]').should('be.visible')
+  })
+})

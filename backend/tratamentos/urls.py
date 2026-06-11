@@ -3,6 +3,7 @@
 from django.urls import path
 
 from .views import (
+    detalhar_orientacao,
     detalhar_tratamento,
     listar_jornada,
     listar_orientacoes,
@@ -20,5 +21,10 @@ urlpatterns = [
         name='tratamentos-detalhar',
     ),
     path('orientacoes/', listar_orientacoes, name='orientacoes-listar'),
+    path(
+        'orientacoes/<int:pk>/',
+        detalhar_orientacao,
+        name='orientacoes-detalhar',
+    ),
     path('jornada/', listar_jornada, name='jornada-listar'),
 ]
