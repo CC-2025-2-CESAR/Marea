@@ -1,9 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Button from '../../components/Button/Button'
 import InputField from '../../components/InputField/InputField'
 import SelectField from '../../components/SelectField/SelectField'
+import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
 import { useToast } from '../../components/ui/Toast/useToast'
-import { criarSintoma, listarSintomas } from '../../services/sintomasService'
+import {
+  atualizarSintoma,
+  criarSintoma,
+  excluirSintoma,
+  listarSintomas,
+} from '../../services/sintomasService'
 import './Sintomas.css'
 
 const OPCOES_INTENSIDADE = [
@@ -34,11 +40,15 @@ function Sintomas() {
   const [tipo, setTipo] = useState('')
   const [descricao, setDescricao] = useState('')
   const [intensidade, setIntensidade] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
 
   const [enviando, setEnviando] = useState(false)
   const [erroEnvio, setErroEnvio] = useState(null)
+  const [confirmandoId, setConfirmandoId] = useState(null)
+  const [excluindo, setExcluindo] = useState(false)
 
   const { mostrarToast } = useToast()
+  const formRef = useRef(null)
 
   useEffect(() => {
     let cancelado = false
@@ -68,6 +78,25 @@ function Sintomas() {
     }
   }, [])
 
+  function limparFormulario() {
+    setEditandoId(null)
+    setData(hojeISO())
+    setTipo('')
+    setDescricao('')
+    setIntensidade('')
+    setErroEnvio(null)
+  }
+
+  function iniciarEdicao(registro) {
+    setEditandoId(registro.id)
+    setData(registro.data)
+    setTipo(registro.tipo || '')
+    setDescricao(registro.descricao || '')
+    setIntensidade(registro.intensidade ? String(registro.intensidade) : '')
+    setErroEnvio(null)
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   async function handleSubmit(evento) {
     evento.preventDefault()
     setErroEnvio(null)
@@ -77,24 +106,52 @@ function Sintomas() {
       return
     }
 
-    const payload = { data, tipo: tipo.trim(), descricao: descricao.trim() }
-    if (intensidade) {
-      payload.intensidade = Number(intensidade)
+    const payload = {
+      data,
+      tipo: tipo.trim(),
+      descricao: descricao.trim(),
+      intensidade: intensidade ? Number(intensidade) : null,
     }
 
     setEnviando(true)
     try {
-      const criado = await criarSintoma(payload)
-      setRegistros((atuais) => [criado, ...atuais])
-      setTipo('')
-      setDescricao('')
-      setIntensidade('')
-      setData(hojeISO())
-      mostrarToast('Registro salvo.', 'sucesso')
+      if (editandoId) {
+        const atualizado = await atualizarSintoma(editandoId, payload)
+        setRegistros((atuais) =>
+          atuais.map((r) => (r.id === editandoId ? atualizado : r)),
+        )
+        mostrarToast('Registro atualizado.', 'sucesso')
+      } else {
+        const criado = await criarSintoma(payload)
+        setRegistros((atuais) => [criado, ...atuais])
+        mostrarToast('Registro salvo.', 'sucesso')
+      }
+      limparFormulario()
     } catch {
       setErroEnvio('Não foi possível salvar o registro. Tente novamente.')
     } finally {
       setEnviando(false)
+    }
+  }
+
+  async function confirmarExclusao(id) {
+    setExcluindo(true)
+    try {
+      await excluirSintoma(id)
+      setRegistros((atuais) => atuais.filter((r) => r.id !== id))
+      setConfirmandoId(null)
+      if (editandoId === id) {
+        limparFormulario()
+      }
+      mostrarToast('Registro excluído.', 'sucesso')
+    } catch {
+      setConfirmandoId(null)
+      mostrarToast(
+        'Não foi possível excluir o registro. Tente novamente.',
+        'erro',
+      )
+    } finally {
+      setExcluindo(false)
     }
   }
 
@@ -108,7 +165,15 @@ function Sintomas() {
         </p>
       </header>
 
-      <form className="sintomas-form" onSubmit={handleSubmit} data-cy="sintomas-form">
+      <form
+        className="sintomas-form"
+        onSubmit={handleSubmit}
+        data-cy="sintomas-form"
+        ref={formRef}
+      >
+        <h2 className="sintomas-form__titulo">
+          {editandoId ? 'Editar registro' : 'Novo registro'}
+        </h2>
         <div className="sintomas-form__linha">
           <InputField
             id="sintomas-data"
@@ -160,8 +225,22 @@ function Sintomas() {
         ) : null}
         <div className="sintomas-form__acoes">
           <Button type="submit" disabled={enviando} dataCy="sintomas-enviar">
-            {enviando ? 'Salvando...' : 'Salvar registro'}
+            {enviando
+              ? 'Salvando...'
+              : editandoId
+                ? 'Salvar alterações'
+                : 'Salvar registro'}
           </Button>
+          {editandoId ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={limparFormulario}
+              dataCy="sintomas-cancelar-edicao"
+            >
+              Cancelar
+            </Button>
+          ) : null}
         </div>
       </form>
 
@@ -199,10 +278,46 @@ function Sintomas() {
                   Intensidade: {registro.intensidade}/5
                 </span>
               ) : null}
+
+              <div className="sintomas-item__acoes">
+                <button
+                  type="button"
+                  className="sintomas-item__botao"
+                  onClick={() => iniciarEdicao(registro)}
+                  data-cy="sintomas-item-editar"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  className="sintomas-item__botao sintomas-item__botao--perigo"
+                  onClick={() => setConfirmandoId(registro.id)}
+                  data-cy="sintomas-item-excluir"
+                >
+                  Excluir
+                </button>
+              </div>
             </li>
           ))}
         </ul>
       )}
+
+      <ConfirmDialog
+        aberto={confirmandoId !== null}
+        titulo="Excluir registro?"
+        descricao="Esta ação não pode ser desfeita. O registro sai do seu histórico."
+        rotuloConfirmar="Sim, excluir"
+        rotuloCancelar="Cancelar"
+        perigo
+        carregando={excluindo}
+        onConfirmar={() =>
+          confirmandoId !== null && confirmarExclusao(confirmandoId)
+        }
+        onCancelar={() => setConfirmandoId(null)}
+        dataCy="sintomas-confirmar-exclusao"
+        dataCyConfirmar="sintomas-confirmar-sim"
+        dataCyCancelar="sintomas-confirmar-nao"
+      />
     </section>
   )
 }

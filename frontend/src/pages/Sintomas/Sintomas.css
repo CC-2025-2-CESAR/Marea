@@ -144,3 +144,40 @@
   font-size: 0.78rem;
   font-weight: 600;
 }
+
+.sintomas-form__titulo {
+  margin: 0;
+  color: var(--cor-marrom);
+  font-size: 1.1rem;
+}
+
+.sintomas-item__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-xs);
+}
+
+.sintomas-item__botao {
+  min-height: 44px;
+  padding: 0 var(--espaco-md);
+  background: transparent;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-azul-link);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.sintomas-item__botao:hover {
+  background: var(--cor-creme-claro);
+}
+
+.sintomas-item__botao:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 1px;
+}
+
+.sintomas-item__botao--perigo {
+  color: var(--cor-erro);
+}
