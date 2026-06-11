@@ -39,6 +39,30 @@
   border-left-color: var(--cor-azul-link);
 }
 
+.calendario-dia__item--medicamento {
+  border-left-color: var(--cor-rosa-principal);
+}
+
+.calendario-dia__link {
+  color: var(--cor-azul-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.calendario-dia__link:hover,
+.calendario-dia__link:focus-visible {
+  text-decoration: underline;
+}
+
+.calendario-dia__dose {
+  font-weight: 400;
+  color: var(--cor-texto-suave);
+}
+
+.calendario-dia__status {
+  margin-top: 2px;
+}
+
 .calendario-dia__hora {
   margin: 0;
   font-size: 0.8rem;

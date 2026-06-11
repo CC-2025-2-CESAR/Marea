@@ -90,6 +90,21 @@ const eventosMock = [
   },
 ]
 
+// Rotina de medicamentos (PROJ-19): diária, com status do dia. No drawer ela
+// só aparece no dia de hoje (25/05, fixado abaixo).
+const medicamentosMock = [
+  {
+    id: 7,
+    nome: 'Progesterona',
+    dose: '200mg',
+    horario: '20:00:00',
+    instrucoes: 'Via vaginal à noite.',
+    tomado: false,
+    status_dia: 'pendente',
+    status_dia_label: 'Pendente',
+  },
+]
+
 // Fixa a data atual em 25 de maio de 2026 (meio-dia UTC). Garante que os
 // testes funcionem independentemente do dia em que rodam, já que os mocks
 // usam datas absolutas em maio/2026.
@@ -341,6 +356,60 @@ describe('Calendário de consultas da Amare', () => {
 
     cy.get('[data-cy=calendario-dia-drawer-fechar]').click()
     cy.get('[data-cy=calendario-dia-drawer]').should('not.exist')
+  })
+
+  it('lista os medicamentos do dia no drawer ao clicar em hoje (PROJ-19)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/medicamentos/', {
+      body: medicamentosMock,
+    }).as('medicamentos')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@medicamentos')
+
+    // Hoje é 25/05 (sem consulta nem evento): como é o dia atual, o drawer
+    // mostra a rotina de medicamentos com horário, status e link para o detalhe.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="25"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+
+    cy.get('[data-cy=calendario-dia-drawer]')
+      .should('be.visible')
+      .within(() => {
+        cy.get('[data-cy=calendario-dia-medicamentos]').should('be.visible')
+        cy.get('[data-cy=calendario-dia-medicamento]')
+          .should('have.length', 1)
+          .and('contain', 'Progesterona')
+          .and('contain', '20:00')
+        cy.get('[data-cy=calendario-dia-medicamento-link]').should(
+          'have.attr',
+          'href',
+          '/medicamentos/7',
+        )
+        cy.get('[data-cy=calendario-dia-medicamento-status]').should(
+          'contain',
+          'Pendente',
+        )
+      })
+  })
+
+  it('não mostra a rotina de medicamentos no drawer de um dia que não é hoje', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/medicamentos/', {
+      body: medicamentosMock,
+    }).as('medicamentos')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@medicamentos')
+
+    // Dia 27 tem consulta, mas não é hoje: a rotina diária não se aplica a ele.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="27"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+
+    cy.get('[data-cy=calendario-dia-drawer]').should('be.visible')
+    cy.get('[data-cy=calendario-dia-consulta]').should('have.length', 1)
+    cy.get('[data-cy=calendario-dia-medicamentos]').should('not.exist')
   })
 })
 
