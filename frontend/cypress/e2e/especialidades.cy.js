@@ -107,3 +107,92 @@ describe('Especialidades da Amare', () => {
       .and('contain', 'Não foi possível carregar as especialidades no momento.')
   })
 })
+
+describe('Detalhe da especialidade', () => {
+  // Padrões exatos: o da lista NÃO casa com /1/ e o de detalhe NÃO casa com a
+  // lista, então os dois interceptam endpoints disjuntos sem ambiguidade.
+  const ROTA_LISTA_EXATA = '**/api/especialidades/'
+  const ROTA_DETALHE_1 = '**/api/especialidades/1/'
+  const ROTA_DETALHE_2 = '**/api/especialidades/2/'
+  const ROTA_DETALHE_999 = '**/api/especialidades/999/'
+
+  it('abre o detalhe ao clicar no card da listagem', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: especialidadesMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', ROTA_DETALHE_1, { body: especialidadesMock[0] }).as(
+      'detalhar',
+    )
+    visitarEspecialidades()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=especialidades-card]')
+      .filter(':contains("Reprodução humana")')
+      .find('a')
+      .click()
+
+    cy.wait('@detalhar')
+    cy.location('pathname').should('eq', '/especialidades/1')
+    cy.get('[data-cy=page-especialidade-detalhe]').should('be.visible')
+    cy.get('[data-cy=especialidade-detalhe-titulo]').should(
+      'contain',
+      'Reprodução humana',
+    )
+    cy.get('[data-cy=especialidade-detalhe-medicas]')
+      .should('contain', 'Médicas relacionadas')
+      .and('contain', 'Dra. Helena Costa')
+  })
+
+  it('acessa o detalhe diretamente pela URL', () => {
+    cy.intercept('GET', ROTA_DETALHE_1, { body: especialidadesMock[0] }).as(
+      'detalhar',
+    )
+    visitarEspecialidades('/especialidades/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=especialidade-detalhe-titulo]').should(
+      'contain',
+      'Reprodução humana',
+    )
+    cy.get('[data-cy=especialidade-detalhe-descricao]').should('be.visible')
+  })
+
+  it('não mostra a seção de médicas quando a especialidade não tem médicas', () => {
+    cy.intercept('GET', ROTA_DETALHE_2, { body: especialidadesMock[1] }).as(
+      'detalhar',
+    )
+    visitarEspecialidades('/especialidades/2')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=especialidade-detalhe-titulo]').should(
+      'contain',
+      'Psicologia',
+    )
+    cy.get('[data-cy=especialidade-detalhe-medicas]').should('not.exist')
+  })
+
+  it('mostra o estado de não encontrado quando a API responde 404', () => {
+    cy.intercept('GET', ROTA_DETALHE_999, {
+      statusCode: 404,
+      body: { detail: 'Especialidade não encontrada.' },
+    }).as('detalhar')
+    visitarEspecialidades('/especialidades/999')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=especialidade-detalhe-nao-encontrado]').should(
+      'be.visible',
+    )
+  })
+
+  it('volta para a listagem pelo link de voltar', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: especialidadesMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', ROTA_DETALHE_1, { body: especialidadesMock[0] }).as(
+      'detalhar',
+    )
+    visitarEspecialidades('/especialidades/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=especialidade-detalhe-voltar]').click()
+    cy.wait('@listar')
+    cy.location('pathname').should('eq', '/especialidades')
+    cy.get('[data-cy=page-especialidades]').should('be.visible')
+  })
+})

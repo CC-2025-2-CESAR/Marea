@@ -90,6 +90,28 @@ def listar_especialidades(request):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
+def detalhar_especialidade(request, pk):
+    """Detalha uma especialidade ativa, com as médicas relacionadas.
+
+    Conteúdo público (como a listagem). 404 se não existir ou estiver inativa.
+    """
+    try:
+        especialidade = (
+            Especialidade.objects.filter(ativo=True)
+            .prefetch_related('medicas__perfil__usuario')
+            .get(pk=pk)
+        )
+    except Especialidade.DoesNotExist:
+        return Response(
+            {'detail': 'Especialidade não encontrada.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    serializer = EspecialidadePublicaSerializer(especialidade)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def listar_eventos(request):
     """Lista os eventos do tratamento da paciente autenticada (PROJ-15).

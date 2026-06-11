@@ -6,11 +6,12 @@ listagem pública para a paciente tem URL própria, mais clara.
 
 from django.urls import path
 
-from .views import listar_especialidades
+from .views import detalhar_especialidade, listar_especialidades
 
 
 app_name = 'especialidades'
 
 urlpatterns = [
     path('', listar_especialidades, name='especialidades-listar'),
+    path('<int:pk>/', detalhar_especialidade, name='especialidades-detalhar'),
 ]

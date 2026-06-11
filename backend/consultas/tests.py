@@ -36,7 +36,7 @@ class EspecialidadesAPITests(TestCase):
         )
 
         # Especialidade inativa não deve aparecer na listagem pública.
-        Especialidade.objects.create(
+        self.inativa = Especialidade.objects.create(
             nome='Especialidade inativa', descricao='...', ativo=False
         )
 
@@ -71,6 +71,25 @@ class EspecialidadesAPITests(TestCase):
         resp = self.client.get('/api/especialidades/')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.data), 0)
+
+    def test_detalha_especialidade_ativa(self):
+        resp = self.client.get(f'/api/especialidades/{self.reproducao.id}/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['nome'], 'Reprodução humana')
+        self.assertEqual(len(resp.data['medicas']), 1)
+        self.assertEqual(resp.data['medicas'][0]['nome'], 'Dra. Helena Costa')
+
+    def test_detalhe_publico_sem_autenticacao(self):
+        resp = self.client.get(f'/api/especialidades/{self.reproducao.id}/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_detalhe_especialidade_inativa_404(self):
+        resp = self.client.get(f'/api/especialidades/{self.inativa.id}/')
+        self.assertEqual(resp.status_code, 404)
+
+    def test_detalhe_especialidade_inexistente_404(self):
+        resp = self.client.get('/api/especialidades/99999/')
+        self.assertEqual(resp.status_code, 404)
 
 
 class EventosAPITests(TestCase):
