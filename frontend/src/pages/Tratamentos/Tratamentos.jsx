@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import TermosRelacionados from '../../components/TermosRelacionados/TermosRelacionados'
 import { listarTratamentos } from '../../services/tratamentosService'
 import './Tratamentos.css'
@@ -79,7 +80,15 @@ function Tratamentos() {
                 className="tratamentos-card"
                 data-cy="tratamentos-card"
               >
-                <h2 className="tratamentos-card__titulo">{tratamento.nome}</h2>
+                <h2 className="tratamentos-card__titulo">
+                  <Link
+                    className="tratamentos-card__link"
+                    to={`/tratamentos/${tratamento.id}`}
+                    data-cy="tratamentos-card-link"
+                  >
+                    {tratamento.nome}
+                  </Link>
+                </h2>
                 <p className="tratamentos-card__descricao">
                   {tratamento.descricao}
                 </p>

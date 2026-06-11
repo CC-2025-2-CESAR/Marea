@@ -171,6 +171,7 @@ export interface Tratamento {
   id: number
   nome: string
   descricao?: string
+  indicacao?: string
   etapas?: EtapaTratamento[]
   termos_relacionados?: TermoDicionario[]
 }

@@ -144,4 +144,81 @@ describe('Tratamentos da Amare', () => {
       .should('be.visible')
       .and('contain', 'Não foi possível carregar os tratamentos no momento.')
   })
+
+  it('abre o detalhe do tratamento ao clicar no título do card', () => {
+    cy.intercept('GET', '**/api/tratamentos/', { body: tratamentosMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', '**/api/tratamentos/1/', {
+      body: tratamentosMock[0],
+    }).as('detalhe')
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarTratamentos()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=tratamentos-card]')
+      .filter(':contains("Fertilização in vitro (FIV)")')
+      .find('[data-cy=tratamentos-card-link]')
+      .click()
+    cy.wait('@detalhe')
+
+    cy.location('pathname').should('eq', '/tratamentos/1')
+    cy.get('[data-cy=page-tratamento-detalhe]').should('be.visible')
+    cy.contains('h1', 'Fertilização in vitro (FIV)').should('be.visible')
+    cy.get('[data-cy=tratamento-detalhe-etapas]').should(
+      'contain',
+      'Estimulação ovariana',
+    )
+  })
+
+  it('mostra o detalhe completo ao acessar /tratamentos/:id direto', () => {
+    cy.intercept('GET', '**/api/tratamentos/1/', {
+      body: tratamentosMock[0],
+    }).as('detalhe')
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarTratamentos('/tratamentos/1')
+    cy.wait('@detalhe')
+
+    cy.contains('h1', 'Fertilização in vitro (FIV)').should('be.visible')
+    cy.get('[data-cy=tratamento-detalhe-descricao]').should(
+      'contain',
+      'Une óvulo e espermatozoide',
+    )
+    cy.get('[data-cy=tratamento-detalhe-indicacao]').should(
+      'contain',
+      'casos variados de infertilidade',
+    )
+    cy.get('[data-cy=tratamento-detalhe-etapas]')
+      .should('contain', 'Estimulação ovariana')
+      .and('contain', 'Transferência embrionária')
+    cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
+  })
+
+  it('mostra estado de não encontrado quando o tratamento não existe', () => {
+    cy.intercept('GET', '**/api/tratamentos/999/', {
+      statusCode: 404,
+      body: { detail: 'Tratamento não encontrado.' },
+    }).as('detalhe')
+    visitarTratamentos('/tratamentos/999')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=tratamento-detalhe-nao-encontrado]').should('be.visible')
+  })
+
+  it('o botão voltar retorna à lista de tratamentos', () => {
+    cy.intercept('GET', '**/api/tratamentos/1/', {
+      body: tratamentosMock[0],
+    }).as('detalhe')
+    cy.intercept('GET', '**/api/tratamentos/', { body: tratamentosMock }).as(
+      'listar',
+    )
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarTratamentos('/tratamentos/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=tratamento-detalhe-voltar]').click()
+    cy.wait('@listar')
+    cy.location('pathname').should('eq', '/tratamentos')
+    cy.get('[data-cy=page-tratamentos]').should('be.visible')
+  })
 })
