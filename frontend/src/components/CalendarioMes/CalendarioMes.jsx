@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import CalendarDayDrawer from '../CalendarDayDrawer/CalendarDayDrawer'
 import './CalendarioMes.css'
 
 const NOMES_MES = [
@@ -113,6 +114,9 @@ function CalendarioMes({
   eventos = [],
   marcacoes = [],
   mesInicial,
+  // Quando true, os dias do mês viram botões que abrem o drawer do dia.
+  // A página /ciclo usa o calendário só para marcações e mantém isso desligado.
+  diaClicavel = false,
 }) {
   const inicial = useMemo(() => {
     if (mesInicial instanceof Date) {
@@ -123,6 +127,7 @@ function CalendarioMes({
   }, [mesInicial])
 
   const [mesVisivel, setMesVisivel] = useState(inicial)
+  const [diaSelecionado, setDiaSelecionado] = useState(null)
 
   const ano = mesVisivel.getFullYear()
   const mes = mesVisivel.getMonth()
@@ -242,16 +247,8 @@ function CalendarioMes({
           ]
             .filter(Boolean)
             .join(' ')
-          return (
-            <li
-              key={indice}
-              className={classes}
-              role="gridcell"
-              data-cy="calendario-mes-dia"
-              data-dia={celula.tipo === 'atual' ? celula.dia : ''}
-              data-com-consulta={temConsulta ? 'true' : 'false'}
-              data-com-evento={temEvento ? 'true' : 'false'}
-            >
+          const conteudoCelula = (
+            <>
               <span className="calendario-mes__numero">{celula.dia}</span>
               {temConsulta ? (
                 <span
@@ -282,10 +279,45 @@ function CalendarioMes({
                   aria-hidden="true"
                 />
               ) : null}
+            </>
+          )
+          return (
+            <li
+              key={indice}
+              className={classes}
+              role="gridcell"
+              data-cy="calendario-mes-dia"
+              data-dia={celula.tipo === 'atual' ? celula.dia : ''}
+              data-com-consulta={temConsulta ? 'true' : 'false'}
+              data-com-evento={temEvento ? 'true' : 'false'}
+            >
+              {celula.tipo === 'atual' && diaClicavel ? (
+                <button
+                  type="button"
+                  className="calendario-mes__celula-botao"
+                  onClick={() => setDiaSelecionado(celula.data)}
+                  data-cy="calendario-mes-dia-botao"
+                  aria-label={`Dia ${celula.dia}${
+                    temConsulta ? ', com consulta' : ''
+                  }${temEvento ? ', com evento' : ''}`}
+                >
+                  {conteudoCelula}
+                </button>
+              ) : (
+                conteudoCelula
+              )}
             </li>
           )
         })}
       </ul>
+
+      <CalendarDayDrawer
+        aberto={diaSelecionado !== null}
+        data={diaSelecionado}
+        consultas={diaSelecionado ? consultasNoDia(diaSelecionado) : []}
+        eventos={diaSelecionado ? eventosNoDia(diaSelecionado) : []}
+        onFechar={() => setDiaSelecionado(null)}
+      />
     </div>
   )
 }

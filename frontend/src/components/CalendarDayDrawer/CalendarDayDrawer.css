@@ -1,0 +1,72 @@
+.calendario-dia {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.calendario-dia__bloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.calendario-dia__subtitulo {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--cor-marrom);
+}
+
+.calendario-dia__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.calendario-dia__item {
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-rosa-secundario);
+  border-radius: var(--raio-pequeno);
+  padding: var(--espaco-sm) var(--espaco-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendario-dia__item--evento {
+  border-left-color: var(--cor-azul-link);
+}
+
+.calendario-dia__hora {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.calendario-dia__nome {
+  margin: 0;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.calendario-dia__meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.calendario-dia__obs {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--cor-texto);
+}
+
+.calendario-dia__vazio {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
