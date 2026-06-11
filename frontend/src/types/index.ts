@@ -184,11 +184,16 @@ export interface Orientacao {
   termos_relacionados?: TermoDicionario[]
 }
 
+export interface MedicaResumo {
+  id: number
+  nome: string
+}
+
 export interface Especialidade {
   id: number
   nome: string
   descricao?: string
-  medicas?: string[]
+  medicas?: MedicaResumo[]
 }
 
 export interface ConteudoApoio {

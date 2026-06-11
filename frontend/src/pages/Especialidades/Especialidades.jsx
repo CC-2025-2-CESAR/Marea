@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listarEspecialidades } from '../../services/especialidadesService'
+import InteractiveCard from '../../components/ui/InteractiveCard/InteractiveCard'
 import './Especialidades.css'
 
 function Especialidades() {
@@ -68,18 +69,17 @@ function Especialidades() {
           Nenhuma especialidade cadastrada no momento.
         </p>
       ) : (
-        <ul className="especialidades-grid" data-cy="especialidades-grid">
+        <div className="especialidades-grid" data-cy="especialidades-grid">
           {especialidades.map((especialidade) => {
             const medicas = especialidade.medicas || []
             return (
-              <li
+              <InteractiveCard
                 key={especialidade.id}
-                className="especialidades-card"
-                data-cy="especialidades-card"
+                to={`/especialidades/${especialidade.id}`}
+                titulo={especialidade.nome}
+                cta="Ver especialidade"
+                dataCy="especialidades-card"
               >
-                <h2 className="especialidades-card__titulo">
-                  {especialidade.nome}
-                </h2>
                 {especialidade.descricao ? (
                   <p className="especialidades-card__descricao">
                     {especialidade.descricao}
@@ -105,10 +105,10 @@ function Especialidades() {
                     </ul>
                   </div>
                 ) : null}
-              </li>
+              </InteractiveCard>
             )
           })}
-        </ul>
+        </div>
       )}
     </section>
   )

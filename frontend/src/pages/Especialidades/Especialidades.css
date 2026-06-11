@@ -28,23 +28,6 @@
   align-items: start;
 }
 
-.especialidades-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-sm);
-  padding: var(--espaco-md);
-  border-radius: var(--raio-medio);
-  background: var(--cor-card);
-  box-shadow: var(--sombra-suave);
-  border-top: 4px solid var(--cor-caramelo);
-}
-
-.especialidades-card__titulo {
-  margin: 0;
-  font-size: 1.2rem;
-  color: var(--cor-texto);
-}
-
 .especialidades-card__descricao {
   margin: 0;
   line-height: 1.5;

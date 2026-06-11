@@ -5,4 +5,8 @@ function listarEspecialidades(): Promise<Especialidade[]> {
   return requisicao<Especialidade[]>('/especialidades/')
 }
 
-export { listarEspecialidades }
+function obterEspecialidade(id: number): Promise<Especialidade> {
+  return requisicao<Especialidade>(`/especialidades/${id}/`)
+}
+
+export { listarEspecialidades, obterEspecialidade }
