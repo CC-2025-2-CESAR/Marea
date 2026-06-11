@@ -1,7 +1,9 @@
-"""Testes da área da médica: escopo por objeto e poderes de escrita.
+"""Testes da área da médica: política de acesso por papel.
 
-Cobrem acesso permitido E negado, que é o ponto sensível de LGPD: a médica só
-pode enxergar/alterar as pacientes vinculadas a ela; pacientes são barradas.
+A regra mudou em relação ao escopo antigo (cada médica via só as suas): agora
+toda médica **vê** as pacientes da clínica, mas só **edita** as suas ou as que
+assumiu. Os testes cobrem acesso permitido E negado — o ponto sensível de LGPD —
+além do status de permissão exposto para a interface.
 """
 
 from django.contrib.auth import get_user_model
@@ -9,7 +11,12 @@ from rest_framework.test import APITestCase
 
 from consultas.models import Consulta
 from medicamentos.models import Medicamento
-from usuarios.models import Medica, Paciente, PerfilUsuario
+from usuarios.models import (
+    EquipeCuidadoPaciente,
+    Medica,
+    Paciente,
+    PerfilUsuario,
+)
 
 User = get_user_model()
 
@@ -50,15 +57,15 @@ class AreaMedicaTests(APITestCase):
         )
         self.adm = adm
 
-    # --- leitura com escopo ---
+    # --- leitura: toda médica vê todas as pacientes da clínica ---
 
-    def test_medica_lista_apenas_suas_pacientes(self):
+    def test_medica_lista_todas_as_pacientes_da_clinica(self):
         self.client.force_authenticate(self.m1.perfil.usuario)
         resp = self.client.get('/api/medica/pacientes/')
         self.assertEqual(resp.status_code, 200)
         ids = [p['id'] for p in resp.data]
         self.assertIn(self.pac_a.id, ids)
-        self.assertNotIn(self.pac_b.id, ids)
+        self.assertIn(self.pac_b.id, ids)
 
     def test_medica_acessa_detalhe_da_sua_paciente(self):
         self.client.force_authenticate(self.m1.perfil.usuario)
@@ -66,10 +73,11 @@ class AreaMedicaTests(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['id'], self.pac_a.id)
 
-    def test_medica_nao_acessa_paciente_de_outra(self):
+    def test_medica_ve_detalhe_de_paciente_de_outra(self):
         self.client.force_authenticate(self.m1.perfil.usuario)
         resp = self.client.get(f'/api/medica/pacientes/{self.pac_b.id}/')
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['id'], self.pac_b.id)
 
     def test_admin_ve_todas_as_pacientes(self):
         self.client.force_authenticate(self.adm)
@@ -79,7 +87,7 @@ class AreaMedicaTests(APITestCase):
         self.assertIn(self.pac_a.id, ids)
         self.assertIn(self.pac_b.id, ids)
 
-    # --- escrita com escopo ---
+    # --- escrita: só responsável, quem assumiu, ou admin ---
 
     def test_medica_cria_consulta_para_sua_paciente(self):
         self.client.force_authenticate(self.m1.perfil.usuario)
@@ -100,7 +108,7 @@ class AreaMedicaTests(APITestCase):
             {'data_horario': '2026-07-01T10:00:00Z'},
             format='json',
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
         self.assertFalse(Consulta.objects.filter(paciente=self.pac_b).exists())
 
     def test_medica_cria_medicamento_para_sua_paciente(self):
@@ -116,6 +124,84 @@ class AreaMedicaTests(APITestCase):
                 paciente=self.pac_a, nome='Progesterona'
             ).exists()
         )
+
+    def test_medica_nao_cria_medicamento_para_paciente_de_outra(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/medicamentos/',
+            {'nome': 'Progesterona', 'dose': '200mg'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(
+            Medicamento.objects.filter(paciente=self.pac_b).exists()
+        )
+
+    # --- escrita após assumir o atendimento (vínculo de equipe ativo) ---
+
+    def test_medica_que_assumiu_o_atendimento_pode_escrever(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac_b,
+            medica=self.m1,
+            papel=EquipeCuidadoPaciente.PAPEL_SUBSTITUTA,
+            ativa=True,
+        )
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/consultas/',
+            {'data_horario': '2026-07-01T10:00:00Z', 'local': 'Clínica'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 201)
+        self.assertTrue(Consulta.objects.filter(paciente=self.pac_b).exists())
+
+    def test_vinculo_inativo_nao_da_escrita(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac_b,
+            medica=self.m1,
+            papel=EquipeCuidadoPaciente.PAPEL_SUBSTITUTA,
+            ativa=False,
+        )
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/medicamentos/',
+            {'nome': 'Progesterona'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+        self.assertFalse(
+            Medicamento.objects.filter(paciente=self.pac_b).exists()
+        )
+
+    # --- status de permissão exposto para a interface ---
+
+    def test_detalhe_marca_responsavel_para_a_propria(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.get(f'/api/medica/pacientes/{self.pac_a.id}/')
+        self.assertEqual(resp.data['permissao']['papel'], 'responsavel')
+        self.assertTrue(resp.data['permissao']['pode_editar'])
+
+    def test_detalhe_marca_visualizacao_para_paciente_de_outra(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.get(f'/api/medica/pacientes/{self.pac_b.id}/')
+        self.assertEqual(resp.data['permissao']['papel'], 'visualizacao')
+        self.assertFalse(resp.data['permissao']['pode_editar'])
+
+    def test_detalhe_marca_assumido_apos_vinculo_ativo(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac_b, medica=self.m1, ativa=True
+        )
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.get(f'/api/medica/pacientes/{self.pac_b.id}/')
+        self.assertEqual(resp.data['permissao']['papel'], 'assumido')
+        self.assertTrue(resp.data['permissao']['pode_editar'])
+
+    def test_lista_traz_pode_editar_por_paciente(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.get('/api/medica/pacientes/')
+        por_id = {p['id']: p['permissao'] for p in resp.data}
+        self.assertTrue(por_id[self.pac_a.id]['pode_editar'])
+        self.assertFalse(por_id[self.pac_b.id]['pode_editar'])
 
     # --- acesso negado ---
 

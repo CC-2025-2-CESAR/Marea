@@ -1,15 +1,22 @@
 """Testes de controle de acesso por papel da app usuarios."""
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError, transaction
 from django.test import TestCase
-from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from .models import (
     EquipeCuidadoPaciente,
     Medica,
     Paciente,
     PerfilUsuario,
+)
+from .permissions import (
+    IsAdminClinica,
+    eh_admin,
+    papel_no_cuidado,
+    pode_editar_paciente,
 )
 
 User = get_user_model()
@@ -129,3 +136,66 @@ class EquipeCuidadoPacienteModelTests(TestCase):
             paciente=self.paciente, medica=self.outra
         )
         self.assertTrue(vinculo2.ativa)
+
+
+class RBACPermissoesTests(TestCase):
+    """Helpers de permissão: quem é admin e quem pode editar cada paciente."""
+
+    def setUp(self):
+        self.m1 = _criar_medica('rbac_m1')
+        self.m2 = _criar_medica('rbac_m2')
+        self.pac = _criar_paciente('rbac_pac', medica=self.m1)
+        self.admin = User.objects.create_user(
+            'rbac_admin', password='x', is_superuser=True
+        )
+        PerfilUsuario.objects.create(
+            usuario=self.admin,
+            tipo_usuario=PerfilUsuario.TIPO_ADMIN,
+            nome_completo='Admin RBAC',
+        )
+
+    def test_eh_admin(self):
+        self.assertTrue(eh_admin(self.admin))
+        self.assertFalse(eh_admin(self.m1.perfil.usuario))
+        self.assertFalse(eh_admin(self.pac.perfil.usuario))
+        self.assertFalse(eh_admin(AnonymousUser()))
+
+    def test_pode_editar_responsavel_e_admin(self):
+        self.assertTrue(pode_editar_paciente(self.m1.perfil.usuario, self.pac))
+        self.assertTrue(pode_editar_paciente(self.admin, self.pac))
+
+    def test_nao_pode_editar_paciente_de_outra(self):
+        self.assertFalse(
+            pode_editar_paciente(self.m2.perfil.usuario, self.pac)
+        )
+        self.assertEqual(
+            papel_no_cuidado(self.m2.perfil.usuario, self.pac),
+            'visualizacao',
+        )
+
+    def test_vinculo_ativo_da_escrita(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac, medica=self.m2, ativa=True
+        )
+        self.assertTrue(pode_editar_paciente(self.m2.perfil.usuario, self.pac))
+        self.assertEqual(
+            papel_no_cuidado(self.m2.perfil.usuario, self.pac), 'assumido'
+        )
+
+    def test_vinculo_inativo_nao_da_escrita(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac, medica=self.m2, ativa=False
+        )
+        self.assertFalse(
+            pode_editar_paciente(self.m2.perfil.usuario, self.pac)
+        )
+
+    def test_is_admin_clinica_permission(self):
+        factory = APIRequestFactory()
+        req = factory.get('/')
+        req.user = self.admin
+        self.assertTrue(IsAdminClinica().has_permission(req, None))
+        req.user = self.m1.perfil.usuario
+        self.assertFalse(IsAdminClinica().has_permission(req, None))
+        req.user = AnonymousUser()
+        self.assertFalse(IsAdminClinica().has_permission(req, None))
