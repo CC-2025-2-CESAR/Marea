@@ -9,7 +9,7 @@
       "resposta": "Suas consultas ficam no calendário da Amare, com data, horário e local. Toque em um dia para ver o que está marcado naquela data.",
       "categoria": "Agenda",
       "fonte_rotulo": "Calendário",
-      "fonte_rota": "/consultas",
+      "fonte_rota": "/calendario",
       "sensivel": false,
       "prioridade": 10,
       "ativo": true,
@@ -146,7 +146,7 @@
   {
     "model": "assistente.acaoassistente",
     "pk": 1,
-    "fields": {"resposta": 1, "rotulo": "Ver calendário", "rota": "/consultas", "ordem": 0}
+    "fields": {"resposta": 1, "rotulo": "Ver calendário", "rota": "/calendario", "ordem": 0}
   },
   {
     "model": "assistente.acaoassistente",

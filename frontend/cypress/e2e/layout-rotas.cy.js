@@ -1,11 +1,7 @@
 describe('Rotas e layout base da Amare', () => {
-  // Páginas ainda em placeholder. Dicionário, Perfil, Calendário,
-  // Medicamentos, Tratamentos, Orientações, Especialidades e Ciclo foram
-  // removidos daqui porque agora têm implementação real (ver os specs
-  // correspondentes).
-  const paginasPlaceholder = [
-    { rota: '/bot', titulo: 'Bot', dataCy: 'nav-bot' },
-  ]
+  // Todas as páginas do menu principal já têm implementação real (ver os specs
+  // correspondentes) — não há mais páginas em placeholder no menu. O Bot virou
+  // o Assistente Amare (ver assistente.cy.js).
 
   // Sessão fake usada para passar pela ProtectedRoute durante os testes.
   const SESSAO_FAKE = {
@@ -44,6 +40,9 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/sintomas/', { body: [] })
     cy.intercept('GET', '**/api/ciclo/**', { body: [] })
     cy.intercept('GET', '**/api/busca/**', { body: [] })
+    cy.intercept('GET', '**/api/assistente/**', {
+      body: { disclaimer: 'Informações gerais da Amare.', sugestoes: [] },
+    })
     cy.intercept('GET', '**/api/perfil/', {
       body: {
         username: 'paciente_teste',
@@ -103,19 +102,10 @@ describe('Rotas e layout base da Amare', () => {
     cy.location('pathname').should('eq', '/')
     cy.contains('h1', 'Bem-vinda à Amare').should('be.visible')
 
-    paginasPlaceholder.forEach((pagina) => {
-      cy.get(`[data-cy=${pagina.dataCy}]`).should(
-        'have.attr',
-        'href',
-        pagina.rota,
-      )
-      cy.get(`[data-cy=${pagina.dataCy}]`).click()
-      cy.location('pathname').should('eq', pagina.rota)
-      cy.contains('h1', pagina.titulo).should('be.visible')
-      cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
-        'be.visible',
-      )
-    })
+    cy.get('[data-cy=nav-bot]').should('have.attr', 'href', '/bot')
+    cy.get('[data-cy=nav-bot]').click()
+    cy.location('pathname').should('eq', '/bot')
+    cy.contains('h1', 'Assistente Amare').should('be.visible')
 
     // Dicionário, Perfil e Calendário são rotas reais; a navegação ainda
     // funciona, mas o conteúdo é a página correspondente — não o placeholder.
@@ -204,24 +194,12 @@ describe('Rotas e layout base da Amare', () => {
     cy.contains('h1', 'Meu ciclo').should('be.visible')
   })
 
-  it('abre Bot corretamente por rota direta', () => {
+  it('abre o Assistente Amare corretamente por rota direta', () => {
     visitarAutenticado('/bot')
     cy.get('[data-cy=app-layout]').should('be.visible')
     cy.get('[data-cy=app-search]').should('be.visible')
-    cy.contains('h1', 'Bot').should('be.visible')
-    cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
-      'be.visible',
-    )
-  })
-
-  it('mostra título e texto básico nas páginas placeholder', () => {
-    paginasPlaceholder.forEach((pagina) => {
-      visitarAutenticado(pagina.rota)
-      cy.get('[data-cy=placeholder-page]').should('be.visible')
-      cy.contains('h1', pagina.titulo).should('be.visible')
-      cy.contains('Esta página será desenvolvida em uma próxima etapa.').should(
-        'be.visible',
-      )
-    })
+    cy.get('[data-cy=page-bot]').should('be.visible')
+    cy.contains('h1', 'Assistente Amare').should('be.visible')
+    cy.get('[data-cy=bot-disclaimer]').should('be.visible')
   })
 })
