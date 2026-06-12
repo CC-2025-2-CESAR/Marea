@@ -4,7 +4,7 @@ Todas as views são function-based com `@api_view` — sem Generic Views,
 ViewSets ou Django Forms (regra da disciplina).
 """
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import status
 from rest_framework.decorators import (
     api_view,
@@ -20,6 +20,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Paciente
 from .permissions import IsPaciente
 from .serializers import PerfilPacienteSerializer, UsuarioBasicoSerializer
+
+User = get_user_model()
 
 
 class LoginThrottle(AnonRateThrottle):
@@ -42,21 +44,50 @@ def _gerar_tokens(usuario):
     }
 
 
+def _autenticar(request, identificador, password):
+    """Autentica aceitando username OU e-mail no mesmo campo.
+
+    O caminho por username vem sempre primeiro, então quem entra com
+    username segue exatamente como antes — o e-mail é só um fallback. Se a
+    autenticação por username falhar e o valor parecer um e-mail, procura a
+    conta dona daquele e-mail (case-insensitive) e autentica pelo username
+    real dela.
+
+    O User padrão do Django não força e-mail único; se houver mais de uma
+    conta com o mesmo e-mail, não dá para escolher com segurança, então
+    tratamos como inválido em vez de logar na conta errada.
+    """
+    usuario = authenticate(request, username=identificador, password=password)
+    if usuario is not None:
+        return usuario
+
+    if '@' not in identificador:
+        return None
+
+    contas = list(User.objects.filter(email__iexact=identificador)[:2])
+    if len(contas) != 1:
+        return None
+
+    return authenticate(
+        request, username=contas[0].username, password=password
+    )
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 @throttle_classes([LoginThrottle])
 def login_view(request):
-    """Autentica por username + senha e devolve tokens JWT."""
-    username = request.data.get('username', '').strip()
+    """Autentica por username OU e-mail + senha e devolve tokens JWT."""
+    identificador = request.data.get('username', '').strip()
     password = request.data.get('password', '')
 
-    if not username or not password:
+    if not identificador or not password:
         return Response(
-            {'detail': 'Informe usuário e senha.'},
+            {'detail': 'Informe usuário ou e-mail e senha.'},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    usuario = authenticate(request, username=username, password=password)
+    usuario = _autenticar(request, identificador, password)
     if usuario is None:
         return Response(
             {'detail': 'Usuário ou senha inválidos.'},

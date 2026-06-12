@@ -186,7 +186,8 @@ modelos `Paciente` e `Medica` carregam os dados específicos de cada papel.
 
 Endpoints novos:
 
-- `POST /api/auth/login/` — recebe `{username, password}` e devolve
+- `POST /api/auth/login/` — recebe `{username, password}` (o campo
+  `username` aceita o **nome de usuário ou o e-mail** da conta) e devolve
   `{access, refresh, usuario}`.
 - `POST /api/auth/refresh/` — troca um `refresh` válido por um novo `access`.
 - `GET /api/auth/me/` — devolve os dados básicos do usuário autenticado.
@@ -199,7 +200,8 @@ Para testar o fluxo ponta-a-ponta:
 
 1. Backend rodando com `criar_usuarios_teste` já executado.
 2. Frontend rodando (`npm run dev`).
-3. Acesse `http://localhost:5173/login`, entre com `renata` / `amare123`.
+3. Acesse `http://localhost:5173/login`, entre com `renata` / `amare123`
+   (ou pelo e-mail `renata@amare.test`).
 4. Você é redirecionada para `/perfil`. Edite o telefone, clique em Salvar.
 5. O botão "Sair" no rodapé da sidebar limpa a sessão e volta para `/login`.
 
