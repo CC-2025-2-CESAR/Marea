@@ -1,3 +1,258 @@
 .bot-pagina {
   width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.bot-cabecalho h1 {
+  margin: 0 0 var(--espaco-xs);
+}
+
+.bot-cabecalho p {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  max-width: 60ch;
+}
+
+/* --- Aviso fixo --- */
+.bot-disclaimer {
+  margin: 0;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background: var(--cor-creme-claro);
+  border-left: 4px solid var(--cor-caramelo);
+  border-radius: var(--raio-pequeno);
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.bot-erro {
+  margin: 0;
+  color: var(--cor-erro);
+}
+
+/* --- Conversa --- */
+.bot-conversa {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-md);
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.bot-boas-vindas {
+  color: var(--cor-texto-suave);
+  text-align: center;
+  margin: auto 0;
+  padding: var(--espaco-md);
+}
+
+.bot-boas-vindas p {
+  margin: 0 auto;
+  max-width: 46ch;
+}
+
+.bot-mensagens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.bot-balao {
+  max-width: 85%;
+  padding: var(--espaco-sm) var(--espaco-md);
+  border-radius: var(--raio-medio);
+  overflow-wrap: anywhere;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.bot-balao--usuaria {
+  align-self: flex-end;
+  background: var(--cor-azul-suave);
+  color: var(--cor-grafite);
+  border-bottom-right-radius: var(--raio-pequeno);
+}
+
+.bot-balao--assistente {
+  align-self: flex-start;
+  background: var(--cor-creme-claro);
+  border: 1px solid var(--cor-borda);
+  border-bottom-left-radius: var(--raio-pequeno);
+}
+
+.bot-balao--sensivel {
+  border-left: 4px solid var(--cor-terracota);
+  background: #fff;
+}
+
+.bot-resposta {
+  margin: 0;
+  color: var(--cor-texto);
+  /* Preserva as quebras de linha do encaminhamento (\n\n vindo do backend). */
+  white-space: pre-line;
+}
+
+.bot-fonte {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--cor-azul-link);
+  text-decoration: none;
+}
+
+.bot-fonte:hover {
+  text-decoration: underline;
+}
+
+.bot-fonte:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.bot-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-xs);
+}
+
+.bot-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 var(--espaco-md);
+  border-radius: var(--raio-campo);
+  background: var(--cor-azul-suave);
+  color: var(--cor-grafite);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.bot-acao:hover {
+  filter: brightness(0.97);
+}
+
+.bot-acao:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+/* --- Indicador "escrevendo" --- */
+.bot-digitando {
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+
+.bot-digitando__ponto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-texto-suave);
+  animation: bot-pulsar 1s infinite ease-in-out;
+}
+
+.bot-digitando__ponto:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.bot-digitando__ponto:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes bot-pulsar {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-digitando__ponto {
+    animation: none;
+  }
+}
+
+/* --- Sugestões (chips) --- */
+.bot-sugestoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.bot-sugestoes__titulo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-texto-suave);
+}
+
+.bot-sugestoes__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+}
+
+.bot-chip {
+  min-height: 44px;
+  padding: 0 var(--espaco-md);
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-card);
+  color: var(--cor-marrom);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.bot-chip:hover:not(:disabled) {
+  background: var(--cor-creme-claro);
+  border-color: var(--cor-rosa-secundario);
+}
+
+.bot-chip:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.bot-chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- Composição da pergunta --- */
+.bot-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--espaco-sm);
+}
+
+.bot-form .campo {
+  flex: 1;
+  min-width: 0;
+}
+
+/* O Button é full-width por padrão; aqui ele acompanha o campo na mesma linha. */
+.bot-form .botao {
+  width: auto;
+  flex-shrink: 0;
 }

@@ -239,3 +239,45 @@ export interface ResultadoBusca {
   descricao?: string
   url?: string
 }
+
+// ===== Assistente Amare (PR 9) =====
+
+/** Pergunta sugerida (chip) devolvida por `GET /api/assistente/`. */
+export interface SugestaoAssistente {
+  intencao: string
+  pergunta_exemplo: string
+  categoria?: string
+}
+
+/** Resposta de `GET /api/assistente/`: aviso fixo + perguntas sugeridas. */
+export interface SugestoesAssistente {
+  disclaimer: string
+  sugestoes: SugestaoAssistente[]
+}
+
+/** Fonte interna que embasou a resposta (rótulo + rota clicável). */
+export interface FonteAssistente {
+  rotulo: string
+  rota: string
+}
+
+/** Atalho (CTA) para uma página da Amare, exibido junto à resposta. */
+export interface AcaoAssistente {
+  rotulo: string
+  rota: string
+}
+
+/**
+ * Envelope de `POST /api/assistente/`. O assistente é guiado e seguro: nunca
+ * diagnostica nem ajusta dose; em tema sensível, `sensivel` vem `true` e o texto
+ * encaminha para a clínica (sem `fonte`/`acoes` de conteúdo).
+ */
+export interface RespostaAssistente {
+  intencao: string | null
+  encontrou: boolean
+  resposta: string
+  sensivel: boolean
+  fonte: FonteAssistente | null
+  acoes: AcaoAssistente[]
+  disclaimer: string
+}
