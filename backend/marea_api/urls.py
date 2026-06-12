@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/sintomas/', include('sintomas.urls')),
     path('api/ciclo/', include('ciclo.urls')),
     path('api/busca/', include('busca.urls')),
+    path('api/assistente/', include('assistente.urls')),
     # Tratamentos, orientações e linha do tempo expõem /api/tratamentos/,
     # /api/orientacoes/ e /api/jornada/.
     path('api/', include('tratamentos.urls')),

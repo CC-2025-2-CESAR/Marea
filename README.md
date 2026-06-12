@@ -115,7 +115,7 @@ python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py loaddata termos_iniciais tratamentos_iniciais orientacoes_iniciais apoio_inicial
+python manage.py loaddata termos_iniciais tratamentos_iniciais orientacoes_iniciais apoio_inicial respostas_iniciais
 python manage.py criar_usuarios_teste
 python manage.py runserver
 ```

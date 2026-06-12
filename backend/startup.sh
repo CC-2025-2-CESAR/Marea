@@ -32,6 +32,9 @@ if [ "${SEED_DEMO}" = "true" ]; then
     || echo "[startup] aviso: loaddata de tratamentos/orientações falhou (seguindo mesmo assim)"
   python manage.py loaddata apoio_inicial \
     || echo "[startup] aviso: loaddata apoio_inicial falhou (seguindo mesmo assim)"
+  # Respostas do Assistente Amare (conteúdo guiado do bot).
+  python manage.py loaddata respostas_iniciais \
+    || echo "[startup] aviso: loaddata respostas_iniciais falhou (seguindo mesmo assim)"
   python manage.py criar_usuarios_teste \
     || echo "[startup] aviso: criar_usuarios_teste falhou (seguindo mesmo assim)"
 fi
