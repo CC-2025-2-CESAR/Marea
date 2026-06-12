@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'ciclo',
     'busca',
     'auditoria',
+    'assistente',
 ]
 
 MIDDLEWARE = [
