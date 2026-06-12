@@ -12,6 +12,34 @@ from consultas.serializers import ConsultaSerializer
 from medicamentos.models import Medicamento
 from medicamentos.serializers import MedicamentoSerializer
 from usuarios.models import Paciente
+from usuarios.permissions import (
+    PAPEIS_COM_ESCRITA,
+    PAPEL_ACESSO_ADMIN,
+    PAPEL_ACESSO_ASSUMIDO,
+    PAPEL_ACESSO_RESPONSAVEL,
+    PAPEL_ACESSO_VISUALIZACAO,
+    papel_no_cuidado,
+)
+
+# Texto do selo de acesso mostrado na interface da médica.
+ROTULO_PERMISSAO = {
+    PAPEL_ACESSO_ADMIN: 'Administração',
+    PAPEL_ACESSO_RESPONSAVEL: 'Responsável: você',
+    PAPEL_ACESSO_ASSUMIDO: 'Atendimento assumido',
+    PAPEL_ACESSO_VISUALIZACAO: 'Visualização apenas',
+}
+
+
+def permissao_da_paciente(context, paciente):
+    """Status de acesso de quem faz o request a esta paciente (para a UI)."""
+    request = context.get('request')
+    usuario = getattr(request, 'user', None)
+    papel = papel_no_cuidado(usuario, paciente)
+    return {
+        'papel': papel,
+        'pode_editar': papel in PAPEIS_COM_ESCRITA,
+        'rotulo': ROTULO_PERMISSAO[papel],
+    }
 
 
 class PacienteResumoSerializer(serializers.ModelSerializer):
@@ -21,6 +49,7 @@ class PacienteResumoSerializer(serializers.ModelSerializer):
     telefone = serializers.CharField(source='perfil.telefone', read_only=True)
     total_consultas = serializers.SerializerMethodField()
     total_medicamentos = serializers.SerializerMethodField()
+    permissao = serializers.SerializerMethodField()
 
     class Meta:
         model = Paciente
@@ -31,6 +60,7 @@ class PacienteResumoSerializer(serializers.ModelSerializer):
             'tipo_sanguineo',
             'total_consultas',
             'total_medicamentos',
+            'permissao',
         )
 
     def get_nome_completo(self, obj):
@@ -42,6 +72,9 @@ class PacienteResumoSerializer(serializers.ModelSerializer):
     def get_total_medicamentos(self, obj):
         return obj.medicamentos.filter(ativo=True).count()
 
+    def get_permissao(self, obj):
+        return permissao_da_paciente(self.context, obj)
+
 
 class PacienteDetalheSerializer(serializers.ModelSerializer):
     """Detalhe completo de uma paciente para a médica acompanhar."""
@@ -51,6 +84,7 @@ class PacienteDetalheSerializer(serializers.ModelSerializer):
     email = serializers.CharField(source='perfil.usuario.email', read_only=True)
     consultas = serializers.SerializerMethodField()
     medicamentos = serializers.SerializerMethodField()
+    permissao = serializers.SerializerMethodField()
 
     class Meta:
         model = Paciente
@@ -65,6 +99,7 @@ class PacienteDetalheSerializer(serializers.ModelSerializer):
             'observacoes_medicas',
             'consultas',
             'medicamentos',
+            'permissao',
         )
 
     def get_nome_completo(self, obj):
@@ -79,6 +114,9 @@ class PacienteDetalheSerializer(serializers.ModelSerializer):
     def get_medicamentos(self, obj):
         medicamentos = obj.medicamentos.filter(ativo=True)
         return MedicamentoSerializer(medicamentos, many=True).data
+
+    def get_permissao(self, obj):
+        return permissao_da_paciente(self.context, obj)
 
 
 class ConsultaCriarSerializer(serializers.ModelSerializer):
