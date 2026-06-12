@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
@@ -199,3 +200,102 @@ class RBACPermissoesTests(TestCase):
         self.assertFalse(IsAdminClinica().has_permission(req, None))
         req.user = AnonymousUser()
         self.assertFalse(IsAdminClinica().has_permission(req, None))
+
+
+class LoginViewTests(APITestCase):
+    """Login aceita username OU e-mail, sem regredir o login por username."""
+
+    URL = '/api/auth/login/'
+    SENHA = 'senha-forte-123'
+
+    def setUp(self):
+        # Zera o histórico do throttle entre os métodos: LoginThrottle limita a
+        # 10/min por IP e o cache acumularia ao longo da classe de testes.
+        cache.clear()
+        self.usuario = User.objects.create_user(
+            username='renata',
+            email='Renata@Amare.test',
+            password=self.SENHA,
+        )
+        PerfilUsuario.objects.create(
+            usuario=self.usuario,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Renata Teste',
+        )
+
+    def test_login_por_username_continua_funcionando(self):
+        resposta = self.client.post(
+            self.URL, {'username': 'renata', 'password': self.SENHA}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn('access', resposta.data)
+        self.assertIn('refresh', resposta.data)
+        self.assertEqual(resposta.data['usuario']['username'], 'renata')
+        self.assertEqual(resposta.data['usuario']['tipo_usuario'], 'paciente')
+
+    def test_login_por_email_funciona(self):
+        resposta = self.client.post(
+            self.URL,
+            {'username': 'Renata@Amare.test', 'password': self.SENHA},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.data['usuario']['username'], 'renata')
+
+    def test_login_por_email_e_case_insensitive(self):
+        resposta = self.client.post(
+            self.URL,
+            {'username': 'renata@amare.test', 'password': self.SENHA},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.data['usuario']['username'], 'renata')
+
+    def test_senha_errada_por_email_retorna_401(self):
+        resposta = self.client.post(
+            self.URL,
+            {'username': 'renata@amare.test', 'password': 'errada'},
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+    def test_senha_errada_por_username_retorna_401(self):
+        resposta = self.client.post(
+            self.URL, {'username': 'renata', 'password': 'errada'}
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+    def test_email_inexistente_retorna_401(self):
+        resposta = self.client.post(
+            self.URL,
+            {'username': 'ninguem@amare.test', 'password': self.SENHA},
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+    def test_campos_vazios_retornam_400(self):
+        resposta = self.client.post(self.URL, {'username': 'renata'})
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_email_duplicado_nao_autentica(self):
+        """E-mail repetido (o User não força unicidade): recusa em vez de logar
+        a conta errada — o username segue sendo o caminho sem ambiguidade."""
+        User.objects.create_user(
+            username='renata2',
+            email='Renata@Amare.test',
+            password=self.SENHA,
+        )
+        resposta = self.client.post(
+            self.URL,
+            {'username': 'Renata@Amare.test', 'password': self.SENHA},
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+    def test_username_funciona_mesmo_com_email_duplicado(self):
+        """Mesmo com e-mail ambíguo, cada conta entra pelo próprio username."""
+        User.objects.create_user(
+            username='renata2',
+            email='Renata@Amare.test',
+            password=self.SENHA,
+        )
+        resposta = self.client.post(
+            self.URL, {'username': 'renata2', 'password': self.SENHA}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.data['usuario']['username'], 'renata2')
