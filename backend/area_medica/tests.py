@@ -9,6 +9,7 @@ além do status de permissão exposto para a interface.
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
+from auditoria.models import LogAtividade
 from consultas.models import Consulta
 from medicamentos.models import Medicamento
 from usuarios.models import (
@@ -220,4 +221,210 @@ class AreaMedicaTests(APITestCase):
     def test_anonimo_e_bloqueado(self):
         self.assertEqual(
             self.client.get('/api/medica/pacientes/').status_code, 401
+        )
+
+    # --- assumir atendimento: cria vínculo + grava log + libera escrita ---
+
+    def test_medica_assume_atendimento_de_paciente_de_outra(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.data['permissao']['papel'], 'assumido')
+        self.assertTrue(resp.data['permissao']['pode_editar'])
+        self.assertTrue(
+            EquipeCuidadoPaciente.objects.filter(
+                paciente=self.pac_b, medica=self.m1, ativa=True
+            ).exists()
+        )
+        self.assertTrue(
+            LogAtividade.objects.filter(
+                usuario=self.m1.perfil.usuario,
+                acao=LogAtividade.ACAO_ASSUMIR_ATENDIMENTO,
+                paciente=self.pac_b,
+            ).exists()
+        )
+
+    def test_assumir_grava_motivo_no_log(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'outro', 'observacao': 'Paciente passou mal na recepção'},
+            format='json',
+        )
+        log = LogAtividade.objects.get(
+            acao=LogAtividade.ACAO_ASSUMIR_ATENDIMENTO, paciente=self.pac_b
+        )
+        self.assertIn('Paciente passou mal na recepção', log.motivo)
+
+    def test_assumir_depois_permite_escrever(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'cobertura_agenda'},
+            format='json',
+        )
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/medicamentos/',
+            {'nome': 'Estradiol', 'dose': '2mg'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 201)
+
+    def test_assumir_e_idempotente(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        url = f'/api/medica/pacientes/{self.pac_b.id}/assumir/'
+        self.client.post(url, {'motivo': 'plantao'}, format='json')
+        resp = self.client.post(url, {'motivo': 'plantao'}, format='json')
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['vinculo']['ja_estava_ativo'])
+        self.assertEqual(
+            EquipeCuidadoPaciente.objects.filter(
+                paciente=self.pac_b, medica=self.m1, ativa=True
+            ).count(),
+            1,
+        )
+
+    def test_assumir_compartilhada_marca_colaboradora(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'consulta_compartilhada'},
+            format='json',
+        )
+        vinculo = EquipeCuidadoPaciente.objects.get(
+            paciente=self.pac_b, medica=self.m1, ativa=True
+        )
+        self.assertEqual(
+            vinculo.papel, EquipeCuidadoPaciente.PAPEL_COLABORADORA
+        )
+
+    # --- assumir atendimento: validação e acesso negado ---
+
+    def test_assumir_outro_sem_observacao_falha(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'outro'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(
+            EquipeCuidadoPaciente.objects.filter(
+                paciente=self.pac_b, medica=self.m1
+            ).exists()
+        )
+
+    def test_assumir_motivo_invalido_falha(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'porque_sim'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_responsavel_nao_precisa_assumir(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_a.id}/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(
+            EquipeCuidadoPaciente.objects.filter(paciente=self.pac_a).exists()
+        )
+
+    def test_admin_nao_assume_pois_ja_edita(self):
+        self.client.force_authenticate(self.adm)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_a.id}/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 400)
+
+    def test_paciente_nao_pode_assumir(self):
+        self.client.force_authenticate(self.pac_a.perfil.usuario)
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 403)
+
+    def test_anonimo_nao_pode_assumir(self):
+        resp = self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 401)
+
+    def test_assumir_paciente_inexistente_404(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        resp = self.client.post(
+            '/api/medica/pacientes/99999/assumir/',
+            {'motivo': 'plantao'},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    # --- trilha de auditoria: visualização e edição sensíveis ---
+
+    def test_ver_paciente_de_outra_gera_log(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.get(f'/api/medica/pacientes/{self.pac_b.id}/')
+        self.assertTrue(
+            LogAtividade.objects.filter(
+                usuario=self.m1.perfil.usuario,
+                acao=LogAtividade.ACAO_VISUALIZAR_PACIENTE,
+                paciente=self.pac_b,
+            ).exists()
+        )
+
+    def test_ver_propria_paciente_nao_gera_log(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.get(f'/api/medica/pacientes/{self.pac_a.id}/')
+        self.assertFalse(
+            LogAtividade.objects.filter(
+                acao=LogAtividade.ACAO_VISUALIZAR_PACIENTE,
+                paciente=self.pac_a,
+            ).exists()
+        )
+
+    def test_edicao_apos_assumir_gera_log(self):
+        EquipeCuidadoPaciente.objects.create(
+            paciente=self.pac_b, medica=self.m1, ativa=True
+        )
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.post(
+            f'/api/medica/pacientes/{self.pac_b.id}/consultas/',
+            {'data_horario': '2026-07-01T10:00:00Z', 'local': 'Clínica'},
+            format='json',
+        )
+        self.assertTrue(
+            LogAtividade.objects.filter(
+                usuario=self.m1.perfil.usuario,
+                acao=LogAtividade.ACAO_CRIAR_CONSULTA,
+                paciente=self.pac_b,
+            ).exists()
+        )
+
+    def test_edicao_da_responsavel_nao_gera_log(self):
+        self.client.force_authenticate(self.m1.perfil.usuario)
+        self.client.post(
+            f'/api/medica/pacientes/{self.pac_a.id}/medicamentos/',
+            {'nome': 'Progesterona', 'dose': '200mg'},
+            format='json',
+        )
+        self.assertFalse(
+            LogAtividade.objects.filter(
+                acao=LogAtividade.ACAO_CRIAR_MEDICAMENTO,
+                paciente=self.pac_a,
+            ).exists()
         )

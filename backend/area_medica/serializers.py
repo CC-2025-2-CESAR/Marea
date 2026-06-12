@@ -145,3 +145,42 @@ class MedicamentoCriarSerializer(serializers.ModelSerializer):
         if not valor.strip():
             raise serializers.ValidationError('Informe o nome do medicamento.')
         return valor
+
+
+# Motivos para uma médica assumir o atendimento de uma paciente de outra.
+MOTIVO_COBERTURA = 'cobertura_agenda'
+MOTIVO_PLANTAO = 'plantao'
+MOTIVO_COMPARTILHADA = 'consulta_compartilhada'
+MOTIVO_EMERGENCIAL = 'retorno_emergencial'
+MOTIVO_OUTRO = 'outro'
+MOTIVOS_ASSUMIR = [
+    (MOTIVO_COBERTURA, 'Cobertura de agenda'),
+    (MOTIVO_PLANTAO, 'Plantão'),
+    (MOTIVO_COMPARTILHADA, 'Consulta compartilhada'),
+    (MOTIVO_EMERGENCIAL, 'Retorno emergencial'),
+    (MOTIVO_OUTRO, 'Outro'),
+]
+# Motivo de colaboração contínua → vínculo de colaboradora (não de substituta).
+MOTIVOS_COLABORACAO = frozenset({MOTIVO_COMPARTILHADA})
+
+
+class AssumirAtendimentoSerializer(serializers.Serializer):
+    """Valida o motivo de uma médica assumir o atendimento de uma paciente.
+
+    `observacao` é livre e passa a ser obrigatória quando o motivo é "Outro" —
+    para a trilha de auditoria nunca registrar um "outro" sem explicação.
+    """
+
+    motivo = serializers.ChoiceField(choices=MOTIVOS_ASSUMIR)
+    observacao = serializers.CharField(
+        required=False, allow_blank=True, max_length=500
+    )
+
+    def validate(self, dados):
+        observacao = (dados.get('observacao') or '').strip()
+        if dados['motivo'] == MOTIVO_OUTRO and not observacao:
+            raise serializers.ValidationError(
+                {'observacao': 'Descreva o motivo quando escolher "Outro".'}
+            )
+        dados['observacao'] = observacao
+        return dados
