@@ -70,6 +70,29 @@
   background: var(--cor-card);
   box-shadow: var(--sombra-suave);
   border-top: 4px solid var(--cor-rosa-secundario);
+  transition:
+    transform 0.18s ease-out,
+    box-shadow 0.18s ease-out;
+}
+
+/* Leve elevação no hover/foco, ecoando o InteractiveCard das especialidades.
+   O título segue sendo o alvo de clique — o card tem links internos (chips de
+   termos), então não pode virar um link inteiro. */
+.orientacoes-card:hover,
+.orientacoes-card:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px rgba(128, 82, 53, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orientacoes-card {
+    transition: none;
+  }
+
+  .orientacoes-card:hover,
+  .orientacoes-card:focus-within {
+    transform: none;
+  }
 }
 
 .orientacoes-card__titulo {

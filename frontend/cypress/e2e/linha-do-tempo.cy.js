@@ -159,6 +159,39 @@ describe('Linha do tempo da Amare', () => {
     cy.location('pathname').should('eq', '/ciclo')
   })
 
+  it('expande e recolhe as etapas ao tocar no cabeçalho', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: jornadaMock }).as('listar')
+    visitarLinhaDoTempo()
+    cy.wait('@listar')
+
+    // A etapa atual começa aberta: o painel de ações aparece e o toggle marca
+    // aria-expanded=true. Ao tocar, recolhe e o painel some.
+    cy.get('[data-cy=linha-do-tempo-item][data-status="atual"]').within(() => {
+      cy.get('[data-cy=linha-do-tempo-acoes]').should('be.visible')
+      cy.get('[data-cy=linha-do-tempo-item-toggle]')
+        .should('have.attr', 'aria-expanded', 'true')
+        .click()
+      cy.get('[data-cy=linha-do-tempo-item-toggle]').should(
+        'have.attr',
+        'aria-expanded',
+        'false',
+      )
+      cy.get('[data-cy=linha-do-tempo-acoes]').should('not.exist')
+    })
+
+    // Uma etapa concluída começa recolhida (a descrição nem está no DOM) e
+    // expande ao tocar no cabeçalho.
+    cy.get('[data-cy=linha-do-tempo-item][data-status="concluida"]').within(
+      () => {
+        cy.contains('Consultas e exames iniciais.').should('not.exist')
+        cy.get('[data-cy=linha-do-tempo-item-toggle]')
+          .should('have.attr', 'aria-expanded', 'false')
+          .click()
+        cy.contains('Consultas e exames iniciais.').should('be.visible')
+      },
+    )
+  })
+
   it('exibe mensagem quando não há etapas', () => {
     cy.intercept('GET', ROTA_LISTA, { body: [] }).as('listar')
     visitarLinhaDoTempo()
