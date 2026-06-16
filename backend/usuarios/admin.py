@@ -2,7 +2,13 @@
 
 from django.contrib import admin
 
-from .models import EquipeCuidadoPaciente, Medica, Paciente, PerfilUsuario
+from .models import (
+    ConviteAcesso,
+    EquipeCuidadoPaciente,
+    Medica,
+    Paciente,
+    PerfilUsuario,
+)
 
 
 class PacienteInline(admin.StackedInline):
@@ -63,3 +69,20 @@ class EquipeCuidadoPacienteAdmin(admin.ModelAdmin):
     autocomplete_fields = ('paciente', 'medica')
     readonly_fields = ('criada_em',)
     date_hierarchy = 'criada_em'
+
+
+@admin.register(ConviteAcesso)
+class ConviteAcessoAdmin(admin.ModelAdmin):
+    list_display = (
+        'usuario',
+        'status',
+        'criado_por',
+        'criado_em',
+        'expira_em',
+        'usado_em',
+    )
+    list_filter = ('status',)
+    search_fields = ('usuario__username', 'usuario__email', 'token')
+    autocomplete_fields = ('usuario', 'criado_por')
+    readonly_fields = ('token', 'criado_em', 'usado_em')
+    date_hierarchy = 'criado_em'

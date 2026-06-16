@@ -1,8 +1,13 @@
 """Serializers da app usuarios."""
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
-from .models import Paciente, PerfilUsuario
+from .models import Medica, Paciente, PerfilUsuario
+
+User = get_user_model()
 
 
 class UsuarioBasicoSerializer(serializers.Serializer):
@@ -92,3 +97,68 @@ class PerfilPacienteSerializer(serializers.ModelSerializer):
             paciente.save()
 
         return instance
+
+
+class CriarPacienteSerializer(serializers.Serializer):
+    """Valida os dados mínimos para a clínica cadastrar uma nova paciente.
+
+    Não cria nada por si só — a orquestração (User inativo + PerfilUsuario +
+    Paciente + ConviteAcesso) fica na view, dentro de uma transação. Aqui só
+    garantimos os campos obrigatórios e que o e-mail ainda não está em uso.
+    """
+
+    nome_completo = serializers.CharField(max_length=180)
+    email = serializers.EmailField()
+    telefone = serializers.CharField(
+        max_length=30, required=False, allow_blank=True, default=''
+    )
+    data_nascimento = serializers.DateField(required=False, allow_null=True)
+    medica_responsavel_id = serializers.IntegerField(
+        required=False, allow_null=True
+    )
+
+    def validate_nome_completo(self, valor):
+        valor = valor.strip()
+        if not valor:
+            raise serializers.ValidationError('Informe o nome da paciente.')
+        return valor
+
+    def validate_email(self, valor):
+        valor = valor.strip()
+        # E-mail é a chave de acesso da paciente (login por e-mail). Recusamos
+        # duplicatas aqui para não criar a ambiguidade que o login evita.
+        if User.objects.filter(email__iexact=valor).exists():
+            raise serializers.ValidationError(
+                'Já existe uma conta com este e-mail.'
+            )
+        return valor
+
+    def validate_medica_responsavel_id(self, valor):
+        if valor in (None, ''):
+            return None
+        if not Medica.objects.filter(pk=valor).exists():
+            raise serializers.ValidationError(
+                'Médica responsável não encontrada.'
+            )
+        return valor
+
+
+class DefinirSenhaSerializer(serializers.Serializer):
+    """Valida a senha escolhida pela paciente no primeiro acesso.
+
+    Aplica os mesmos validadores de senha do Django configurados no projeto
+    (tamanho mínimo, senha comum, só números, semelhança com os dados da
+    conta). A conta convidada é passada no contexto para a checagem de
+    semelhança funcionar.
+    """
+
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
+
+    def validate_password(self, valor):
+        if not valor:
+            raise serializers.ValidationError('Informe uma senha.')
+        try:
+            validate_password(valor, user=self.context.get('usuario'))
+        except DjangoValidationError as erro:
+            raise serializers.ValidationError(list(erro.messages))
+        return valor
