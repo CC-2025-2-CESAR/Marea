@@ -237,10 +237,20 @@ Endpoints (todos function-based):
   aplica os validadores de senha do Django, **ativa a conta, queima o token** e
   já devolve `{access, refresh, usuario}` (a paciente entra direto). A partir
   daí ela faz login normalmente por e-mail ou username.
+- `POST /api/clinica/pacientes/<id>/reenviar-convite/` — restrito à médica ou à
+  administração (`IsMedicaOuAdmin`). Emite um novo link para uma paciente que
+  ainda não ativou o acesso (link perdido ou expirado); encerra os convites
+  pendentes anteriores para manter só um válido. Não se aplica a contas já
+  ativadas.
 
-Esta etapa é **só backend**: a tela `/ativar/:token` e o formulário "Nova
-paciente" vêm na fatia seguinte. O envio por e-mail (SMTP) é plugável e fica
-para depois — por ora o link aparece na resposta da API para a clínica copiar.
+No frontend, a tela [`/ativar/:token`](http://localhost:5173/ativar/exemplo) é
+**pública** (a paciente ainda não tem sessão): valida o convite, mostra o estado
+quando ele está expirado/usado/inexistente e, quando válido, deixa a paciente
+criar e confirmar a senha — ao concluir, ela já entra autenticada. Na área da
+médica, o formulário **"Nova paciente"** cadastra a conta e exibe o link de
+primeiro acesso **para copiar** (com a opção de gerar um novo link). O envio por
+e-mail (SMTP) é plugável e fica para depois — por ora o link aparece na tela
+para a clínica repassar.
 
 ## Dicionário de termos médicos (PROJ-3 e PROJ-4)
 

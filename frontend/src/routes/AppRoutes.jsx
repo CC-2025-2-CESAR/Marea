@@ -3,6 +3,7 @@ import AuthLayout from '../layouts/AuthLayout/AuthLayout'
 import AppLayout from '../layouts/AppLayout/AppLayout'
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
 import Login from '../pages/Login/Login'
+import Ativacao from '../pages/Ativacao/Ativacao'
 import Home from '../pages/Home/Home'
 import Perfil from '../pages/Perfil/Perfil'
 import Consultas from '../pages/Consultas/Consultas'
@@ -31,6 +32,9 @@ function AppRoutes() {
       <Routes>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
+          {/* Primeiro acesso por convite: rota pública — a paciente ainda não
+              tem sessão. Define a senha e já entra. */}
+          <Route path="/ativar/:token" element={<Ativacao />} />
         </Route>
 
         {/* Área da médica (em construção): exclusiva do papel "medica". */}

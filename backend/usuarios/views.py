@@ -6,6 +6,7 @@ ViewSets ou Django Forms (regra da disciplina).
 
 from django.contrib.auth import authenticate, get_user_model
 from django.db import transaction
+from django.utils import timezone
 from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.decorators import (
@@ -330,4 +331,53 @@ def definir_senha_convite(request, token):
             **tokens,
             'usuario': UsuarioBasicoSerializer(usuario).data,
         }
+    )
+
+
+@api_view(['POST'])
+@permission_classes([IsMedicaOuAdmin])
+def reenviar_convite(request, paciente_id):
+    """Emite um novo link de primeiro acesso para uma paciente ainda inativa.
+
+    Útil quando o link anterior se perdeu ou expirou. Encerra os convites
+    pendentes anteriores (expira agora) para manter um único link válido por
+    vez e cria um novo. Não se aplica a contas já ativadas.
+    """
+    usuario = (
+        User.objects.filter(
+            pk=paciente_id,
+            perfil__tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+        )
+        .select_related('perfil')
+        .first()
+    )
+    if usuario is None:
+        return Response(
+            {'detail': 'Paciente não encontrada.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    if usuario.is_active:
+        return Response(
+            {
+                'detail': (
+                    'Esta paciente já ativou o acesso; '
+                    'não é preciso reenviar o convite.'
+                )
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    with transaction.atomic():
+        # Encerra (expira agora) os convites ainda pendentes para deixar só o
+        # novo link válido, e então emite o convite atual.
+        ConviteAcesso.objects.filter(
+            usuario=usuario, status=ConviteAcesso.STATUS_PENDENTE
+        ).update(expira_em=timezone.now())
+        convite = ConviteAcesso.objects.create(
+            usuario=usuario, criado_por=request.user
+        )
+
+    return Response(
+        {'convite': _dados_convite(request, convite)},
+        status=status.HTTP_201_CREATED,
     )

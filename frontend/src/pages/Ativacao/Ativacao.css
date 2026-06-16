@@ -1,0 +1,123 @@
+.ativacao-tela {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-md);
+  background-color: var(--cor-fundo);
+}
+
+.ativacao-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--cor-card);
+  border-radius: 36px;
+  box-shadow: var(--sombra-suave);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-lg);
+}
+
+.ativacao-logo {
+  width: 180px;
+  max-width: 62%;
+  height: auto;
+}
+
+.ativacao-intro,
+.ativacao-invalido {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-sm);
+  text-align: center;
+}
+
+.ativacao-titulo {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--cor-marrom);
+}
+
+.ativacao-sub {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.ativacao-nome,
+.ativacao-email {
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.ativacao-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.ativacao-olho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--cor-caramelo);
+  padding: 4px;
+  border-radius: var(--raio-pequeno);
+  cursor: pointer;
+}
+
+.ativacao-olho:hover {
+  color: var(--cor-terracota);
+}
+
+.ativacao-ajuda {
+  margin: -8px 0 0;
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.ativacao-feedback {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.ativacao-feedback--erro {
+  color: var(--cor-erro);
+  background-color: rgba(209, 29, 70, 0.08);
+}
+
+.ativacao-feedback--sucesso {
+  color: var(--cor-sucesso);
+  background-color: rgba(114, 147, 104, 0.12);
+}
+
+.ativacao-voltar {
+  color: var(--cor-azul-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .ativacao-card {
+    padding: 36px 22px;
+    border-radius: 28px;
+    gap: var(--espaco-md);
+  }
+
+  .ativacao-logo {
+    width: 142px;
+  }
+}

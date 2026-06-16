@@ -532,3 +532,67 @@ class ConviteAcessoFluxoTests(APITestCase):
         )
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(resposta.data['usuario']['username'], 'nova_paciente')
+
+
+class ReenviarConviteViewTests(APITestCase):
+    """A clínica gera um novo link de primeiro acesso para uma conta inativa."""
+
+    def setUp(self):
+        self.medica = _criar_medica('dra_reenvio')
+        self.usuario = User.objects.create_user(
+            username='paciente_reenvio',
+            email='reenvio@amare.test',
+            is_active=False,
+        )
+        perfil = PerfilUsuario.objects.create(
+            usuario=self.usuario,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Paciente Reenvio',
+        )
+        Paciente.objects.create(perfil=perfil)
+        self.convite = ConviteAcesso.objects.create(usuario=self.usuario)
+
+    def _url(self, pid=None):
+        return f'/api/clinica/pacientes/{pid or self.usuario.id}/reenviar-convite/'
+
+    def test_medica_reenvia_gera_novo_link_e_expira_anterior(self):
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(self._url())
+        self.assertEqual(resposta.status_code, 201)
+        novo = resposta.data['convite']
+        self.assertIn('/ativar/', novo['link'])
+        self.assertNotEqual(novo['token'], self.convite.token)
+        # O novo convite vale; o anterior foi encerrado.
+        self.assertTrue(
+            ConviteAcesso.objects.get(token=novo['token']).pode_ser_usado()
+        )
+        self.convite.refresh_from_db()
+        self.assertFalse(self.convite.pode_ser_usado())
+
+    def test_reenviar_paciente_ja_ativa_recusado(self):
+        self.usuario.is_active = True
+        self.usuario.save(update_fields=['is_active'])
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(self._url())
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_reenviar_paciente_inexistente_404(self):
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(self._url(999999))
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_reenviar_para_nao_paciente_404(self):
+        # A conta da médica não é paciente: reenviar não se aplica a ela.
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(self._url(self.medica.perfil.usuario_id))
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_paciente_nao_pode_reenviar(self):
+        outra = _criar_paciente('pac_sem_reenvio')
+        self.client.force_authenticate(outra.perfil.usuario)
+        resposta = self.client.post(self._url())
+        self.assertEqual(resposta.status_code, 403)
+
+    def test_anonimo_recebe_401(self):
+        resposta = self.client.post(self._url())
+        self.assertEqual(resposta.status_code, 401)
