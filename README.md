@@ -215,6 +215,33 @@ Use `admin_teste` / `amare123`. O Django Admin permite criar/editar perfis,
 ajustar tipo de usuário, preencher medicamentos e observações da paciente, e
 cadastrar dados profissionais das médicas.
 
+## Cadastro e convite de primeiro acesso (PROJ-7)
+
+A clínica cria a conta da paciente e a paciente assume o acesso por um link de
+convite. A conta nasce **inativa e sem senha utilizável**: ninguém entra por
+ela até a paciente usar o convite e definir a própria senha. O token é
+**único, de uso único e válido por 48h**.
+
+Endpoints (todos function-based):
+
+- `POST /api/clinica/pacientes/` — restrito à **médica responsável ou à
+  administração** (`IsMedicaOuAdmin`). Recebe os dados mínimos (`nome_completo`,
+  `email`; opcionais `telefone`, `data_nascimento`, `medica_responsavel_id`),
+  cria `User` inativo + `PerfilUsuario` + `Paciente` + o convite e **devolve o
+  link de primeiro acesso** (`/ativar/<token>`) para a clínica repassar à
+  paciente. Quando quem cadastra é uma médica, ela já fica como responsável. O
+  e-mail precisa ser único (é a chave de acesso da paciente no login).
+- `GET /api/convite/<token>/` — público. Informa se o convite é válido
+  (`{valido, status, nome, email}`), para a tela de ativação saber o que exibir.
+- `POST /api/convite/<token>/definir-senha/` — público. Recebe `{password}`,
+  aplica os validadores de senha do Django, **ativa a conta, queima o token** e
+  já devolve `{access, refresh, usuario}` (a paciente entra direto). A partir
+  daí ela faz login normalmente por e-mail ou username.
+
+Esta etapa é **só backend**: a tela `/ativar/:token` e o formulário "Nova
+paciente" vêm na fatia seguinte. O envio por e-mail (SMTP) é plugável e fica
+para depois — por ora o link aparece na resposta da API para a clínica copiar.
+
 ## Dicionário de termos médicos (PROJ-3 e PROJ-4)
 
 Primeira feature do projeto com persistência real. Disponível em

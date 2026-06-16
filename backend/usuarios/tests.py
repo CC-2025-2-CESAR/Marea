@@ -1,13 +1,17 @@
 """Testes de controle de acesso por papel da app usuarios."""
 
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
 from django.test import TestCase
+from django.utils import timezone
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from .models import (
+    ConviteAcesso,
     EquipeCuidadoPaciente,
     Medica,
     Paciente,
@@ -299,3 +303,232 @@ class LoginViewTests(APITestCase):
         )
         self.assertEqual(resposta.status_code, 200)
         self.assertEqual(resposta.data['usuario']['username'], 'renata2')
+
+
+class CriarPacienteViewTests(APITestCase):
+    """A clínica cadastra a paciente e recebe o link de primeiro acesso."""
+
+    URL = '/api/clinica/pacientes/'
+
+    def setUp(self):
+        self.medica = _criar_medica('dra_cadastro')
+        self.admin = User.objects.create_user(
+            'admin_cadastro', password='x', is_superuser=True
+        )
+        PerfilUsuario.objects.create(
+            usuario=self.admin,
+            tipo_usuario=PerfilUsuario.TIPO_ADMIN,
+            nome_completo='Admin Cadastro',
+        )
+
+    def test_medica_cadastra_paciente_e_recebe_link(self):
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(
+            self.URL,
+            {'nome_completo': 'Maria Souza', 'email': 'maria@amare.test'},
+        )
+        self.assertEqual(resposta.status_code, 201)
+        convite = resposta.data['convite']
+        self.assertIn('/ativar/', convite['link'])
+        self.assertTrue(convite['token'])
+        self.assertIn(convite['token'], convite['link'])
+        # Conta criada, inativa e sem senha utilizável.
+        usuario = User.objects.get(email='maria@amare.test')
+        self.assertFalse(usuario.is_active)
+        self.assertFalse(usuario.has_usable_password())
+        # Perfil de paciente + Paciente com a médica como responsável.
+        self.assertEqual(usuario.perfil.tipo_usuario, 'paciente')
+        self.assertEqual(
+            usuario.perfil.paciente.medica_responsavel_id, self.medica.id
+        )
+        # Um convite pendente para essa conta.
+        self.assertTrue(
+            ConviteAcesso.objects.filter(
+                usuario=usuario, status=ConviteAcesso.STATUS_PENDENTE
+            ).exists()
+        )
+
+    def test_admin_cadastra_sem_medica_responsavel(self):
+        self.client.force_authenticate(self.admin)
+        resposta = self.client.post(
+            self.URL,
+            {'nome_completo': 'Sem Medica', 'email': 'sem@amare.test'},
+        )
+        self.assertEqual(resposta.status_code, 201)
+        usuario = User.objects.get(email='sem@amare.test')
+        self.assertIsNone(usuario.perfil.paciente.medica_responsavel)
+
+    def test_admin_pode_indicar_medica_responsavel(self):
+        self.client.force_authenticate(self.admin)
+        resposta = self.client.post(
+            self.URL,
+            {
+                'nome_completo': 'Com Medica',
+                'email': 'com@amare.test',
+                'medica_responsavel_id': self.medica.id,
+            },
+        )
+        self.assertEqual(resposta.status_code, 201)
+        usuario = User.objects.get(email='com@amare.test')
+        self.assertEqual(
+            usuario.perfil.paciente.medica_responsavel_id, self.medica.id
+        )
+
+    def test_email_duplicado_recusado(self):
+        User.objects.create_user(
+            'existente', email='dup@amare.test', password='x'
+        )
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(
+            self.URL,
+            {'nome_completo': 'Outra', 'email': 'DUP@amare.test'},
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.assertIn('email', resposta.data)
+
+    def test_email_obrigatorio(self):
+        self.client.force_authenticate(self.medica.perfil.usuario)
+        resposta = self.client.post(self.URL, {'nome_completo': 'Sem Email'})
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_medica_responsavel_inexistente_recusada(self):
+        self.client.force_authenticate(self.admin)
+        resposta = self.client.post(
+            self.URL,
+            {
+                'nome_completo': 'X',
+                'email': 'x@amare.test',
+                'medica_responsavel_id': 99999,
+            },
+        )
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_paciente_nao_pode_cadastrar(self):
+        paciente = _criar_paciente('pac_sem_poder')
+        self.client.force_authenticate(paciente.perfil.usuario)
+        resposta = self.client.post(
+            self.URL,
+            {'nome_completo': 'Nope', 'email': 'nope@amare.test'},
+        )
+        self.assertEqual(resposta.status_code, 403)
+        self.assertFalse(User.objects.filter(email='nope@amare.test').exists())
+
+    def test_anonimo_recebe_401(self):
+        resposta = self.client.post(
+            self.URL,
+            {'nome_completo': 'Anon', 'email': 'anon@amare.test'},
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+
+class ConviteAcessoFluxoTests(APITestCase):
+    """Validar o convite e definir a senha no primeiro acesso."""
+
+    SENHA_FORTE = 'Girassol#2024'
+
+    def setUp(self):
+        # O teste de login pós-ativação passa pelo LoginThrottle (10/min por IP).
+        cache.clear()
+        self.usuario = User.objects.create_user(
+            username='nova_paciente',
+            email='nova@amare.test',
+            is_active=False,
+        )
+        perfil = PerfilUsuario.objects.create(
+            usuario=self.usuario,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Nova Paciente',
+        )
+        Paciente.objects.create(perfil=perfil)
+        self.convite = ConviteAcesso.objects.create(usuario=self.usuario)
+
+    def _url_detalhe(self, token=None):
+        return f'/api/convite/{token or self.convite.token}/'
+
+    def _url_definir(self, token=None):
+        return f'/api/convite/{token or self.convite.token}/definir-senha/'
+
+    # GET /api/convite/<token>/
+    def test_detalhar_convite_valido(self):
+        resposta = self.client.get(self._url_detalhe())
+        self.assertEqual(resposta.status_code, 200)
+        self.assertTrue(resposta.data['valido'])
+        self.assertEqual(resposta.data['status'], 'pendente')
+        self.assertEqual(resposta.data['nome'], 'Nova Paciente')
+        self.assertEqual(resposta.data['email'], 'nova@amare.test')
+
+    def test_detalhar_convite_inexistente_404(self):
+        resposta = self.client.get(self._url_detalhe('token-falso'))
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_detalhar_convite_expirado(self):
+        self.convite.expira_em = timezone.now() - timedelta(hours=1)
+        self.convite.save(update_fields=['expira_em'])
+        resposta = self.client.get(self._url_detalhe())
+        self.assertEqual(resposta.status_code, 200)
+        self.assertFalse(resposta.data['valido'])
+        self.assertEqual(resposta.data['status'], 'expirado')
+
+    def test_detalhar_convite_usado(self):
+        self.convite.marcar_usado()
+        resposta = self.client.get(self._url_detalhe())
+        self.assertEqual(resposta.status_code, 200)
+        self.assertFalse(resposta.data['valido'])
+        self.assertEqual(resposta.data['status'], 'usado')
+
+    # POST /api/convite/<token>/definir-senha/
+    def test_definir_senha_ativa_conta_e_autentica(self):
+        resposta = self.client.post(
+            self._url_definir(), {'password': self.SENHA_FORTE}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn('access', resposta.data)
+        self.assertIn('refresh', resposta.data)
+        self.assertEqual(resposta.data['usuario']['username'], 'nova_paciente')
+        self.usuario.refresh_from_db()
+        self.assertTrue(self.usuario.is_active)
+        self.assertTrue(self.usuario.check_password(self.SENHA_FORTE))
+        self.convite.refresh_from_db()
+        self.assertEqual(self.convite.status, ConviteAcesso.STATUS_USADO)
+        self.assertIsNotNone(self.convite.usado_em)
+
+    def test_definir_senha_queima_o_token(self):
+        self.client.post(self._url_definir(), {'password': self.SENHA_FORTE})
+        resposta = self.client.post(
+            self._url_definir(), {'password': 'OutraSenha#2024'}
+        )
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_definir_senha_convite_expirado_recusado(self):
+        self.convite.expira_em = timezone.now() - timedelta(hours=1)
+        self.convite.save(update_fields=['expira_em'])
+        resposta = self.client.post(
+            self._url_definir(), {'password': self.SENHA_FORTE}
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.usuario.refresh_from_db()
+        self.assertFalse(self.usuario.is_active)
+
+    def test_definir_senha_fraca_recusada(self):
+        resposta = self.client.post(self._url_definir(), {'password': '123'})
+        self.assertEqual(resposta.status_code, 400)
+        self.usuario.refresh_from_db()
+        self.assertFalse(self.usuario.is_active)
+        self.convite.refresh_from_db()
+        self.assertEqual(self.convite.status, ConviteAcesso.STATUS_PENDENTE)
+
+    def test_definir_senha_convite_inexistente_404(self):
+        resposta = self.client.post(
+            self._url_definir('token-falso'), {'password': self.SENHA_FORTE}
+        )
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_login_por_email_apos_ativacao(self):
+        """Fecha o ciclo: depois de definir a senha, a paciente entra (7a)."""
+        self.client.post(self._url_definir(), {'password': self.SENHA_FORTE})
+        resposta = self.client.post(
+            '/api/auth/login/',
+            {'username': 'nova@amare.test', 'password': self.SENHA_FORTE},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.data['usuario']['username'], 'nova_paciente')

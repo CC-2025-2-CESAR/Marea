@@ -8,8 +8,12 @@ A criação dos perfis é feita explicitamente pelo Django Admin ou pelo
 management command `criar_usuarios_teste` — não há `post_save` automático.
 """
 
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class PerfilUsuario(models.Model):
@@ -180,3 +184,89 @@ class EquipeCuidadoPaciente(models.Model):
 
     def __str__(self):
         return f'{self.medica} — {self.get_papel_display()} de {self.paciente}'
+
+
+# Validade padrão de um convite de primeiro acesso (PROJ-7): 48 horas.
+JANELA_VALIDADE_CONVITE = timedelta(hours=48)
+
+
+def gerar_token_convite():
+    """Gera um token aleatório e difícil de adivinhar para o link de convite."""
+    return secrets.token_urlsafe(48)
+
+
+def prazo_padrao_convite():
+    """Quando um convite recém-criado expira: agora + 48h."""
+    return timezone.now() + JANELA_VALIDADE_CONVITE
+
+
+class ConviteAcesso(models.Model):
+    """Convite de primeiro acesso de uma paciente.
+
+    A clínica (médica responsável ou administração) cria a conta da paciente já
+    inativa e sem senha utilizável; este convite carrega um token único, válido
+    por 48h, que a paciente troca pela própria senha no primeiro acesso.
+    Enquanto o token não é usado (nem expira), a conta não tem senha — ninguém
+    entra por ela. O token é de uso único: ao definir a senha ele é "queimado".
+    """
+
+    STATUS_PENDENTE = 'pendente'
+    STATUS_USADO = 'usado'
+    STATUS_CHOICES = [
+        (STATUS_PENDENTE, 'Pendente'),
+        (STATUS_USADO, 'Usado'),
+    ]
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='convites_acesso',
+        verbose_name='Usuário convidado',
+    )
+    criado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name='convites_criados',
+        null=True,
+        blank=True,
+        verbose_name='Criado por',
+    )
+    token = models.CharField(
+        'Token',
+        max_length=128,
+        unique=True,
+        default=gerar_token_convite,
+        editable=False,
+    )
+    status = models.CharField(
+        'Status',
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDENTE,
+    )
+    expira_em = models.DateTimeField('Expira em', default=prazo_padrao_convite)
+    criado_em = models.DateTimeField('Criado em', auto_now_add=True)
+    usado_em = models.DateTimeField('Usado em', null=True, blank=True)
+
+    class Meta:
+        ordering = ['-criado_em', '-id']
+        verbose_name = 'Convite de acesso'
+        verbose_name_plural = 'Convites de acesso'
+
+    def __str__(self):
+        return f'Convite de {self.usuario} ({self.get_status_display()})'
+
+    @property
+    def expirado(self):
+        """True quando já passou da validade."""
+        return timezone.now() >= self.expira_em
+
+    def pode_ser_usado(self):
+        """Só um convite pendente e dentro da validade pode virar senha."""
+        return self.status == self.STATUS_PENDENTE and not self.expirado
+
+    def marcar_usado(self):
+        """Queima o token: o mesmo convite não é usado duas vezes."""
+        self.status = self.STATUS_USADO
+        self.usado_em = timezone.now()
+        self.save(update_fields=['status', 'usado_em'])
