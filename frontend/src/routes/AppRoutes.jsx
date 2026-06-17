@@ -42,37 +42,20 @@ function AppRoutes() {
           <Route path="/redefinir/:token" element={<Redefinicao />} />
         </Route>
 
-        {/* Área da médica: exclusiva do papel "medica", agora dentro do mesmo
-            shell da paciente (header, busca, rodapé, transição e drawer). A
-            navegação por papel é resolvida na Sidebar. */}
+        {/* Tudo autenticado compartilha o mesmo shell (uma única instância de
+            AppLayout — não remonta ao trocar de seção). Os sub-grupos abaixo só
+            controlam o acesso por papel; a Sidebar mostra a navegação do papel. */}
         <Route
           element={
-            <ProtectedRoute papel="medica">
+            <ProtectedRoute>
               <AppLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="/area-medica" element={<AreaMedica />} />
-        </Route>
-
-        {/* Área da paciente: qualquer usuária autenticada, menos a médica
-            (que tem a própria área). */}
-        <Route
-          element={
-            <ProtectedRoute excetoPapel="medica">
-              <AppLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Home />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/calendario" element={<Consultas />} />
-          <Route path="/ciclo" element={<Ciclo />} />
+          {/* Conteúdo institucional da clínica: qualquer usuária autenticada
+              (paciente ou médica). Endpoints públicos (AllowAny). */}
           <Route path="/dicionario" element={<Dicionario />} />
           <Route path="/dicionario/:id" element={<TermoDetalhe />} />
-          <Route path="/medicamentos" element={<Medicamentos />} />
-          <Route path="/medicamentos/:id" element={<MedicamentoDetalhe />} />
-          <Route path="/bot" element={<Bot />} />
           <Route path="/tratamentos" element={<Tratamentos />} />
           <Route path="/tratamentos/:id" element={<TratamentoDetalhe />} />
           <Route path="/orientacoes" element={<Orientacoes />} />
@@ -82,19 +65,36 @@ function AppRoutes() {
             path="/especialidades/:id"
             element={<EspecialidadeDetalhe />}
           />
-          <Route path="/linha-do-tempo" element={<LinhaDoTempo />} />
           <Route path="/apoio" element={<ApoioEmocional />} />
-          <Route path="/sintomas" element={<Sintomas />} />
+          <Route path="/bot" element={<Bot />} />
           <Route path="/busca" element={<Busca />} />
-          <Route
-            path="*"
-            element={
-              <EmBreve
-                titulo="Página não encontrada"
-                descricao="Esta página será desenvolvida em uma próxima etapa."
-              />
-            }
-          />
+
+          {/* Área da médica. */}
+          <Route element={<ProtectedRoute papel="medica" />}>
+            <Route path="/area-medica" element={<AreaMedica />} />
+          </Route>
+
+          {/* Área da paciente (dados pessoais): todas menos a médica, que tem
+              a própria área. */}
+          <Route element={<ProtectedRoute excetoPapel="medica" />}>
+            <Route index element={<Home />} />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/calendario" element={<Consultas />} />
+            <Route path="/ciclo" element={<Ciclo />} />
+            <Route path="/medicamentos" element={<Medicamentos />} />
+            <Route path="/medicamentos/:id" element={<MedicamentoDetalhe />} />
+            <Route path="/linha-do-tempo" element={<LinhaDoTempo />} />
+            <Route path="/sintomas" element={<Sintomas />} />
+            <Route
+              path="*"
+              element={
+                <EmBreve
+                  titulo="Página não encontrada"
+                  descricao="Esta página será desenvolvida em uma próxima etapa."
+                />
+              }
+            />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
