@@ -1,36 +1,16 @@
+/* A página agora vive dentro do shell (AppLayout cuida de fundo, header e
+   rodapé); aqui é só o empilhamento do conteúdo da médica. */
 .area-medica {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: var(--espaco-lg);
-  padding: var(--espaco-lg) var(--espaco-lg) var(--espaco-xl);
-  background:
-    radial-gradient(
-      circle at 88% 6%,
-      rgba(193, 211, 222, 0.34),
-      transparent 26%
-    ),
-    var(--cor-fundo);
-  font-family: var(--fonte-base);
-  color: var(--cor-texto);
 }
 
-/* --- Cabeçalho --- */
-.area-medica__topo {
+/* --- Cabeçalho da página --- */
+.area-medica__cabecalho {
   display: flex;
-  align-items: center;
-  gap: var(--espaco-md);
-  flex-wrap: wrap;
-}
-
-.area-medica__logo {
-  width: 110px;
-  height: auto;
-}
-
-.area-medica__cabecalho-texto {
-  flex: 1;
-  min-width: 200px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .area-medica__titulo {
@@ -40,38 +20,14 @@
 }
 
 .area-medica__saudacao {
-  margin: 4px 0 0;
+  margin: 0;
   color: var(--cor-texto-suave);
   font-weight: 600;
 }
 
-.area-medica__sair {
-  min-height: 44px;
-  padding: 10px 28px;
-  border: none;
-  border-radius: 999px;
-  background: var(--cor-rosa-principal);
-  color: #fff;
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform var(--duracao-rapida) var(--easing-saida),
-    filter var(--duracao-rapida) var(--easing-saida);
-}
-
-.area-medica__sair:hover {
-  filter: brightness(0.97);
-}
-
-.area-medica__sair:active {
-  transform: scale(0.98);
-}
-
-.area-medica__sair:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+/* --- Abas + painel da lista --- */
+.area-medica__painel {
+  margin-top: var(--espaco-md);
 }
 
 /* --- Conteúdo: lista + detalhe --- */
@@ -137,6 +93,13 @@
   box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
 }
 
+.area-medica__paciente-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-xs);
+}
+
 .area-medica__paciente-nome {
   font-weight: 600;
 }
@@ -162,6 +125,14 @@
 }
 
 /* --- Detalhe da paciente --- */
+.detalhe__cabecalho-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-sm);
+  flex-wrap: wrap;
+}
+
 .detalhe__cabecalho h2 {
   margin: 0;
   font-size: 1.3rem;
@@ -172,6 +143,72 @@
   margin: 4px 0 0;
   color: var(--cor-texto-suave);
   font-size: 0.9rem;
+}
+
+/* --- Modo de visualização (sem permissão de escrita) --- */
+.detalhe__leitura {
+  margin-top: var(--espaco-md);
+  padding: var(--espaco-md);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno, 10px);
+  background: rgba(212, 150, 104, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  align-items: flex-start;
+}
+
+.detalhe__leitura p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+  line-height: 1.45;
+}
+
+/* --- Diálogo "assumir atendimento" --- */
+.detalhe__assumir-texto {
+  margin: 0 0 var(--espaco-sm);
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+  line-height: 1.45;
+}
+
+.detalhe__assumir-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--espaco-sm);
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.detalhe__assumir-campo select,
+.detalhe__assumir-campo textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: var(--raio-pequeno, 10px);
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+.detalhe__assumir-campo textarea {
+  resize: vertical;
+}
+
+.detalhe__assumir-campo select:focus-visible,
+.detalhe__assumir-campo textarea:focus-visible {
+  outline: none;
+  border-color: var(--cor-rosa-principal);
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.4);
+}
+
+.detalhe__assumir-erro {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--cor-erro, #9c2b2b);
 }
 
 .detalhe__feedback {

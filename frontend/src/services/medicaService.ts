@@ -11,6 +11,8 @@ import type {
   PacienteDetalhe,
   Consulta,
   Medicamento,
+  EntradaAssumir,
+  RespostaAssumir,
 } from '../types'
 
 function listarPacientes(): Promise<PacienteResumo[]> {
@@ -38,4 +40,24 @@ function criarMedicamento(
   })
 }
 
-export { listarPacientes, obterPaciente, criarConsulta, criarMedicamento }
+/**
+ * Assume o atendimento de uma paciente de outra médica (motivo + log de
+ * auditoria no backend). Libera a escrita; a resposta traz a nova permissão.
+ */
+function assumirAtendimento(
+  id: number,
+  dados: EntradaAssumir,
+): Promise<RespostaAssumir> {
+  return requisicao<RespostaAssumir>(`/medica/pacientes/${id}/assumir/`, {
+    method: 'POST',
+    body: JSON.stringify(dados),
+  })
+}
+
+export {
+  listarPacientes,
+  obterPaciente,
+  criarConsulta,
+  criarMedicamento,
+  assumirAtendimento,
+}

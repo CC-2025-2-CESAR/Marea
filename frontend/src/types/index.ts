@@ -44,20 +44,62 @@ export interface Perfil {
   data_nascimento?: string | null
 }
 
-// ===== Vínculo médica ↔ paciente =====
+// ===== Vínculo médica ↔ paciente / acesso por papel (RBAC, PR8) =====
+
+/** Classificação do acesso de quem pede a uma paciente (vira selo na UI). */
+export type PapelNoCuidado =
+  | 'admin'
+  | 'responsavel'
+  | 'assumido'
+  | 'visualizacao'
+
+/** Status de acesso de quem faz o request a uma paciente — espelha o backend. */
+export interface PermissaoPaciente {
+  papel: PapelNoCuidado
+  pode_editar: boolean
+  rotulo: string
+}
 
 export interface PacienteResumo {
   id: number
   nome_completo?: string
   email?: string
+  telefone?: string
+  tipo_sanguineo?: string
+  total_consultas?: number
+  total_medicamentos?: number
+  permissao?: PermissaoPaciente
 }
 
 export interface PacienteDetalhe extends PacienteResumo {
-  telefone?: string
   data_nascimento?: string | null
   medica_responsavel?: string | null
+  medicamentos_em_uso?: string
+  observacoes_medicas?: string
   consultas?: Consulta[]
   medicamentos?: Medicamento[]
+}
+
+/** Motivo de uma médica assumir o atendimento de paciente de outra. */
+export type MotivoAssumir =
+  | 'cobertura_agenda'
+  | 'plantao'
+  | 'consulta_compartilhada'
+  | 'retorno_emergencial'
+  | 'outro'
+
+/** Corpo de `POST /api/medica/pacientes/<id>/assumir/`. */
+export interface EntradaAssumir {
+  motivo: MotivoAssumir
+  /** Livre; obrigatória quando o motivo é "outro". */
+  observacao?: string
+}
+
+/** Resposta de `POST /api/medica/pacientes/<id>/assumir/`. */
+export interface RespostaAssumir {
+  detail: string
+  permissao: PermissaoPaciente
+  vinculo: { id: number; papel: string; ja_estava_ativo: boolean }
 }
 
 // ===== Ciclo menstrual (PROJ-5 / PROJ-6) =====

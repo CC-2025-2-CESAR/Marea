@@ -42,15 +42,18 @@ function AppRoutes() {
           <Route path="/redefinir/:token" element={<Redefinicao />} />
         </Route>
 
-        {/* Área da médica (em construção): exclusiva do papel "medica". */}
+        {/* Área da médica: exclusiva do papel "medica", agora dentro do mesmo
+            shell da paciente (header, busca, rodapé, transição e drawer). A
+            navegação por papel é resolvida na Sidebar. */}
         <Route
-          path="/area-medica"
           element={
             <ProtectedRoute papel="medica">
-              <AreaMedica />
+              <AppLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="/area-medica" element={<AreaMedica />} />
+        </Route>
 
         {/* Área da paciente: qualquer usuária autenticada, menos a médica
             (que tem a própria área). */}

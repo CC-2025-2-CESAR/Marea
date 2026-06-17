@@ -1,0 +1,42 @@
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px;
+  border: 1px solid var(--cor-borda);
+  border-radius: 999px;
+  background: var(--cor-creme-claro, rgba(0, 0, 0, 0.04));
+  overflow-x: auto;
+}
+
+.tabs__aba {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cor-texto-suave);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--duracao-rapida) var(--easing-saida),
+    color var(--duracao-rapida) var(--easing-saida);
+}
+
+.tabs__aba:hover {
+  color: var(--cor-marrom);
+}
+
+.tabs__aba--ativa {
+  background: var(--cor-card, #fff);
+  color: var(--cor-marrom);
+  box-shadow: var(--sombra-suave);
+}
+
+.tabs__aba:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}

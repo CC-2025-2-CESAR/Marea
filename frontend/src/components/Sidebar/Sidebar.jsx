@@ -5,7 +5,8 @@ import IconeLogout from '../IconeLogout/IconeLogout'
 import { useAuth } from '../../contexts/useAuth'
 import './Sidebar.css'
 
-const links = [
+// Navegação da paciente (qualquer usuária autenticada que não seja médica).
+const linksPaciente = [
   { to: '/', label: 'Início', dataCy: 'nav-home' },
   { to: '/perfil', label: 'Perfil', dataCy: 'nav-perfil' },
   { to: '/calendario', label: 'Calendário', dataCy: 'nav-calendario' },
@@ -29,15 +30,26 @@ const links = [
   { to: '/sintomas', label: 'Sintomas', dataCy: 'nav-sintomas' },
 ]
 
+// Navegação da médica. Por ora, o acompanhamento das pacientes; outras áreas
+// (conteúdos da clínica, painel admin) entram nas próximas fatias do PR8.
+const linksMedica = [
+  { to: '/area-medica', label: 'Pacientes', dataCy: 'nav-pacientes' },
+]
+
 /**
  * Sidebar usada em duas situações:
  *   - sem props: barra lateral fixa do desktop (comportamento atual).
  *   - com `modoDrawer`: dentro do drawer mobile, com botão de fechar no topo
  *     e fechamento automático ao tocar num link.
+ *
+ * A navegação muda por papel: a médica vê a área dela; as demais usuárias veem
+ * a navegação da paciente.
  */
 function Sidebar({ modoDrawer = false, onFechar }) {
-  const { logout } = useAuth()
+  const { logout, tipoUsuario } = useAuth()
   const navegar = useNavigate()
+
+  const links = tipoUsuario === 'medica' ? linksMedica : linksPaciente
 
   function handleLogout() {
     if (onFechar) onFechar()
