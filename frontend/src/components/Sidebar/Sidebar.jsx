@@ -31,8 +31,7 @@ const linksPaciente = [
 ]
 
 // Navegação da médica: o acompanhamento das pacientes + o conteúdo
-// institucional da clínica (compartilhado com a paciente). O painel admin
-// entra na próxima fatia do PR8.
+// institucional da clínica (compartilhado com a paciente).
 const linksMedica = [
   { to: '/area-medica', label: 'Pacientes', dataCy: 'nav-pacientes' },
   { to: '/dicionario', label: 'Dicionário', dataCy: 'nav-dicionario' },
@@ -47,6 +46,23 @@ const linksMedica = [
   { to: '/bot', label: 'Bot', dataCy: 'nav-bot' },
 ]
 
+// Navegação da administração (painel /gestao).
+const linksAdmin = [
+  { to: '/gestao', label: 'Visão geral', dataCy: 'nav-gestao', end: true },
+  {
+    to: '/gestao/dicionario',
+    label: 'Dicionário',
+    dataCy: 'nav-gestao-dicionario',
+  },
+  { to: '/gestao/logs', label: 'Logs de auditoria', dataCy: 'nav-gestao-logs' },
+]
+
+function navDoPapel(tipoUsuario) {
+  if (tipoUsuario === 'medica') return linksMedica
+  if (tipoUsuario === 'admin') return linksAdmin
+  return linksPaciente
+}
+
 /**
  * Sidebar usada em duas situações:
  *   - sem props: barra lateral fixa do desktop (comportamento atual).
@@ -60,7 +76,7 @@ function Sidebar({ modoDrawer = false, onFechar }) {
   const { logout, tipoUsuario } = useAuth()
   const navegar = useNavigate()
 
-  const links = tipoUsuario === 'medica' ? linksMedica : linksPaciente
+  const links = navDoPapel(tipoUsuario)
 
   function handleLogout() {
     if (onFechar) onFechar()
@@ -99,7 +115,7 @@ function Sidebar({ modoDrawer = false, onFechar }) {
           <NavLink
             key={link.to}
             to={link.to}
-            end={link.to === '/'}
+            end={link.end ?? link.to === '/'}
             data-cy={link.dataCy}
             onClick={handleClicarLink}
             className={({ isActive }) =>

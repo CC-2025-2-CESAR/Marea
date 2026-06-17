@@ -5,6 +5,9 @@ from .views import servir_spa
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Painel administrativo da clínica (IsAdminClinica). Antes do include
+    # genérico 'api/' para o prefixo 'api/admin/' ser resolvido sem ambiguidade.
+    path('api/admin/', include('administracao.urls')),
     path('api/', include('usuarios.urls')),
     path('api/medica/', include('area_medica.urls')),
     path('api/dicionario/', include('dicionario.urls')),

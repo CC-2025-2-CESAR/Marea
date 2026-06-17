@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'busca',
     'auditoria',
     'assistente',
+    'administracao',
 ]
 
 MIDDLEWARE = [

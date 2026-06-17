@@ -373,6 +373,39 @@ definido no Django Admin ou pelo seed `criar_usuarios_teste`, que liga as
 pacientes de demonstração à Dra. Helena Costa, `medica_teste`); os vínculos de
 cobertura nascem do "assumir atendimento".
 
+## Painel da administração (PR8)
+
+A administração tem um painel próprio no site, **sem depender do Django Admin**,
+para gestão básica do conteúdo e acompanhamento. Vive em
+[`/gestao`](http://localhost:5173/gestao) — a rota `/admin` pertence ao Django
+admin (e ao catch-all do SPA), por isso o painel da clínica usa `/gestao`.
+
+Acesso restrito ao papel **administradora** (`IsAdminClinica`, que também aceita
+a superusuária do Django). A médica e a paciente são redirecionadas para as
+próprias áreas; a barreira é sempre do backend.
+
+- **Visão geral** ([`/gestao`](http://localhost:5173/gestao)): contagens de
+  pacientes, médicas, convites pendentes, termos do dicionário e eventos de
+  auditoria.
+- **Dicionário** (`/gestao/dicionario`): CRUD in-app dos termos — listar
+  (inclusive os ocultos), criar, editar, publicar/ocultar (`ativo`) e excluir
+  (com confirmação). Reaproveita o modelo `TermoDicionario`; o dicionário
+  público continua intocado.
+- **Logs de auditoria** (`/gestao/logs`): leitura da trilha `LogAtividade`
+  (quem acessou/editou qual paciente e por quê) — exigência de LGPD.
+
+Endpoints (function-based, todos `IsAdminClinica`, montados em `/api/admin/`):
+
+- `GET /api/admin/visao-geral/` — contagens do painel
+- `GET /api/admin/logs/` — eventos recentes de auditoria
+- `GET/POST /api/admin/termos/` — lista (todos) / cria um termo
+- `GET/PUT/PATCH/DELETE /api/admin/termos/<id>/` — detalha / edita / remove
+
+A administradora de demonstração é semeada por `criar_usuarios_teste`
+(`admin_teste`). Os demais tipos de conteúdo (tratamentos, orientações,
+especialidades, apoio) e a gestão de pacientes/médicas/convites seguem o mesmo
+padrão deste CRUD e entram em fatias seguintes.
+
 ## Tratamentos e orientações (PROJ-23 e PROJ-18)
 
 Conteúdo de referência da paciente, gerido pelo Django Admin e **público** no
