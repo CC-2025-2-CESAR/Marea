@@ -55,12 +55,22 @@ function AuthProvider({ children }) {
     return () => window.removeEventListener('marea:logout', aoLogout)
   }, [])
 
-  const login = useCallback(async (username, password) => {
-    const resposta = await loginRequest(username, password)
-    salvarStorage(resposta)
-    setUsuario(resposta.usuario)
-    return resposta.usuario
+  // Inicia a sessão a partir de uma resposta de autenticação já obtida
+  // ({access, refresh, usuario}). Reaproveitado pelo login e pelo primeiro
+  // acesso por convite, que devolve os tokens ao definir a senha.
+  const iniciarSessao = useCallback((sessao) => {
+    salvarStorage(sessao)
+    setUsuario(sessao.usuario)
+    return sessao.usuario
   }, [])
+
+  const login = useCallback(
+    async (username, password) => {
+      const resposta = await loginRequest(username, password)
+      return iniciarSessao(resposta)
+    },
+    [iniciarSessao],
+  )
 
   const logout = useCallback(() => {
     limparStorage()
@@ -75,6 +85,7 @@ function AuthProvider({ children }) {
     autenticado: usuario !== null,
     carregando: false,
     login,
+    iniciarSessao,
     logout,
   }
 

@@ -281,3 +281,51 @@ export interface RespostaAssistente {
   acoes: AcaoAssistente[]
   disclaimer: string
 }
+
+// ===== Convite e primeiro acesso (PROJ-7) =====
+
+export type StatusConvite = 'pendente' | 'expirado' | 'usado'
+
+/** Resposta de `GET /api/convite/<token>/` — embasa a tela de ativação. */
+export interface ConviteDetalhe {
+  valido: boolean
+  status: StatusConvite
+  nome: string
+  email: string
+}
+
+/** Link de primeiro acesso devolvido ao cadastrar/reenviar uma paciente. */
+export interface DadosConvite {
+  token: string
+  link: string
+  expira_em: string
+  status: string
+}
+
+/** Campos que a clínica envia em `POST /api/clinica/pacientes/`. */
+export interface NovaPacienteEntrada {
+  nome_completo: string
+  email: string
+  telefone?: string
+  data_nascimento?: string | null
+  medica_responsavel_id?: number | null
+}
+
+/** Resposta de `POST /api/clinica/pacientes/`. */
+export interface RespostaCriarPaciente {
+  paciente: {
+    id: number
+    nome_completo: string
+    email: string
+    username: string
+  }
+  convite: DadosConvite
+}
+
+/** Resposta de `POST /api/clinica/pacientes/<id>/reenviar-convite/`. */
+export interface RespostaReenviarConvite {
+  convite: DadosConvite
+}
+
+/** `POST /api/convite/<token>/definir-senha/` autentica e já devolve a sessão. */
+export type RespostaDefinirSenha = RespostaLogin

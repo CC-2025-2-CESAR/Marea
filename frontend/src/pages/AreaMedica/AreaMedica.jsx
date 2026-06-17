@@ -14,6 +14,7 @@ import logoAmare from '../../assets/amare-logo.png'
 import { useAuth } from '../../contexts/useAuth'
 import { listarPacientes } from '../../services/medicaService'
 import DetalhePaciente from './DetalhePaciente'
+import NovaPaciente from './NovaPaciente'
 import './AreaMedica.css'
 
 function AreaMedica() {
@@ -78,6 +79,10 @@ function AreaMedica() {
 
       <div className="area-medica__conteudo">
         <aside className="area-medica__lista" data-cy="lista-pacientes">
+          <NovaPaciente
+            aoCadastrar={() => setRecarregarLista((n) => n + 1)}
+          />
+
           <h2>Suas pacientes</h2>
 
           {carregando && <p className="area-medica__estado">Carregando…</p>}

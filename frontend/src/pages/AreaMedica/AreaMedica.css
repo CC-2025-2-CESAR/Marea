@@ -278,6 +278,199 @@
   box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.4);
 }
 
+/* --- Nova paciente (convite de primeiro acesso) --- */
+.nova-paciente__abrir {
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: var(--espaco-md);
+  border: 1px dashed var(--cor-rosa-principal);
+  border-radius: var(--raio-pequeno);
+  background: rgba(219, 183, 185, 0.12);
+  color: var(--cor-marrom);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duracao-rapida) var(--easing-saida);
+}
+
+.nova-paciente__abrir:hover {
+  background: rgba(219, 183, 185, 0.22);
+}
+
+.nova-paciente__abrir:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
+.nova-paciente {
+  margin-bottom: var(--espaco-md);
+  padding: var(--espaco-md);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-fundo);
+}
+
+.nova-paciente__cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-sm);
+}
+
+.nova-paciente__cabecalho h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--cor-marrom);
+}
+
+.nova-paciente__fechar {
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.nova-paciente__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.nova-paciente__form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+}
+
+.nova-paciente__form input {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 10px 12px;
+  min-height: 44px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: var(--raio-pequeno);
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+.nova-paciente__form input:focus-visible {
+  outline: none;
+  border-color: var(--cor-rosa-principal);
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.4);
+}
+
+.nova-paciente__enviar,
+.nova-paciente__copiar,
+.nova-paciente__secundario,
+.nova-paciente__novo {
+  min-height: 44px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nova-paciente__enviar {
+  margin-top: 4px;
+  padding: 10px 18px;
+  border: none;
+  background: var(--cor-rosa-principal);
+  color: #fff;
+}
+
+.nova-paciente__enviar:disabled,
+.nova-paciente__secundario:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.nova-paciente__sucesso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.nova-paciente__ok {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+  line-height: 1.45;
+}
+
+.nova-paciente__link {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  min-height: 44px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  background: #fff;
+  color: var(--cor-texto);
+}
+
+.nova-paciente__acoes {
+  display: flex;
+  gap: var(--espaco-xs);
+  flex-wrap: wrap;
+}
+
+.nova-paciente__copiar {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  background: var(--cor-rosa-principal);
+  color: #fff;
+}
+
+.nova-paciente__secundario {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--cor-rosa-principal);
+  background: transparent;
+  color: var(--cor-marrom);
+}
+
+.nova-paciente__novo {
+  align-self: flex-start;
+  padding: 8px 14px;
+  border: none;
+  background: transparent;
+  color: var(--cor-azul-link);
+  text-decoration: underline;
+}
+
+.nova-paciente__aviso {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--cor-texto-suave);
+  line-height: 1.4;
+}
+
+.nova-paciente__feedback {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--raio-pequeno);
+  font-size: 0.85rem;
+}
+
+.nova-paciente__feedback--erro {
+  background: rgba(209, 29, 70, 0.08);
+  color: var(--cor-erro);
+}
+
+.nova-paciente__feedback--sucesso {
+  background: rgba(114, 147, 104, 0.12);
+  color: var(--cor-sucesso);
+}
+
 /* --- Responsivo --- */
 @media (max-width: 1024px) {
   .area-medica__conteudo {

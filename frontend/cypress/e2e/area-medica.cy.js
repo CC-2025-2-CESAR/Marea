@@ -172,4 +172,78 @@ describe('Área da médica e controle de acesso por papel', () => {
     cy.wait('@criarMedicamento')
     cy.get('[data-cy=detalhe-feedback]').should('contain', 'cadastrado')
   })
+
+  // --- cadastro de nova paciente (convite de primeiro acesso) ---
+
+  const RESPOSTA_CADASTRO = {
+    statusCode: 201,
+    body: {
+      paciente: {
+        id: 50,
+        nome_completo: 'Aurora Lima',
+        email: 'aurora@amare.test',
+        username: 'aurora-lima',
+      },
+      convite: {
+        token: 'tok-123',
+        link: 'http://localhost/ativar/tok-123',
+        expira_em: '2026-07-01T00:00:00Z',
+        status: 'pendente',
+      },
+    },
+  }
+
+  it('médica cadastra nova paciente e recebe o link de primeiro acesso', () => {
+    cy.intercept('POST', '**/api/clinica/pacientes/', RESPOSTA_CADASTRO).as(
+      'criarPaciente',
+    )
+
+    visitarComo(SESSAO_MEDICA, '/area-medica')
+    cy.wait('@listaPacientes')
+
+    cy.get('[data-cy=nova-paciente-abrir]').click()
+    cy.get('[data-cy=nova-paciente-nome]').type('Aurora Lima')
+    cy.get('[data-cy=nova-paciente-email]').type('aurora@amare.test')
+    cy.get('[data-cy=nova-paciente-enviar]').click()
+
+    cy.wait('@criarPaciente')
+    cy.get('[data-cy=nova-paciente-sucesso]').should('be.visible')
+    cy.get('[data-cy=nova-paciente-link]').should(
+      'have.value',
+      'http://localhost/ativar/tok-123',
+    )
+  })
+
+  it('médica gera um novo link para a paciente recém-cadastrada', () => {
+    cy.intercept('POST', '**/api/clinica/pacientes/', RESPOSTA_CADASTRO).as(
+      'criarPaciente',
+    )
+    cy.intercept('POST', '**/api/clinica/pacientes/50/reenviar-convite/', {
+      statusCode: 201,
+      body: {
+        convite: {
+          token: 'tok-999',
+          link: 'http://localhost/ativar/tok-999',
+          expira_em: '2026-07-02T00:00:00Z',
+          status: 'pendente',
+        },
+      },
+    }).as('reenviar')
+
+    visitarComo(SESSAO_MEDICA, '/area-medica')
+    cy.wait('@listaPacientes')
+
+    cy.get('[data-cy=nova-paciente-abrir]').click()
+    cy.get('[data-cy=nova-paciente-nome]').type('Aurora Lima')
+    cy.get('[data-cy=nova-paciente-email]').type('aurora@amare.test')
+    cy.get('[data-cy=nova-paciente-enviar]').click()
+    cy.wait('@criarPaciente')
+
+    cy.get('[data-cy=nova-paciente-reenviar]').click()
+    cy.wait('@reenviar')
+    cy.get('[data-cy=nova-paciente-link]').should(
+      'have.value',
+      'http://localhost/ativar/tok-999',
+    )
+  })
 })

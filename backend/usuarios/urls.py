@@ -10,6 +10,7 @@ from .views import (
     me_view,
     perfil_view,
     refresh_view,
+    reenviar_convite,
 )
 
 urlpatterns = [
@@ -20,6 +21,11 @@ urlpatterns = [
     # Convite de primeiro acesso (PROJ-7): a clínica cria a paciente, a
     # paciente assume o acesso pelo link de ativação.
     path('clinica/pacientes/', criar_paciente, name='clinica-paciente-criar'),
+    path(
+        'clinica/pacientes/<int:paciente_id>/reenviar-convite/',
+        reenviar_convite,
+        name='clinica-convite-reenviar',
+    ),
     path('convite/<str:token>/', detalhar_convite, name='convite-detalhe'),
     path(
         'convite/<str:token>/definir-senha/',
