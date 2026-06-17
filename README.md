@@ -38,8 +38,8 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
 - Controle de acesso por papel: a médica trabalha no mesmo shell da paciente,
   com a Sidebar adaptada ao papel; vê as pacientes da clínica em abas
   (Minhas / Compartilhadas / Todas), edita as suas e pode **assumir o
-  atendimento** de outra (com motivo + trilha de auditoria); não acessa as
-  telas da paciente. O
+  atendimento** de outra (com motivo + trilha de auditoria), além do conteúdo
+  da clínica e da busca; não acessa as telas de dados pessoais da paciente. O
   `/api/perfil/` é restrito a pacientes no backend, e o login tem limite de
   tentativas.
 - Páginas de Tratamentos e Orientações com conteúdo de referência vindo do
@@ -332,8 +332,12 @@ Detalhes das histórias e cenários BDD: [Histórias de usuário](docs/historias
 
 A médica trabalha **dentro do mesmo shell da paciente** (header, busca, rodapé,
 transição e drawer mobile), com a navegação adaptada ao papel: a Sidebar mostra
-**Pacientes** no lugar do menu da paciente. A área deixou de ser uma "ilha" em
-[`/area-medica`](http://localhost:5173/area-medica).
+**Pacientes** + o **conteúdo institucional da clínica** (dicionário, tratamentos,
+orientações, especialidades, apoio e o Bot), e a **busca global** do header
+funciona para ela. A área deixou de ser uma "ilha" em
+[`/area-medica`](http://localhost:5173/area-medica). As telas de dados pessoais
+da paciente (início, perfil, calendário, ciclo, medicamentos, sintomas, linha do
+tempo) seguem exclusivas da paciente.
 
 Toda médica **visualiza as pacientes da clínica** (não só as suas), organizadas
 em abas pelo vínculo:

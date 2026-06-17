@@ -30,10 +30,21 @@ const linksPaciente = [
   { to: '/sintomas', label: 'Sintomas', dataCy: 'nav-sintomas' },
 ]
 
-// Navegação da médica. Por ora, o acompanhamento das pacientes; outras áreas
-// (conteúdos da clínica, painel admin) entram nas próximas fatias do PR8.
+// Navegação da médica: o acompanhamento das pacientes + o conteúdo
+// institucional da clínica (compartilhado com a paciente). O painel admin
+// entra na próxima fatia do PR8.
 const linksMedica = [
   { to: '/area-medica', label: 'Pacientes', dataCy: 'nav-pacientes' },
+  { to: '/dicionario', label: 'Dicionário', dataCy: 'nav-dicionario' },
+  { to: '/tratamentos', label: 'Tratamentos', dataCy: 'nav-tratamentos' },
+  { to: '/orientacoes', label: 'Orientações', dataCy: 'nav-orientacoes' },
+  {
+    to: '/especialidades',
+    label: 'Especialidades',
+    dataCy: 'nav-especialidades',
+  },
+  { to: '/apoio', label: 'Apoio emocional', dataCy: 'nav-apoio' },
+  { to: '/bot', label: 'Bot', dataCy: 'nav-bot' },
 ]
 
 /**

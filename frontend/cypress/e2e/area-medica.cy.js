@@ -177,9 +177,31 @@ describe('Área da médica e controle de acesso por papel', () => {
     cy.get('[data-cy=app-header]').should('be.visible')
     cy.get('[data-cy=rodape]').should('exist')
     cy.get('[data-cy=nav-pacientes]').should('have.attr', 'href', '/area-medica')
-    // A médica não vê a navegação da paciente.
+    // A médica também vê o conteúdo institucional da clínica...
+    cy.get('[data-cy=nav-dicionario]').should('have.attr', 'href', '/dicionario')
+    // ...mas não a navegação de dados pessoais da paciente.
     cy.get('[data-cy=nav-home]').should('not.exist')
     cy.get('[data-cy=nav-sintomas]').should('not.exist')
+    cy.get('[data-cy=nav-ciclo]').should('not.exist')
+  })
+
+  it('médica acessa o conteúdo da clínica e a busca pelo shell', () => {
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    cy.intercept('GET', '**/api/busca/**', { body: [] })
+
+    visitarComo(SESSAO_MEDICA, '/area-medica')
+    cy.wait('@listaPacientes')
+
+    // Conteúdo da clínica pela sidebar (não é expulsa para /area-medica).
+    cy.get('[data-cy=nav-dicionario]').click()
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.contains('h1', 'Dicionário').should('be.visible')
+
+    // A busca do header funciona para a médica.
+    cy.get('[data-cy=app-search-input]').type('fiv')
+    cy.get('[data-cy=app-search-enviar]').click()
+    cy.location('pathname').should('eq', '/busca')
+    cy.get('[data-cy=page-area-medica]').should('not.exist')
   })
 
   it('médica sai da conta pela sidebar do shell', () => {
