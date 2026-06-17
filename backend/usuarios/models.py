@@ -270,3 +270,84 @@ class ConviteAcesso(models.Model):
         self.status = self.STATUS_USADO
         self.usado_em = timezone.now()
         self.save(update_fields=['status', 'usado_em'])
+
+
+# Validade padrão de um link de recuperação de senha (PROJ-7): 2 horas. Mais
+# curta que a do convite — um pedido de redefinição é pontual e sensível.
+JANELA_VALIDADE_RECUPERACAO = timedelta(hours=2)
+
+
+def gerar_token_recuperacao():
+    """Token aleatório e difícil de adivinhar para o link de redefinição."""
+    return secrets.token_urlsafe(48)
+
+
+def prazo_padrao_recuperacao():
+    """Quando um pedido de recuperação recém-criado expira: agora + 2h."""
+    return timezone.now() + JANELA_VALIDADE_RECUPERACAO
+
+
+class RecuperacaoSenha(models.Model):
+    """Pedido de redefinição de senha (autoatendimento).
+
+    Diferente do convite (primeiro acesso de uma conta nova), aqui a conta já
+    existe e está ativa: a pessoa esqueceu a senha. O token é único, de uso
+    único e válido por 2h, e o link viaja por **e-mail** (fora da tela) — assim
+    ninguém redefine a senha de outra pessoa só sabendo o e-mail dela. Ao
+    redefinir, o token é "queimado".
+    """
+
+    STATUS_PENDENTE = 'pendente'
+    STATUS_USADO = 'usado'
+    STATUS_CHOICES = [
+        (STATUS_PENDENTE, 'Pendente'),
+        (STATUS_USADO, 'Usado'),
+    ]
+
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='recuperacoes_senha',
+        verbose_name='Usuário',
+    )
+    token = models.CharField(
+        'Token',
+        max_length=128,
+        unique=True,
+        default=gerar_token_recuperacao,
+        editable=False,
+    )
+    status = models.CharField(
+        'Status',
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDENTE,
+    )
+    expira_em = models.DateTimeField(
+        'Expira em', default=prazo_padrao_recuperacao
+    )
+    criado_em = models.DateTimeField('Criado em', auto_now_add=True)
+    usado_em = models.DateTimeField('Usado em', null=True, blank=True)
+
+    class Meta:
+        ordering = ['-criado_em', '-id']
+        verbose_name = 'Recuperação de senha'
+        verbose_name_plural = 'Recuperações de senha'
+
+    def __str__(self):
+        return f'Recuperação de {self.usuario} ({self.get_status_display()})'
+
+    @property
+    def expirado(self):
+        """True quando já passou da validade."""
+        return timezone.now() >= self.expira_em
+
+    def pode_ser_usado(self):
+        """Só um pedido pendente e dentro da validade redefine a senha."""
+        return self.status == self.STATUS_PENDENTE and not self.expirado
+
+    def marcar_usado(self):
+        """Queima o token: o mesmo link não redefine a senha duas vezes."""
+        self.status = self.STATUS_USADO
+        self.usado_em = timezone.now()
+        self.save(update_fields=['status', 'usado_em'])

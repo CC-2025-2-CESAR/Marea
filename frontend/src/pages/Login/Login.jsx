@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
@@ -166,9 +166,9 @@ function Login() {
             }
           />
 
-          <a className="login-esqueceu" href="#" data-cy="login-forgot">
+          <Link className="login-esqueceu" to="/recuperar" data-cy="login-forgot">
             Esqueceu a senha?
-          </a>
+          </Link>
 
           <AnimatePresence>
             {feedback ? (

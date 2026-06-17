@@ -329,3 +329,11 @@ export interface RespostaReenviarConvite {
 
 /** `POST /api/convite/<token>/definir-senha/` autentica e já devolve a sessão. */
 export type RespostaDefinirSenha = RespostaLogin
+
+// ===== Recuperação de senha (PROJ-7) =====
+
+/** Resposta de `GET /api/auth/redefinir/<token>/` (validação do link). */
+export interface RedefinicaoDetalhe {
+  valido: boolean
+  status: StatusConvite
+}

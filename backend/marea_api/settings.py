@@ -246,3 +246,21 @@ if not DEBUG:
     STORAGES['staticfiles']['BACKEND'] = (
         'whitenoise.storage.CompressedManifestStaticFilesStorage'
     )
+
+
+# --- E-mail (recuperação de senha — PROJ-7) --------------------------------
+# Em desenvolvimento, o backend de console imprime o e-mail (com o link de
+# redefinição) no terminal do runserver — não é preciso SMTP para testar. Em
+# produção, basta configurar um SMTP real pelas variáveis de ambiente; os
+# segredos ficam só no Azure (nunca no repositório).
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_USE_TLS = _env_bool('EMAIL_USE_TLS', True)
+DEFAULT_FROM_EMAIL = os.environ.get(
+    'DEFAULT_FROM_EMAIL', 'Amare <nao-responder@amare.local>'
+)

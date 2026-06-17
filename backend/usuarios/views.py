@@ -5,6 +5,7 @@ ViewSets ou Django Forms (regra da disciplina).
 """
 
 from django.contrib.auth import authenticate, get_user_model
+from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
 from django.utils.text import slugify
@@ -20,7 +21,13 @@ from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import ConviteAcesso, Medica, Paciente, PerfilUsuario
+from .models import (
+    ConviteAcesso,
+    Medica,
+    Paciente,
+    PerfilUsuario,
+    RecuperacaoSenha,
+)
 from .permissions import IsMedicaOuAdmin, IsPaciente, medica_do_usuario
 from .serializers import (
     CriarPacienteSerializer,
@@ -380,4 +387,139 @@ def reenviar_convite(request, paciente_id):
     return Response(
         {'convite': _dados_convite(request, convite)},
         status=status.HTTP_201_CREATED,
+    )
+
+
+# --- Recuperação de senha (PROJ-7) -----------------------------------------
+# Quem esqueceu a senha pede um link por e-mail e redefine a senha por um token
+# de uso único. A resposta de "recuperar" é sempre genérica, para não revelar
+# se um e-mail tem conta (anti-enumeração); o link viaja por e-mail, nunca na
+# resposta da API — assim ninguém redefine a senha de outra pessoa só sabendo
+# o e-mail dela.
+
+
+def _enviar_email_recuperacao(usuario, link):
+    """Envia o link de redefinição por e-mail.
+
+    Em desenvolvimento, o backend de console imprime o e-mail no terminal do
+    runserver; em produção, um SMTP real (configurado por ambiente). Falhas de
+    envio não derrubam o fluxo (a resposta ao usuário é sempre genérica).
+    """
+    perfil = getattr(usuario, 'perfil', None)
+    nome = getattr(perfil, 'nome_completo', '') or usuario.username
+    send_mail(
+        subject='Redefinição de senha — Amare',
+        message=(
+            f'Olá, {nome}.\n\n'
+            'Recebemos um pedido para redefinir a sua senha na Amare. Use o '
+            'link abaixo para criar uma nova senha (válido por 2 horas):\n\n'
+            f'{link}\n\n'
+            'Se você não fez esse pedido, ignore este e-mail — a sua senha '
+            'continua a mesma.'
+        ),
+        from_email=None,
+        recipient_list=[usuario.email],
+        fail_silently=True,
+    )
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def recuperar_senha(request):
+    """Inicia a recuperação de senha enviando um link por e-mail.
+
+    Responde sempre de forma genérica (sem dizer se o e-mail existe) para não
+    permitir enumeração de contas. Só cria token e envia e-mail quando há
+    exatamente uma conta ATIVA com aquele e-mail.
+    """
+    email = request.data.get('email', '').strip()
+    if not email:
+        return Response(
+            {'detail': 'Informe o seu e-mail.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    generica = Response(
+        {
+            'detail': (
+                'Se houver uma conta com esse e-mail, enviamos um link para '
+                'redefinir a senha.'
+            )
+        }
+    )
+
+    contas = list(User.objects.filter(email__iexact=email, is_active=True)[:2])
+    if len(contas) != 1:
+        # Sem conta (ou e-mail ambíguo): resposta idêntica, sem vazar nada.
+        return generica
+
+    usuario = contas[0]
+    with transaction.atomic():
+        # Mantém só o link mais recente válido (expira os pendentes).
+        RecuperacaoSenha.objects.filter(
+            usuario=usuario, status=RecuperacaoSenha.STATUS_PENDENTE
+        ).update(expira_em=timezone.now())
+        pedido = RecuperacaoSenha.objects.create(usuario=usuario)
+
+    link = request.build_absolute_uri(f'/redefinir/{pedido.token}')
+    _enviar_email_recuperacao(usuario, link)
+    return generica
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def redefinir_senha(request, token):
+    """Valida o link (GET) e redefine a senha (POST).
+
+    GET informa se o link ainda vale, para a tela saber o que mostrar. POST
+    aplica os validadores de senha do Django, troca a senha, queima o token e
+    encerra — a pessoa entra depois pelo login, com a senha nova.
+    """
+    pedido = (
+        RecuperacaoSenha.objects.filter(token=token)
+        .select_related('usuario')
+        .first()
+    )
+    if pedido is None:
+        return Response(
+            {'detail': 'Link de redefinição não encontrado.'},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    if request.method == 'GET':
+        if pedido.status == RecuperacaoSenha.STATUS_USADO:
+            situacao = 'usado'
+        elif pedido.expirado:
+            situacao = 'expirado'
+        else:
+            situacao = 'pendente'
+        return Response(
+            {'valido': pedido.pode_ser_usado(), 'status': situacao}
+        )
+
+    # POST
+    if not pedido.pode_ser_usado():
+        return Response(
+            {
+                'detail': (
+                    'Este link de redefinição não é mais válido. '
+                    'Solicite um novo.'
+                )
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    serializer = DefinirSenhaSerializer(
+        data=request.data, context={'usuario': pedido.usuario}
+    )
+    serializer.is_valid(raise_exception=True)
+
+    with transaction.atomic():
+        usuario = pedido.usuario
+        usuario.set_password(serializer.validated_data['password'])
+        usuario.save(update_fields=['password'])
+        pedido.marcar_usado()
+
+    return Response(
+        {'detail': 'Senha redefinida. Agora é só entrar com a sua nova senha.'}
     )
