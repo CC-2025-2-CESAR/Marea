@@ -4,6 +4,8 @@ import AppLayout from '../layouts/AppLayout/AppLayout'
 import ProtectedRoute from '../components/ProtectedRoute/ProtectedRoute'
 import Login from '../pages/Login/Login'
 import Ativacao from '../pages/Ativacao/Ativacao'
+import Recuperacao from '../pages/Recuperacao/Recuperacao'
+import Redefinicao from '../pages/Redefinicao/Redefinicao'
 import Home from '../pages/Home/Home'
 import Perfil from '../pages/Perfil/Perfil'
 import Consultas from '../pages/Consultas/Consultas'
@@ -35,6 +37,9 @@ function AppRoutes() {
           {/* Primeiro acesso por convite: rota pública — a paciente ainda não
               tem sessão. Define a senha e já entra. */}
           <Route path="/ativar/:token" element={<Ativacao />} />
+          {/* Recuperação de senha: rotas públicas (a pessoa esqueceu a senha). */}
+          <Route path="/recuperar" element={<Recuperacao />} />
+          <Route path="/redefinir/:token" element={<Redefinicao />} />
         </Route>
 
         {/* Área da médica (em construção): exclusiva do papel "medica". */}

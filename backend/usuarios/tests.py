@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core import mail
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
 from django.test import TestCase
@@ -16,6 +17,7 @@ from .models import (
     Medica,
     Paciente,
     PerfilUsuario,
+    RecuperacaoSenha,
 )
 from .permissions import (
     IsAdminClinica,
@@ -596,3 +598,164 @@ class ReenviarConviteViewTests(APITestCase):
     def test_anonimo_recebe_401(self):
         resposta = self.client.post(self._url())
         self.assertEqual(resposta.status_code, 401)
+
+
+class RecuperacaoSenhaTests(APITestCase):
+    """Recuperação de senha por e-mail + redefinição por token (PROJ-7)."""
+
+    URL_RECUPERAR = '/api/auth/recuperar/'
+    SENHA_NOVA = 'Bromelia#2024'
+
+    def setUp(self):
+        # O login pós-redefinição passa pelo LoginThrottle (10/min por IP).
+        cache.clear()
+        self.usuario = User.objects.create_user(
+            username='ana_recupera',
+            email='ana@amare.test',
+            password='SenhaAntiga#2024',
+        )
+        PerfilUsuario.objects.create(
+            usuario=self.usuario,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Ana Recupera',
+        )
+
+    def _criar_pedido(self, usuario=None):
+        return RecuperacaoSenha.objects.create(usuario=usuario or self.usuario)
+
+    def _url_redefinir(self, token):
+        return f'/api/auth/redefinir/{token}/'
+
+    # POST /api/auth/recuperar/
+    def test_recuperar_email_existente_envia_link(self):
+        resposta = self.client.post(
+            self.URL_RECUPERAR, {'email': 'ana@amare.test'}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        pedido = RecuperacaoSenha.objects.get(usuario=self.usuario)
+        self.assertTrue(pedido.pode_ser_usado())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(pedido.token, mail.outbox[0].body)
+        self.assertIn('/redefinir/', mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].to, ['ana@amare.test'])
+
+    def test_recuperar_email_inexistente_generico_sem_enviar(self):
+        resposta = self.client.post(
+            self.URL_RECUPERAR, {'email': 'ninguem@amare.test'}
+        )
+        # Resposta idêntica à do e-mail existente (anti-enumeração).
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertFalse(RecuperacaoSenha.objects.exists())
+
+    def test_recuperar_email_case_insensitive(self):
+        resposta = self.client.post(
+            self.URL_RECUPERAR, {'email': 'ANA@amare.test'}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_recuperar_email_vazio_400(self):
+        resposta = self.client.post(self.URL_RECUPERAR, {'email': '  '})
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_recuperar_conta_inativa_nao_envia(self):
+        self.usuario.is_active = False
+        self.usuario.save(update_fields=['is_active'])
+        resposta = self.client.post(
+            self.URL_RECUPERAR, {'email': 'ana@amare.test'}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertFalse(RecuperacaoSenha.objects.exists())
+
+    def test_recuperar_expira_pedidos_anteriores(self):
+        antigo = self._criar_pedido()
+        self.client.post(self.URL_RECUPERAR, {'email': 'ana@amare.test'})
+        antigo.refresh_from_db()
+        self.assertFalse(antigo.pode_ser_usado())
+
+    # GET /api/auth/redefinir/<token>/  (validação do link)
+    def test_validar_link_valido(self):
+        pedido = self._criar_pedido()
+        resposta = self.client.get(self._url_redefinir(pedido.token))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertTrue(resposta.data['valido'])
+        self.assertEqual(resposta.data['status'], 'pendente')
+
+    def test_validar_link_inexistente_404(self):
+        resposta = self.client.get(self._url_redefinir('token-falso'))
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_validar_link_expirado(self):
+        pedido = self._criar_pedido()
+        pedido.expira_em = timezone.now() - timedelta(minutes=1)
+        pedido.save(update_fields=['expira_em'])
+        resposta = self.client.get(self._url_redefinir(pedido.token))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertFalse(resposta.data['valido'])
+        self.assertEqual(resposta.data['status'], 'expirado')
+
+    # POST /api/auth/redefinir/<token>/  (redefinição)
+    def test_redefinir_troca_a_senha_e_queima_o_token(self):
+        pedido = self._criar_pedido()
+        resposta = self.client.post(
+            self._url_redefinir(pedido.token), {'password': self.SENHA_NOVA}
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.usuario.refresh_from_db()
+        self.assertTrue(self.usuario.check_password(self.SENHA_NOVA))
+        pedido.refresh_from_db()
+        self.assertEqual(pedido.status, RecuperacaoSenha.STATUS_USADO)
+        self.assertIsNotNone(pedido.usado_em)
+
+    def test_redefinir_queima_o_token(self):
+        pedido = self._criar_pedido()
+        self.client.post(
+            self._url_redefinir(pedido.token), {'password': self.SENHA_NOVA}
+        )
+        resposta = self.client.post(
+            self._url_redefinir(pedido.token), {'password': 'Outra#Senha2024'}
+        )
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_redefinir_senha_fraca_recusada(self):
+        pedido = self._criar_pedido()
+        resposta = self.client.post(
+            self._url_redefinir(pedido.token), {'password': '123'}
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.usuario.refresh_from_db()
+        self.assertFalse(self.usuario.check_password('123'))
+        pedido.refresh_from_db()
+        self.assertEqual(pedido.status, RecuperacaoSenha.STATUS_PENDENTE)
+
+    def test_redefinir_link_expirado_recusado(self):
+        pedido = self._criar_pedido()
+        pedido.expira_em = timezone.now() - timedelta(minutes=1)
+        pedido.save(update_fields=['expira_em'])
+        resposta = self.client.post(
+            self._url_redefinir(pedido.token), {'password': self.SENHA_NOVA}
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.usuario.refresh_from_db()
+        self.assertFalse(self.usuario.check_password(self.SENHA_NOVA))
+
+    def test_redefinir_link_inexistente_404(self):
+        resposta = self.client.post(
+            self._url_redefinir('token-falso'), {'password': self.SENHA_NOVA}
+        )
+        self.assertEqual(resposta.status_code, 404)
+
+    def test_login_com_a_nova_senha_apos_redefinir(self):
+        """Fecha o ciclo: depois de redefinir, a pessoa entra com a senha nova."""
+        pedido = self._criar_pedido()
+        self.client.post(
+            self._url_redefinir(pedido.token), {'password': self.SENHA_NOVA}
+        )
+        resposta = self.client.post(
+            '/api/auth/login/',
+            {'username': 'ana_recupera', 'password': self.SENHA_NOVA},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn('access', resposta.data)

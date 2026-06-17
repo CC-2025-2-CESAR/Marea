@@ -131,4 +131,38 @@ async function requisicao<T = unknown>(
   return (await resposta.json()) as T
 }
 
-export { API_BASE_URL, requisicao }
+/**
+ * Chamada a um endpoint PÚBLICO da API (sem sessão): não injeta token nem tenta
+ * refresh em 401. Usada pelos fluxos de convite e recuperação de senha, em que
+ * o usuário ainda não está autenticado. Lança `ErroRequisicao` (com `status` e
+ * `detalhe`) em respostas não-OK, igual ao `requisicao`.
+ */
+async function requisicaoPublica<T = unknown>(
+  caminho: string,
+  opcoes: { method?: string; body?: string } = {},
+): Promise<T> {
+  const resposta = await fetch(`${API_BASE_URL}${caminho}`, {
+    method: opcoes.method ?? 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    body: opcoes.body,
+  })
+
+  if (!resposta.ok) {
+    let detalhe: unknown
+    try {
+      detalhe = await resposta.json()
+    } catch {
+      detalhe = undefined
+    }
+    const erro = new Error(
+      `Falha ${resposta.status} em ${caminho}`,
+    ) as ErroRequisicao
+    erro.status = resposta.status
+    erro.detalhe = detalhe
+    throw erro
+  }
+
+  return resposta.json() as Promise<T>
+}
+
+export { API_BASE_URL, requisicao, requisicaoPublica }

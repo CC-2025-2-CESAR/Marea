@@ -1,0 +1,113 @@
+.redefinicao-tela {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-md);
+  background-color: var(--cor-fundo);
+}
+
+.redefinicao-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: var(--cor-card);
+  border-radius: 36px;
+  box-shadow: var(--sombra-suave);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-lg);
+}
+
+.redefinicao-logo {
+  width: 180px;
+  max-width: 62%;
+  height: auto;
+}
+
+.redefinicao-intro,
+.redefinicao-invalido,
+.redefinicao-sucesso {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-sm);
+  text-align: center;
+}
+
+.redefinicao-titulo {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--cor-marrom);
+}
+
+.redefinicao-sub {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.redefinicao-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.redefinicao-olho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--cor-caramelo);
+  padding: 4px;
+  border-radius: var(--raio-pequeno);
+  cursor: pointer;
+}
+
+.redefinicao-olho:hover {
+  color: var(--cor-terracota);
+}
+
+.redefinicao-ajuda {
+  margin: -8px 0 0;
+  font-size: 0.82rem;
+  color: var(--cor-texto-suave);
+  text-align: center;
+  line-height: 1.4;
+}
+
+.redefinicao-feedback {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.redefinicao-feedback--erro {
+  color: var(--cor-erro);
+  background-color: rgba(209, 29, 70, 0.08);
+}
+
+.redefinicao-voltar {
+  color: var(--cor-azul-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .redefinicao-card {
+    padding: 36px 22px;
+    border-radius: 28px;
+    gap: var(--espaco-md);
+  }
+
+  .redefinicao-logo {
+    width: 142px;
+  }
+}

@@ -8,6 +8,7 @@ from .models import (
     Medica,
     Paciente,
     PerfilUsuario,
+    RecuperacaoSenha,
 )
 
 
@@ -84,5 +85,15 @@ class ConviteAcessoAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('usuario__username', 'usuario__email', 'token')
     autocomplete_fields = ('usuario', 'criado_por')
+    readonly_fields = ('token', 'criado_em', 'usado_em')
+    date_hierarchy = 'criado_em'
+
+
+@admin.register(RecuperacaoSenha)
+class RecuperacaoSenhaAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'status', 'criado_em', 'expira_em', 'usado_em')
+    list_filter = ('status',)
+    search_fields = ('usuario__username', 'usuario__email', 'token')
+    autocomplete_fields = ('usuario',)
     readonly_fields = ('token', 'criado_em', 'usado_em')
     date_hierarchy = 'criado_em'

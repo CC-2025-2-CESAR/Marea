@@ -252,6 +252,36 @@ primeiro acesso **para copiar** (com a opção de gerar um novo link). O envio p
 e-mail (SMTP) é plugável e fica para depois — por ora o link aparece na tela
 para a clínica repassar.
 
+## Recuperação de senha (PROJ-7)
+
+Quem esqueceu a senha pede um link por e-mail e cria uma nova senha por um
+token de uso único — válido por **2 horas** (mais curto que o convite, por ser
+sensível).
+
+Endpoints (todos function-based e públicos):
+
+- `POST /api/auth/recuperar/` — recebe `{email}` e responde **sempre de forma
+  genérica** ("se houver uma conta com esse e-mail, enviamos um link"). Isso
+  evita **enumeração de contas** (não dá para descobrir quais e-mails têm
+  cadastro). Só cria o token e envia o e-mail quando há exatamente uma conta
+  **ativa** com aquele e-mail; os pedidos pendentes anteriores são encerrados.
+- `GET /api/auth/redefinir/<token>/` — informa se o link ainda é válido
+  (`{valido, status}`), para a tela saber o que mostrar.
+- `POST /api/auth/redefinir/<token>/` — recebe `{password}`, aplica os
+  validadores de senha do Django, troca a senha, **queima o token** e encerra
+  (a pessoa entra depois pelo login, com a senha nova).
+
+**O link viaja por e-mail, nunca na resposta da API** — diferente do convite
+(que a médica autenticada vê na tela). Assim ninguém redefine a senha de outra
+pessoa só sabendo o e-mail dela. Em desenvolvimento, o `EMAIL_BACKEND` de
+console imprime o e-mail (com o link) no terminal do runserver; em produção,
+basta configurar um SMTP real por variáveis de ambiente (segredos só no Azure).
+
+No frontend, as telas públicas [`/recuperar`](http://localhost:5173/recuperar)
+(pedir o link) e `/redefinir/:token` (criar a nova senha, com os mesmos estados
+de expirado/usado/inexistente da ativação) fecham o fluxo, e o link
+**"Esqueceu a senha?"** do login agora leva para `/recuperar`.
+
 ## Dicionário de termos médicos (PROJ-3 e PROJ-4)
 
 Primeira feature do projeto com persistência real. Disponível em
