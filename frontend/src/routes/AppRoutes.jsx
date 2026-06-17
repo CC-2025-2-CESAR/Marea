@@ -27,6 +27,9 @@ import Sintomas from '../pages/Sintomas/Sintomas'
 import Busca from '../pages/Busca/Busca'
 import EmBreve from '../pages/EmBreve/EmBreve'
 import AreaMedica from '../pages/AreaMedica/AreaMedica'
+import GestaoHome from '../pages/Gestao/GestaoHome'
+import GestaoDicionario from '../pages/Gestao/GestaoDicionario'
+import GestaoLogs from '../pages/Gestao/GestaoLogs'
 
 function AppRoutes() {
   return (
@@ -74,9 +77,17 @@ function AppRoutes() {
             <Route path="/area-medica" element={<AreaMedica />} />
           </Route>
 
-          {/* Área da paciente (dados pessoais): todas menos a médica, que tem
-              a própria área. */}
-          <Route element={<ProtectedRoute excetoPapel="medica" />}>
+          {/* Painel administrativo da clínica. Vive em /gestao porque /admin
+              pertence ao Django admin (e ao catch-all do SPA). */}
+          <Route element={<ProtectedRoute papel="admin" />}>
+            <Route path="/gestao" element={<GestaoHome />} />
+            <Route path="/gestao/dicionario" element={<GestaoDicionario />} />
+            <Route path="/gestao/logs" element={<GestaoLogs />} />
+          </Route>
+
+          {/* Área da paciente (dados pessoais): todas menos médica e
+              administradora, que têm as próprias áreas. */}
+          <Route element={<ProtectedRoute excetoPapel={['medica', 'admin']} />}>
             <Route index element={<Home />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/calendario" element={<Consultas />} />

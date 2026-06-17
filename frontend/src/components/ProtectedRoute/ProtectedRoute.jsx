@@ -13,11 +13,11 @@
  * Props:
  * - papel (string | string[]): lista de papéis permitidos. Se o usuário não
  *   estiver nela, é redirecionado para a "casa" do papel dele.
- * - excetoPapel (string): papel que NÃO pode entrar (atalho para a área da
- *   paciente, que aceita todos menos a médica).
+ * - excetoPapel (string | string[]): papel(éis) que NÃO podem entrar (atalho
+ *   para a área da paciente, que aceita todos menos médica e administradora).
  *
- * O destino do redirecionamento é sempre uma rota que o usuário pode ver
- * (médica → /area-medica; demais → /), evitando laços de redirect.
+ * O destino do redirecionamento é sempre a "casa" do papel (médica →
+ * /area-medica; admin → /gestao; demais → /), evitando laços de redirect.
  *
  * Enquanto o contexto hidrata o localStorage, devolve `null` (evita piscar a
  * tela de login no F5 de quem já está autenticado).
@@ -27,7 +27,9 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
 
 function larDoPapel(tipoUsuario) {
-  return tipoUsuario === 'medica' ? '/area-medica' : '/'
+  if (tipoUsuario === 'medica') return '/area-medica'
+  if (tipoUsuario === 'admin') return '/gestao'
+  return '/'
 }
 
 function ProtectedRoute({ children, papel, excetoPapel }) {
@@ -43,8 +45,11 @@ function ProtectedRoute({ children, papel, excetoPapel }) {
     }
   }
 
-  if (excetoPapel && tipoUsuario === excetoPapel) {
-    return <Navigate to={larDoPapel(tipoUsuario)} replace />
+  if (excetoPapel) {
+    const bloqueados = Array.isArray(excetoPapel) ? excetoPapel : [excetoPapel]
+    if (bloqueados.includes(tipoUsuario)) {
+      return <Navigate to={larDoPapel(tipoUsuario)} replace />
+    }
   }
 
   return children ?? <Outlet />

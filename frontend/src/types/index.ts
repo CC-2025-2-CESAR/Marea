@@ -379,3 +379,51 @@ export interface RedefinicaoDetalhe {
   valido: boolean
   status: StatusConvite
 }
+
+// ===== Painel administrativo (PR8) =====
+
+/** Contagens do painel inicial da administração (`GET /api/admin/visao-geral/`). */
+export interface VisaoGeralAdmin {
+  pacientes: number
+  medicas: number
+  convites_pendentes: number
+  termos: number
+  termos_inativos: number
+  logs: number
+}
+
+/** Evento da trilha de auditoria (`GET /api/admin/logs/`), com rótulos prontos. */
+export interface LogAtividade {
+  id: number
+  usuario_nome: string
+  acao: string
+  acao_display: string
+  entidade: string
+  entidade_display: string
+  entidade_id: number | null
+  paciente_nome: string
+  motivo: string
+  data_hora: string
+}
+
+/** Termo do dicionário na visão da administração (inclui `ativo` + carimbos). */
+export interface TermoAdmin {
+  id: number
+  termo: string
+  definicao: string
+  categoria?: string
+  exemplo?: string
+  artigos_relacionados?: ArtigoRelacionado[]
+  ativo: boolean
+  criado_em?: string
+  atualizado_em?: string
+}
+
+/** Campos que a administração envia ao criar/editar um termo. */
+export interface EntradaTermo {
+  termo: string
+  definicao: string
+  categoria?: string
+  exemplo?: string
+  ativo?: boolean
+}
