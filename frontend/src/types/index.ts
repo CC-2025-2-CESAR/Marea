@@ -427,3 +427,68 @@ export interface EntradaTermo {
   exemplo?: string
   ativo?: boolean
 }
+
+// ===== Privacidade e LGPD na interface (PR10) =====
+
+/** Linha do resumo de registros no retrato de dados (transparência). */
+export interface ResumoRegistro {
+  area: string
+  rota: string
+  quantidade: number
+}
+
+/** Retrato consolidado dos dados pessoais (`GET /api/privacidade/meus-dados/`). */
+export interface MeusDados {
+  conta: {
+    usuario: string
+    email: string
+    membro_desde: string | null
+    ultimo_acesso: string | null
+  }
+  perfil: {
+    nome_completo: string
+    tipo_usuario: TipoUsuario
+    tipo_usuario_display: string
+    telefone: string
+    criado_em: string | null
+    atualizado_em: string | null
+  } | null
+  paciente: {
+    data_nascimento: string | null
+    tipo_sanguineo: string
+    tipo_sanguineo_display: string
+    medicamentos_em_uso: string
+    observacoes_medicas: string
+    medica_responsavel: string | null
+  } | null
+  resumo_registros: ResumoRegistro[]
+  gerado_em: string | null
+}
+
+/** Tipo de uma solicitação de privacidade do titular. */
+export type TipoSolicitacao = 'correcao' | 'exclusao'
+
+export type StatusSolicitacao =
+  | 'pendente'
+  | 'em_andamento'
+  | 'concluida'
+  | 'recusada'
+
+/** Solicitação de privacidade (`/api/privacidade/solicitacoes/`). */
+export interface SolicitacaoPrivacidade {
+  id: number
+  tipo: TipoSolicitacao
+  tipo_display: string
+  mensagem: string
+  status: StatusSolicitacao
+  status_display: string
+  resposta: string
+  criada_em: string
+  atualizada_em: string
+}
+
+/** Campos que o titular envia ao abrir uma solicitação. */
+export interface EntradaSolicitacao {
+  tipo: TipoSolicitacao
+  mensagem: string
+}

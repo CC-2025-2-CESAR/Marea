@@ -33,6 +33,16 @@ segue para reduzir risco real às titulares (pacientes e médicas).
 5. **Nada sensível em URL nem em log**.
 6. **Dados fictícios** em desenvolvimento, testes e demonstrações.
 
+## Direitos do titular na interface
+
+Além da documentação acima, os direitos da titular são exercíveis no próprio app:
+a página pública **Privacidade** (`/privacidade`) apresenta a política, e a área
+**Meus dados** (`/meus-dados`) permite ver, baixar (JSON) e solicitar correção ou
+exclusão dos próprios dados. No backend, o app `privacidade` expõe
+`/api/privacidade/meus-dados/` e `/api/privacidade/solicitacoes/` (function-based,
+escopo do próprio usuário; a exclusão entra como solicitação avaliada pela
+clínica).
+
 ## Referências
 
 - Lei nº 13.709/2018 (LGPD).

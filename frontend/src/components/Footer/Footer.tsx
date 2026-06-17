@@ -22,6 +22,11 @@ function Footer() {
             <li>
               <Link to="/calendario">Calendário</Link>
             </li>
+            <li>
+              <Link to="/privacidade" data-cy="rodape-privacidade">
+                Privacidade
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

@@ -46,9 +46,11 @@ Seus dados clínicos não ficam visíveis para outras pacientes.
 
 ## Seus direitos
 
-Você pode solicitar acesso, correção ou exclusão dos seus dados, conforme a
-LGPD. Hoje isso é feito pelo contato com a clínica; o fluxo dentro do app está
-em evolução.
+Você pode acessar, corrigir ou excluir os seus dados, conforme a LGPD. Dentro do
+app, a área **Meus dados** reúne esses direitos: você vê o retrato consolidado
+dos seus dados, baixa uma cópia (portabilidade) e abre pedidos de correção ou
+exclusão. A exclusão é avaliada pela clínica, respeitando as obrigações legais
+de guarda do prontuário. Você também pode falar diretamente com a clínica.
 
 ## Cookies e armazenamento
 
