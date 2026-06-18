@@ -586,6 +586,21 @@ dados, registro de operações, RIPD simplificado, plano de incidente e rascunho
 da política de privacidade. Toda PR que toca dado pessoal passa pelo checklist
 LGPD do template de pull request.
 
+## Acessibilidade e usabilidade
+
+Acessibilidade e usabilidade são tratadas como parte do cuidado, não como
+acabamento. Os comportamentos moram em componentes compartilhados (shell,
+`Modal`, `Drawer`, `Toast`, `Button`, `InputField`), então valem para todas as
+telas: skip-link, foco visível e preso em diálogos, `aria-live`/`aria-current`,
+respeito a `prefers-reduced-motion`, alvos de toque ≥44px e uma suíte Cypress
+mobile. Dois relatórios consolidam o estado e o roteiro de verificação:
+
+- [Acessibilidade](docs/acessibilidade.md) — conformidade WCAG 2.1 AA + checklist
+  do plano, com evidência no código e verificação manual (WAVE/Lighthouse/teclado/
+  leitor de tela).
+- [Heurísticas de Nielsen](docs/heuristicas-nielsen.md) — as 10 heurísticas de
+  usabilidade aplicadas à Amare, com evidência e lacunas.
+
 ## Documentação
 
 - [Configuração do ambiente](docs/configuracao-do-ambiente.md)
@@ -596,6 +611,8 @@ LGPD do template de pull request.
 - [Guia do ESLint e Prettier](docs/guia-eslint-prettier.md)
 - [Fluxo de Git](docs/fluxo-git.md)
 - [Histórias de usuário](docs/historias-de-usuario.md)
+- [Acessibilidade](docs/acessibilidade.md)
+- [Heurísticas de Nielsen](docs/heuristicas-nielsen.md)
 - [Segurança e Privacidade (LGPD)](docs/lgpd/README.md)
 - [Deploy em produção (Azure + Neon)](docs/deploy-azure.md)
 - [Como contribuir](CONTRIBUTING.md)
