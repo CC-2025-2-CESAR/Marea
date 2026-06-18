@@ -1,7 +1,6 @@
-// Suíte dedicada aos detalhes de polimento de UX da iteração 5:
-// transição entre rotas, SelectField customizado de tipo sanguíneo e
-// máscara de telefone. Mocka GET/PATCH /api/perfil/ e mantém o arquivo
-// autônomo (sem depender de perfil.cy.js).
+// Suíte dedicada aos detalhes de polimento de UX do perfil: transição entre
+// rotas e a máscara de telefone (com salvar). Mocka GET/PATCH /api/perfil/ e
+// os registros de "Meus registros", mantendo o arquivo autônomo.
 
 const SESSAO_FAKE = {
   access: 'token-de-acesso-fake',
@@ -41,6 +40,8 @@ const TERMOS_MOCK = [
 
 function mockarPerfil() {
   cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
+  cy.intercept('GET', '**/api/sintomas/', { body: [] }).as('sintomas')
+  cy.intercept('GET', '**/api/ciclo/registros/', { body: [] }).as('ciclo')
 }
 
 function visitarPerfilAutenticado() {
@@ -77,70 +78,25 @@ describe('Polimento UX do perfil', () => {
     cy.get('[data-cy=page-perfil]').should('not.exist')
   })
 
-  it('2. SelectField de tipo sanguineo abre a lista ao clicar', () => {
-    visitarPerfilAutenticado()
-    cy.get('[role=listbox]').should('not.exist')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').click()
-    cy.get('[role=listbox]').should('be.visible')
-    cy.get('[data-cy=perfil-tipo-sanguineo-opcao-A-]').should('be.visible')
-  })
-
-  it('3. clicar em uma opcao atualiza o valor e fecha a lista', () => {
-    visitarPerfilAutenticado()
-    cy.get('[data-cy=perfil-tipo-sanguineo]').click()
-    cy.get('[data-cy=perfil-tipo-sanguineo-opcao-AB-]').click()
-    cy.get('[role=listbox]').should('not.exist')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'AB-')
-  })
-
-  it('4. apertar Esc fecha o SelectField', () => {
-    visitarPerfilAutenticado()
-    cy.get('[data-cy=perfil-tipo-sanguineo]').click()
-    cy.get('[role=listbox]').should('be.visible')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').type('{esc}')
-    cy.get('[role=listbox]').should('not.exist')
-  })
-
-  it('5. clicar fora fecha o SelectField', () => {
-    visitarPerfilAutenticado()
-    cy.get('[data-cy=perfil-tipo-sanguineo]').click()
-    cy.get('[role=listbox]').should('be.visible')
-    cy.get('h1').contains('Perfil').click()
-    cy.get('[role=listbox]').should('not.exist')
-  })
-
-  it('6. navegar com seta para baixo e Enter seleciona a proxima opcao', () => {
-    visitarPerfilAutenticado()
-    // Valor inicial é O+. Abrir com clique, depois descer uma opção
-    // (vai para O-) e confirmar com Enter.
-    cy.get('[data-cy=perfil-tipo-sanguineo]').click()
-    cy.get('[role=listbox]').should('be.visible')
-    cy.get('[data-cy=perfil-tipo-sanguineo]')
-      .type('{downarrow}', { force: true })
-      .type('{enter}', { force: true })
-    cy.get('[role=listbox]').should('not.exist')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'O-')
-  })
-
-  it('7. campo telefone ignora letras digitadas', () => {
+  it('2. campo telefone ignora letras digitadas', () => {
     visitarPerfilAutenticado()
     cy.get('[data-cy=perfil-telefone]').clear().type('abc')
     cy.get('[data-cy=perfil-telefone]').should('have.value', '')
   })
 
-  it('8. campo telefone aplica mascara com 11 digitos', () => {
+  it('3. campo telefone aplica mascara com 11 digitos', () => {
     visitarPerfilAutenticado()
     cy.get('[data-cy=perfil-telefone]').clear().type('81999998888')
     cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 99999-8888')
   })
 
-  it('9. campo telefone respeita o limite de 11 digitos', () => {
+  it('4. campo telefone respeita o limite de 11 digitos', () => {
     visitarPerfilAutenticado()
     cy.get('[data-cy=perfil-telefone]').clear().type('819999988880000')
     cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 99999-8888')
   })
 
-  it('10. salvar perfil com telefone formatado dispara feedback de sucesso', () => {
+  it('5. salvar perfil com telefone formatado dispara feedback de sucesso', () => {
     mockarPerfil()
     cy.intercept('PATCH', '**/api/perfil/', (req) => {
       req.reply({

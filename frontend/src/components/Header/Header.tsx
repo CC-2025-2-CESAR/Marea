@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import logoAmare from '../../assets/amare-logo.png'
 import IconeMenu from '../IconeMenu/IconeMenu'
 import SearchBar from '../SearchBar/SearchBar'
+import HeaderProfileMenu from '../HeaderProfileMenu/HeaderProfileMenu'
 import './Header.css'
 
 interface HeaderProps {
@@ -42,6 +43,7 @@ function Header({ onAbrirMenu }: HeaderProps) {
         <p>Plataforma de cuidado e acompanhamento</p>
       </div>
       <SearchBar />
+      <HeaderProfileMenu />
     </header>
   )
 }

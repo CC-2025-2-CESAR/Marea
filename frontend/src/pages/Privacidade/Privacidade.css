@@ -46,6 +46,16 @@
   line-height: 1.6;
 }
 
+.privacidade__aviso-demo {
+  margin-top: var(--espaco-md);
+  padding: var(--espaco-sm) var(--espaco-md);
+  border-left: 4px solid var(--cor-terracota);
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-creme);
+  color: var(--cor-texto);
+  line-height: 1.6;
+}
+
 .privacidade__secao {
   margin-top: var(--espaco-lg);
 }

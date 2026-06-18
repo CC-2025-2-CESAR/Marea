@@ -23,6 +23,27 @@ const PERFIL_MOCK = {
   observacoes_medicas: 'Em acompanhamento para indução da ovulação.',
 }
 
+const SINTOMAS_MOCK = [
+  {
+    id: 10,
+    data: '2026-05-20',
+    tipo: 'Náusea',
+    descricao: 'Leve, pela manhã.',
+    intensidade: 2,
+  },
+]
+
+const CICLO_MOCK = [
+  {
+    id: 5,
+    data: '2026-05-18',
+    etapa: 'menstruacao',
+    etapa_display: 'Menstruação',
+    observacoes: 'Fluxo moderado.',
+    status: 'registrado',
+  },
+]
+
 function visitarComSessao(rota = '/perfil') {
   cy.visit(rota, {
     onBeforeLoad(janela) {
@@ -34,6 +55,9 @@ function visitarComSessao(rota = '/perfil') {
 describe('Página de Perfil da Amare', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
+    // Padrões para "Meus registros" — testes específicos sobrescrevem.
+    cy.intercept('GET', '**/api/sintomas/', { body: [] }).as('sintomas')
+    cy.intercept('GET', '**/api/ciclo/registros/', { body: [] }).as('ciclo')
   })
 
   it('redireciona para /login quando nao ha sessao salva', () => {
@@ -51,7 +75,17 @@ describe('Página de Perfil da Amare', () => {
     cy.get('[data-cy=perfil-nome]').should('have.value', 'Júlia Pereira')
     cy.get('[data-cy=perfil-telefone]').should('have.value', '(81) 91234-5678')
     cy.get('[data-cy=perfil-data-nascimento]').should('have.value', '1993-04-12')
-    cy.get('[data-cy=perfil-tipo-sanguineo]').should('contain', 'O+')
+  })
+
+  it('nao mostra mais o campo de tipo sanguineo nem botoes "em breve"', () => {
+    cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
+    visitarComSessao()
+    cy.wait('@perfil')
+
+    cy.get('[data-cy=perfil-tipo-sanguineo]').should('not.exist')
+    cy.get('[data-cy=perfil-botoes-secundarios]').should('not.exist')
+    cy.contains('button', 'Editar foto').should('not.exist')
+    cy.contains('button', 'Editar plano').should('not.exist')
   })
 
   it('mostra o e-mail como leitura apenas', () => {
@@ -79,14 +113,57 @@ describe('Página de Perfil da Amare', () => {
     )
   })
 
-  it('mantem os botoes secundarios desabilitados', () => {
+  it('mostra "Meus registros" com sintomas e troca para a aba de ciclo', () => {
+    cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
+    cy.intercept('GET', '**/api/sintomas/', { body: SINTOMAS_MOCK }).as(
+      'sintomas',
+    )
+    cy.intercept('GET', '**/api/ciclo/registros/', { body: CICLO_MOCK }).as(
+      'ciclo',
+    )
+    visitarComSessao()
+    cy.wait('@perfil')
+    cy.wait('@sintomas')
+
+    cy.get('[data-cy=perfil-registros]').should('be.visible')
+    cy.get('[data-cy=perfil-registro-item]').should('contain', 'Náusea')
+
+    cy.get('[data-cy=perfil-registros-aba-ciclo]').click()
+    cy.get('[data-cy=perfil-registro-item]').should('contain', 'Menstruação')
+  })
+
+  it('mostra estado vazio em "Meus registros" quando nao ha sintomas', () => {
+    cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
+    visitarComSessao()
+    cy.wait('@perfil')
+    cy.wait('@sintomas')
+
+    cy.get('[data-cy=perfil-registros] [data-cy=empty-state]').should(
+      'be.visible',
+    )
+    cy.get('[data-cy=perfil-registros-ir-sintomas]').should(
+      'have.attr',
+      'href',
+      '/sintomas',
+    )
+  })
+
+  it('tem o bloco de privacidade com atalhos para Meus dados e a politica', () => {
     cy.intercept('GET', '**/api/perfil/', { body: PERFIL_MOCK }).as('perfil')
     visitarComSessao()
     cy.wait('@perfil')
 
-    cy.get('[data-cy=perfil-botoes-secundarios] button').each(($botao) => {
-      cy.wrap($botao).should('be.disabled')
-    })
+    cy.get('[data-cy=perfil-privacidade]').should('be.visible')
+    cy.get('[data-cy=perfil-link-meus-dados]').should(
+      'have.attr',
+      'href',
+      '/meus-dados',
+    )
+    cy.get('[data-cy=perfil-link-privacidade]').should(
+      'have.attr',
+      'href',
+      '/privacidade',
+    )
   })
 
   it('salva alteracoes do perfil e mostra mensagem de sucesso', () => {
