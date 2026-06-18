@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react'
 import CalendarDayDrawer from '../CalendarDayDrawer/CalendarDayDrawer'
+import type {
+  Consulta,
+  EventoTratamento,
+  MarcacaoCiclo,
+  Medicamento,
+  TipoMarcacaoCiclo,
+} from '../../types'
 import './CalendarioMes.css'
 
 const NOMES_MES = [
@@ -20,15 +27,37 @@ const NOMES_MES = [
 const DIAS_SEMANA_CURTOS = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.']
 
 // Rótulos das marcações do ciclo (menstruação/fértil/ovulação/previsão).
-const ROTULO_CICLO = {
+const ROTULO_CICLO: Record<TipoMarcacaoCiclo, string> = {
   menstruacao: 'Menstruação',
   fertil: 'Período fértil',
   ovulacao: 'Ovulação',
   previsto: 'Próxima menstruação (previsão)',
 }
 
+type TipoCelula = 'anterior' | 'atual' | 'proximo'
+
+interface Celula {
+  dia: number
+  tipo: TipoCelula
+  data: Date
+}
+
+interface Props {
+  consultas?: Consulta[]
+  eventos?: EventoTratamento[]
+  marcacoes?: MarcacaoCiclo[]
+  /** Rotina de medicamentos da paciente; o drawer só mostra os do dia de hoje. */
+  medicamentos?: Medicamento[]
+  mesInicial?: Date
+  /**
+   * Quando true, os dias do mês viram botões que abrem o drawer do dia.
+   * A página /ciclo usa o calendário só para marcações e mantém isso desligado.
+   */
+  diaClicavel?: boolean
+}
+
 // Chave dia-a-dia (mês 0-based) tolerante a Date e a string ISO 'YYYY-MM-DD'.
-function chaveData(valor) {
+function chaveData(valor: Date | string): string {
   if (valor instanceof Date) {
     return `${valor.getFullYear()}-${valor.getMonth()}-${valor.getDate()}`
   }
@@ -36,7 +65,7 @@ function chaveData(valor) {
   return `${ano}-${mes - 1}-${dia}`
 }
 
-function mesmoDia(a, b) {
+function mesmoDia(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&
     a.getMonth() === b.getMonth() &&
@@ -44,13 +73,13 @@ function mesmoDia(a, b) {
   )
 }
 
-function gerarCelulas(ano, mes) {
+function gerarCelulas(ano: number, mes: number): Celula[] {
   const primeiroDiaMes = new Date(ano, mes, 1)
   const diaSemanaInicio = primeiroDiaMes.getDay()
   const totalDiasMes = new Date(ano, mes + 1, 0).getDate()
   const totalDiasMesAnterior = new Date(ano, mes, 0).getDate()
 
-  const celulas = []
+  const celulas: Celula[] = []
 
   for (let i = diaSemanaInicio - 1; i >= 0; i -= 1) {
     const dia = totalDiasMesAnterior - i
@@ -82,7 +111,7 @@ function gerarCelulas(ano, mes) {
   return celulas
 }
 
-function rotuloDoDia(consultas) {
+function rotuloDoDia(consultas: Consulta[]): string {
   if (consultas.length === 0) return ''
   if (consultas.length > 1) return `${consultas.length} consultas`
   return consultas[0].especialidade_nome
@@ -90,14 +119,16 @@ function rotuloDoDia(consultas) {
     : 'Consulta'
 }
 
-function rotuloEventos(eventos) {
+function rotuloEventos(eventos: EventoTratamento[]): string {
   if (eventos.length === 0) return ''
   if (eventos.length > 1) return `${eventos.length} eventos`
   return eventos[0].titulo || 'Evento'
 }
 
-function agruparPorData(itens) {
-  const mapa = new Map()
+function agruparPorData<T extends { data_horario?: string }>(
+  itens: T[],
+): Map<string, T[]> {
+  const mapa = new Map<string, T[]>()
   itens.forEach((item) => {
     if (!item?.data_horario) return
     const data = new Date(item.data_horario)
@@ -113,13 +144,10 @@ function CalendarioMes({
   consultas = [],
   eventos = [],
   marcacoes = [],
-  // Rotina de medicamentos da paciente; o drawer só mostra os do dia de hoje.
   medicamentos = [],
   mesInicial,
-  // Quando true, os dias do mês viram botões que abrem o drawer do dia.
-  // A página /ciclo usa o calendário só para marcações e mantém isso desligado.
   diaClicavel = false,
-}) {
+}: Props) {
   const inicial = useMemo(() => {
     if (mesInicial instanceof Date) {
       return new Date(mesInicial.getFullYear(), mesInicial.getMonth(), 1)
@@ -129,7 +157,7 @@ function CalendarioMes({
   }, [mesInicial])
 
   const [mesVisivel, setMesVisivel] = useState(inicial)
-  const [diaSelecionado, setDiaSelecionado] = useState(null)
+  const [diaSelecionado, setDiaSelecionado] = useState<Date | null>(null)
 
   const ano = mesVisivel.getFullYear()
   const mes = mesVisivel.getMonth()
@@ -143,7 +171,7 @@ function CalendarioMes({
   const eventosPorData = useMemo(() => agruparPorData(eventos), [eventos])
 
   const marcacoesPorData = useMemo(() => {
-    const mapa = new Map()
+    const mapa = new Map<string, TipoMarcacaoCiclo>()
     marcacoes.forEach((mc) => {
       if (!mc?.data) return
       const chave = chaveData(mc.data)
@@ -153,16 +181,16 @@ function CalendarioMes({
     return mapa
   }, [marcacoes])
 
-  function cicloNoDia(data) {
+  function cicloNoDia(data: Date): TipoMarcacaoCiclo | '' {
     return marcacoesPorData.get(chaveData(data)) || ''
   }
 
-  function consultasNoDia(data) {
+  function consultasNoDia(data: Date): Consulta[] {
     const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
     return consultasPorData.get(chave) || []
   }
 
-  function eventosNoDia(data) {
+  function eventosNoDia(data: Date): EventoTratamento[] {
     const chave = `${data.getFullYear()}-${data.getMonth()}-${data.getDate()}`
     return eventosPorData.get(chave) || []
   }

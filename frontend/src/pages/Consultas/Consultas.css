@@ -25,6 +25,15 @@
   align-items: start;
 }
 
+/* Coluna do calendário: a grade do mês + a legenda do ciclo (quando há
+   marcações) empilhadas, ocupando a primeira coluna do layout. */
+.consultas-calendario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+  min-width: 0;
+}
+
 .consultas-painel {
   display: flex;
   flex-direction: column;

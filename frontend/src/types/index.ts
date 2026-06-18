@@ -150,18 +150,19 @@ export type EntradaRegistroCiclo = Pick<
   'data' | 'etapa' | 'status' | 'observacoes'
 >
 
-export interface JanelaFertil {
-  inicio: string
-  fim: string
-}
-
-/** Resposta de `GET /ciclo/previsoes/` (estimativas — nunca diagnóstico). */
+/**
+ * Resposta de `GET /ciclo/previsoes/` (estimativas — nunca diagnóstico). Os
+ * campos vêm achatados do backend (datas em ISO `YYYY-MM-DD`).
+ */
 export interface PrevisoesCiclo {
   tem_dados: boolean
   mensagem?: string
+  aviso?: string
+  ciclo_medio_dias?: number
   proxima_menstruacao?: string | null
-  janela_fertil?: JanelaFertil | null
-  ovulacao?: string | null
+  ovulacao_estimada?: string | null
+  janela_fertil_inicio?: string | null
+  janela_fertil_fim?: string | null
   etapa_atual?: EtapaCiclo
   etapa_atual_display?: string
   dia_do_ciclo?: number
@@ -169,6 +170,19 @@ export interface PrevisoesCiclo {
   dias_para_proxima?: number
   atrasada?: boolean
   chance_gravidez?: ChanceGravidez
+}
+
+/** Tipo de uma marcação do ciclo no calendário. */
+export type TipoMarcacaoCiclo =
+  | 'menstruacao'
+  | 'fertil'
+  | 'ovulacao'
+  | 'previsto'
+
+/** Uma marcação dia-a-dia para o `CalendarioMes` (data ISO + tipo). */
+export interface MarcacaoCiclo {
+  data: string
+  tipo: TipoMarcacaoCiclo
 }
 
 // ===== Consultas, eventos e medicamentos =====

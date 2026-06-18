@@ -1,0 +1,37 @@
+.legenda-ciclo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-md);
+  font-size: 0.8rem;
+  color: var(--cor-texto-suave);
+}
+
+.legenda-ciclo li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legenda-ciclo__cor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legenda-ciclo__cor--menstruacao {
+  background: var(--cor-terracota);
+}
+.legenda-ciclo__cor--fertil {
+  background: var(--cor-rosa-secundario);
+}
+.legenda-ciclo__cor--ovulacao {
+  background: var(--cor-azul-link);
+}
+.legenda-ciclo__cor--previsto {
+  background: var(--cor-card);
+  border: 1px dashed var(--cor-terracota);
+}
