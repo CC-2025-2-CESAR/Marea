@@ -314,11 +314,14 @@
   align-items: center;
   min-height: 44px;
   padding: 8px 18px;
+  border: none;
   border-radius: 999px;
   background: var(--cor-rosa-principal);
   color: var(--cor-grafite);
+  font-family: inherit;
   font-weight: 600;
   font-size: 0.95rem;
+  cursor: pointer;
   transition:
     transform var(--duracao-rapida) var(--easing-saida),
     background-color var(--duracao-rapida) var(--easing-saida);

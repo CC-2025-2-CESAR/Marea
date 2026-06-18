@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import Button from '../../components/Button/Button'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import EmptyState from '../../components/ui/EmptyState/EmptyState'
+import AlterarSenhaModal from '../../components/AlterarSenhaModal/AlterarSenhaModal'
 import { atualizarPerfil, obterPerfil } from '../../services/perfilService'
 import { listarSintomas } from '../../services/sintomasService'
 import { listarRegistrosCiclo } from '../../services/cicloService'
@@ -61,6 +62,7 @@ function Perfil() {
   const [registrosCiclo, setRegistrosCiclo] = useState<RegistroCiclo[]>([])
   const [carregandoRegistros, setCarregandoRegistros] = useState(true)
   const [abaRegistros, setAbaRegistros] = useState<AbaRegistros>('sintomas')
+  const [modalSenhaAberto, setModalSenhaAberto] = useState(false)
 
   const { mostrarToast } = useToast()
 
@@ -492,8 +494,31 @@ function Perfil() {
               </Link>
             </div>
           </section>
+
+          <section
+            className="perfil-cartao perfil-cartao--seguranca"
+            data-cy="perfil-seguranca"
+          >
+            <h2>Segurança da conta</h2>
+            <p>
+              Mantenha a sua conta protegida com uma senha forte e só sua.
+            </p>
+            <button
+              type="button"
+              className="perfil-link perfil-link--secundario"
+              onClick={() => setModalSenhaAberto(true)}
+              data-cy="perfil-alterar-senha-abrir"
+            >
+              Alterar senha
+            </button>
+          </section>
         </div>
       </div>
+
+      <AlterarSenhaModal
+        aberto={modalSenhaAberto}
+        onFechar={() => setModalSenhaAberto(false)}
+      />
     </section>
   )
 }

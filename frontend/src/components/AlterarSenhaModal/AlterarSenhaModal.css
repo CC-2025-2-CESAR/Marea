@@ -1,0 +1,44 @@
+.alterar-senha-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.alterar-senha-erro {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--raio-pequeno);
+  background: rgba(209, 29, 70, 0.12);
+  color: var(--cor-erro);
+  font-size: 0.9rem;
+}
+
+.alterar-senha-dica {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.alterar-senha-cancelar {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-campo);
+  background: transparent;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.alterar-senha-cancelar:hover {
+  background: rgba(128, 82, 53, 0.08);
+}
+
+.alterar-senha-cancelar:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(128, 82, 53, 0.2);
+}

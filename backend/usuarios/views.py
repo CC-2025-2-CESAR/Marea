@@ -15,7 +15,7 @@ from rest_framework.decorators import (
     permission_classes,
     throttle_classes,
 )
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework_simplejwt.exceptions import TokenError
@@ -167,6 +167,43 @@ def perfil_view(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def alterar_senha(request):
+    """Troca a senha do usuário autenticado (qualquer papel).
+
+    Exige a senha atual (confirmação de identidade) e valida a nova com os
+    mesmos validadores do Django, reusando o ``DefinirSenhaSerializer``. Como a
+    autenticação é por JWT (stateless), o token atual segue válido até expirar —
+    não há sessão a renovar aqui.
+    """
+    senha_atual = request.data.get('senha_atual') or ''
+    nova_senha = request.data.get('nova_senha') or ''
+
+    if not senha_atual or not nova_senha:
+        return Response(
+            {'detail': 'Informe a senha atual e a nova senha.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if not request.user.check_password(senha_atual):
+        return Response(
+            {'detail': 'Senha atual incorreta.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    serializer = DefinirSenhaSerializer(
+        data={'password': nova_senha},
+        context={'usuario': request.user},
+    )
+    serializer.is_valid(raise_exception=True)
+
+    request.user.set_password(serializer.validated_data['password'])
+    request.user.save(update_fields=['password'])
+
+    return Response({'detail': 'Senha alterada com sucesso.'})
 
 
 # --- Convite de primeiro acesso (PROJ-7) -----------------------------------
