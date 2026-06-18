@@ -30,6 +30,8 @@ import AreaMedica from '../pages/AreaMedica/AreaMedica'
 import GestaoHome from '../pages/Gestao/GestaoHome'
 import GestaoDicionario from '../pages/Gestao/GestaoDicionario'
 import GestaoLogs from '../pages/Gestao/GestaoLogs'
+import Privacidade from '../pages/Privacidade/Privacidade'
+import MeusDados from '../pages/MeusDados/MeusDados'
 
 function AppRoutes() {
   return (
@@ -43,6 +45,8 @@ function AppRoutes() {
           {/* Recuperação de senha: rotas públicas (a pessoa esqueceu a senha). */}
           <Route path="/recuperar" element={<Recuperacao />} />
           <Route path="/redefinir/:token" element={<Redefinicao />} />
+          {/* Politica de privacidade: publica (acessivel antes do login). */}
+          <Route path="/privacidade" element={<Privacidade />} />
         </Route>
 
         {/* Tudo autenticado compartilha o mesmo shell (uma única instância de
@@ -90,6 +94,7 @@ function AppRoutes() {
           <Route element={<ProtectedRoute excetoPapel={['medica', 'admin']} />}>
             <Route index element={<Home />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/meus-dados" element={<MeusDados />} />
             <Route path="/calendario" element={<Consultas />} />
             <Route path="/ciclo" element={<Ciclo />} />
             <Route path="/medicamentos" element={<Medicamentos />} />

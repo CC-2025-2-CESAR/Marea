@@ -8,6 +8,9 @@ urlpatterns = [
     # Painel administrativo da clínica (IsAdminClinica). Antes do include
     # genérico 'api/' para o prefixo 'api/admin/' ser resolvido sem ambiguidade.
     path('api/admin/', include('administracao.urls')),
+    # Privacidade/LGPD (titular dos dados). Tambem antes do include generico
+    # 'api/' para o prefixo 'api/privacidade/' resolver sem ambiguidade.
+    path('api/privacidade/', include('privacidade.urls')),
     path('api/', include('usuarios.urls')),
     path('api/medica/', include('area_medica.urls')),
     path('api/dicionario/', include('dicionario.urls')),

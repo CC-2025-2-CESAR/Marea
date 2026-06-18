@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'auditoria',
     'assistente',
     'administracao',
+    'privacidade',
 ]
 
 MIDDLEWARE = [

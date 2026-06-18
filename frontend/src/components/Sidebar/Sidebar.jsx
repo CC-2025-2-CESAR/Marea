@@ -9,6 +9,7 @@ import './Sidebar.css'
 const linksPaciente = [
   { to: '/', label: 'Início', dataCy: 'nav-home' },
   { to: '/perfil', label: 'Perfil', dataCy: 'nav-perfil' },
+  { to: '/meus-dados', label: 'Meus dados', dataCy: 'nav-meus-dados' },
   { to: '/calendario', label: 'Calendário', dataCy: 'nav-calendario' },
   { to: '/medicamentos', label: 'Medicamentos', dataCy: 'nav-medicamentos' },
   { to: '/ciclo', label: 'Ciclo', dataCy: 'nav-ciclo' },

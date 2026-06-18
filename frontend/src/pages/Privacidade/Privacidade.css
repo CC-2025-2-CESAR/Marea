@@ -1,0 +1,114 @@
+.privacidade {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: var(--espaco-md) var(--espaco-sm) var(--espaco-xl);
+  background: var(--cor-fundo);
+}
+
+.privacidade__conteudo {
+  width: 100%;
+  max-width: 720px;
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-medio);
+  padding: var(--espaco-lg) var(--espaco-md);
+  box-shadow: var(--sombra-suave);
+}
+
+.privacidade__cabecalho {
+  margin-bottom: var(--espaco-md);
+}
+
+.privacidade__voltar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: var(--espaco-xs);
+  color: var(--cor-azul-link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.privacidade__voltar:hover {
+  text-decoration: underline;
+}
+
+.privacidade h1 {
+  margin: 0 0 var(--espaco-sm);
+  color: var(--cor-marrom);
+  font-size: 1.6rem;
+}
+
+.privacidade__intro {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  line-height: 1.6;
+}
+
+.privacidade__secao {
+  margin-top: var(--espaco-lg);
+}
+
+.privacidade__secao h2 {
+  margin: 0 0 var(--espaco-sm);
+  color: var(--cor-grafite);
+  font-size: 1.15rem;
+}
+
+.privacidade__secao p {
+  margin: var(--espaco-sm) 0 0;
+  color: var(--cor-texto);
+  line-height: 1.6;
+}
+
+.privacidade__secao ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--cor-texto);
+  line-height: 1.7;
+}
+
+.privacidade__secao--destaque {
+  background: var(--cor-creme);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  padding: var(--espaco-md);
+}
+
+.privacidade__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: var(--espaco-md);
+  padding: 0 var(--espaco-lg);
+  background: var(--cor-terracota);
+  color: #fff;
+  border-radius: var(--raio-campo);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.privacidade__cta:hover {
+  background: var(--cor-marrom);
+}
+
+.privacidade__rodape-aviso {
+  margin-top: var(--espaco-lg);
+  padding-top: var(--espaco-md);
+  border-top: 1px solid var(--cor-borda);
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .privacidade__conteudo {
+    padding: var(--espaco-xl) var(--espaco-lg);
+  }
+
+  .privacidade h1 {
+    font-size: 1.9rem;
+  }
+}

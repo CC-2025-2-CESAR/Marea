@@ -40,6 +40,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/sintomas/', { body: [] })
     cy.intercept('GET', '**/api/ciclo/**', { body: [] })
     cy.intercept('GET', '**/api/busca/**', { body: [] })
+    cy.intercept('GET', '**/api/privacidade/**', { body: [] })
     cy.intercept('GET', '**/api/assistente/**', {
       body: { disclaimer: 'Informações gerais da Amare.', sugestoes: [] },
     })

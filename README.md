@@ -98,6 +98,10 @@ banco e base preparada para diferenciar pacientes, médicas e administradoras.
   tratamentos, orientações e especialidades).
 - `/area-medica`: área exclusiva da médica (dentro do shell unificado), com as
   pacientes da clínica em abas e o painel de acompanhamento (requer papel de médica).
+- `/privacidade`: política de privacidade em linguagem simples — página pública,
+  acessível antes do login.
+- `/meus-dados`: área do titular (LGPD) — vê os próprios dados, baixa uma cópia
+  em JSON e abre pedidos de correção ou exclusão (requer login).
 
 ## Layouts
 
@@ -568,6 +572,14 @@ critério técnico de qualidade, não enfeite. Medidas adotadas:
   obrigatório, HSTS e cookies seguros automaticamente.
 - **Sem dado sensível em URL nem em log**; **dados fictícios** em
   desenvolvimento, testes e demonstrações.
+
+**LGPD na interface:** a política tem uma página pública (`/privacidade`) e cada
+titular conta com a área **Meus dados** (`/meus-dados`): vê o retrato
+consolidado dos próprios dados, baixa uma cópia em JSON (portabilidade) e abre
+pedidos de correção ou exclusão. Os endpoints (`/api/privacidade/meus-dados/` e
+`/api/privacidade/solicitacoes/`) são function-based e só devolvem/aceitam dados
+do próprio usuário; a exclusão é registrada como solicitação e avaliada pela
+clínica, respeitando a retenção de prontuário.
 
 Documentação completa em [`docs/lgpd/`](docs/lgpd/README.md): mapeamento de
 dados, registro de operações, RIPD simplificado, plano de incidente e rascunho
