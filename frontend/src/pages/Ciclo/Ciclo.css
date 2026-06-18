@@ -118,140 +118,13 @@
   color: var(--cor-texto-suave);
 }
 
-/* --- Ações rápidas --- */
+/* --- Ação principal: novo registro --- */
 .ciclo-acoes {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--espaco-sm);
+  display: flex;
 }
 
-.ciclo-acoes > * {
+.ciclo-acoes .botao {
   width: 100%;
-}
-
-.ciclo-acao-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 var(--espaco-md);
-  border-radius: var(--raio-campo);
-  background: var(--cor-azul-suave);
-  color: var(--cor-grafite);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.ciclo-acao-link:hover {
-  filter: brightness(0.97);
-}
-
-.ciclo-acao-link:focus-visible {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 2px;
-}
-
-/* --- Formulário --- */
-.ciclo-form {
-  background: var(--cor-card);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-medio);
-  box-shadow: var(--sombra-suave);
-  padding: var(--espaco-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-md);
-}
-
-.ciclo-form__titulo {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.ciclo-form__linha {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--espaco-md);
-}
-
-.ciclo-campo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-xs);
-}
-
-.ciclo-campo__label {
-  font-size: 0.9rem;
-  color: var(--cor-texto);
-}
-
-.ciclo-textarea {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: 16px;
-  color: var(--cor-texto);
-  background: var(--cor-creme-claro);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-pequeno);
-  padding: var(--espaco-sm);
-  resize: vertical;
-}
-
-.ciclo-textarea:focus-visible {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 1px;
-}
-
-.ciclo-form__acoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--espaco-sm);
-}
-
-/* --- Calendário do ciclo --- */
-.ciclo-calendario {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-sm);
-}
-
-.ciclo-legenda {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--espaco-md);
-  font-size: 0.8rem;
-  color: var(--cor-texto-suave);
-}
-
-.ciclo-legenda li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ciclo-legenda__cor {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.ciclo-legenda__cor--menstruacao {
-  background: var(--cor-terracota);
-}
-.ciclo-legenda__cor--fertil {
-  background: var(--cor-rosa-secundario);
-}
-.ciclo-legenda__cor--ovulacao {
-  background: var(--cor-azul-link);
-}
-.ciclo-legenda__cor--previsto {
-  background: var(--cor-card);
-  border: 1px dashed var(--cor-terracota);
 }
 
 /* --- Mensagens --- */
@@ -358,16 +231,13 @@
 
 /* --- Telas maiores --- */
 @media (min-width: 480px) {
-  .ciclo-acoes {
-    grid-template-columns: repeat(3, 1fr);
+  .ciclo-acoes .botao {
+    width: auto;
+    min-width: 220px;
   }
 }
 
 @media (min-width: 768px) {
-  .ciclo-form__linha {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .ciclo-lista {
     grid-template-columns: repeat(2, 1fr);
   }
