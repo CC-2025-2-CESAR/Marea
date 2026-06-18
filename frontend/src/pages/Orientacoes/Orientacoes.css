@@ -52,75 +52,27 @@
 }
 
 .orientacoes-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--espaco-md);
   align-items: start;
 }
 
-.orientacoes-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-sm);
-  padding: var(--espaco-md);
-  border-radius: var(--raio-medio);
-  background: var(--cor-card);
-  box-shadow: var(--sombra-suave);
-  border-top: 4px solid var(--cor-rosa-secundario);
-  transition:
-    transform 0.18s ease-out,
-    box-shadow 0.18s ease-out;
-}
-
-/* Leve elevação no hover/foco, ecoando o InteractiveCard das especialidades.
-   O título segue sendo o alvo de clique — o card tem links internos (chips de
-   termos), então não pode virar um link inteiro. */
-.orientacoes-card:hover,
-.orientacoes-card:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 22px 48px rgba(128, 82, 53, 0.18);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orientacoes-card {
-    transition: none;
-  }
-
-  .orientacoes-card:hover,
-  .orientacoes-card:focus-within {
-    transform: none;
-  }
-}
-
-.orientacoes-card__titulo {
-  margin: 0;
-  font-size: 1.15rem;
-  color: var(--cor-texto);
-}
-
-.orientacoes-card__link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.orientacoes-card__link:hover {
-  color: var(--cor-terracota);
-  text-decoration: underline;
-}
-
-.orientacoes-card__link:focus-visible {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* Cards reusam o InteractiveCard (card inteiro clicável); aqui só o acento. */
+.orientacoes-grid .interactive-card {
+  --card-acento: var(--cor-rosa-secundario);
 }
 
 .orientacoes-card__conteudo {
   margin: 0;
   line-height: 1.5;
   color: var(--cor-texto);
+  /* Resumo curto no card; o texto completo fica no detalhe. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .orientacoes-card__relacao {

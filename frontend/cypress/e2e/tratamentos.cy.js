@@ -73,7 +73,7 @@ describe('Tratamentos da Amare', () => {
       .and('contain', 'Inseminação intrauterina (IIU)')
   })
 
-  it('cada card mostra nome, descrição, indicação e etapas', () => {
+  it('cada card e um resumo clicavel (nome + descricao)', () => {
     cy.intercept('GET', ROTA_LISTA, { body: tratamentosMock }).as('listar')
     visitarTratamentos()
     cy.wait('@listar')
@@ -85,44 +85,12 @@ describe('Tratamentos da Amare', () => {
         cy.contains('Une óvulo e espermatozoide em laboratório.').should(
           'be.visible',
         )
-        cy.contains('Quando é indicado').should('be.visible')
-        cy.get('[data-cy=tratamentos-card-etapas]')
-          .should('contain', 'Estimulação ovariana')
-          .and('contain', 'Transferência embrionária')
-      })
-  })
-
-  it('mostra os chips de termos do dicionário e leva ao dicionário filtrado', () => {
-    cy.intercept('GET', ROTA_LISTA, { body: tratamentosMock }).as('listar')
-    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
-    visitarTratamentos()
-    cy.wait('@listar')
-
-    cy.get('[data-cy=tratamentos-card]')
-      .filter(':contains("Fertilização in vitro (FIV)")')
-      .within(() => {
-        cy.get('[data-cy=termos-relacionados]').should('be.visible')
-        cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
-        cy.get('[data-cy=termo-relacionado-chip][data-termo="Embrião"]')
+        // O card inteiro vira um link para o detalhe; etapas e termos saem do
+        // card e passam a viver na pagina de detalhe.
+        cy.get('[data-cy=tratamentos-card-link]')
           .should('have.attr', 'href')
-          .and('include', '/dicionario?busca=')
-        cy.get(
-          '[data-cy=termo-relacionado-chip][data-termo="Embrião"]',
-        ).click()
-      })
-
-    cy.location('pathname').should('eq', '/dicionario')
-    cy.location('search').should('include', 'busca=')
-  })
-
-  it('não renderiza o bloco de termos quando o tratamento não tem termos', () => {
-    cy.intercept('GET', ROTA_LISTA, { body: tratamentosMock }).as('listar')
-    visitarTratamentos()
-    cy.wait('@listar')
-
-    cy.get('[data-cy=tratamentos-card]')
-      .filter(':contains("Inseminação intrauterina (IIU)")')
-      .within(() => {
+          .and('include', '/tratamentos/1')
+        cy.get('[data-cy=tratamentos-card-etapas]').should('not.exist')
         cy.get('[data-cy=termos-relacionados]').should('not.exist')
       })
   })
@@ -145,7 +113,7 @@ describe('Tratamentos da Amare', () => {
       .and('contain', 'Não foi possível carregar os tratamentos no momento.')
   })
 
-  it('abre o detalhe do tratamento ao clicar no título do card', () => {
+  it('abre o detalhe do tratamento ao clicar no card', () => {
     cy.intercept('GET', '**/api/tratamentos/', { body: tratamentosMock }).as(
       'listar',
     )
@@ -169,6 +137,24 @@ describe('Tratamentos da Amare', () => {
       'contain',
       'Estimulação ovariana',
     )
+  })
+
+  it('os chips de termos no detalhe levam ao dicionario filtrado', () => {
+    cy.intercept('GET', '**/api/tratamentos/1/', {
+      body: tratamentosMock[0],
+    }).as('detalhe')
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarTratamentos('/tratamentos/1')
+    cy.wait('@detalhe')
+
+    cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
+    cy.get('[data-cy=termo-relacionado-chip][data-termo="Embrião"]')
+      .should('have.attr', 'href')
+      .and('include', '/dicionario?busca=')
+    cy.get('[data-cy=termo-relacionado-chip][data-termo="Embrião"]').click()
+
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.location('search').should('include', 'busca=')
   })
 
   it('mostra o detalhe completo ao acessar /tratamentos/:id direto', () => {

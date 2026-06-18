@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
+import InteractiveCard from '../../components/ui/InteractiveCard/InteractiveCard'
 import { listarConteudosApoio } from '../../services/apoioService'
+import type { ConteudoApoio } from '../../types'
 import './ApoioEmocional.css'
 
+/**
+ * Apoio emocional (`/apoio`). Cada card é um resumo clicável por inteiro que
+ * leva ao texto completo (`/apoio/:id`). O aviso de que o conteúdo não
+ * substitui acompanhamento profissional fica sempre visível.
+ */
 function ApoioEmocional() {
-  const [conteudos, setConteudos] = useState([])
+  const [conteudos, setConteudos] = useState<ConteudoApoio[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelado = false
@@ -68,19 +75,27 @@ function ApoioEmocional() {
           Nenhum conteúdo de apoio cadastrado no momento.
         </p>
       ) : (
-        <ul className="apoio-grid" data-cy="apoio-grid">
+        <div className="apoio-grid" data-cy="apoio-grid">
           {conteudos.map((conteudo) => (
-            <li key={conteudo.id} className="apoio-card" data-cy="apoio-card">
-              <h2 className="apoio-card__titulo">{conteudo.titulo}</h2>
-              <p className="apoio-card__texto">{conteudo.texto}</p>
+            <InteractiveCard
+              key={conteudo.id}
+              to={`/apoio/${conteudo.id}`}
+              titulo={conteudo.titulo}
+              cta="Ler conteúdo"
+              dataCy="apoio-card"
+              linkDataCy="apoio-card-link"
+            >
+              {conteudo.texto ? (
+                <p className="apoio-card__texto">{conteudo.texto}</p>
+              ) : null}
               {conteudo.categoria ? (
                 <span className="apoio-card__tag" data-cy="apoio-card-tag">
                   {conteudo.categoria}
                 </span>
               ) : null}
-            </li>
+            </InteractiveCard>
           ))}
-        </ul>
+        </div>
       )}
     </section>
   )

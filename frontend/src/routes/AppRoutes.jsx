@@ -23,6 +23,7 @@ import Especialidades from '../pages/Especialidades/Especialidades'
 import EspecialidadeDetalhe from '../pages/Especialidades/EspecialidadeDetalhe'
 import LinhaDoTempo from '../pages/LinhaDoTempo/LinhaDoTempo'
 import ApoioEmocional from '../pages/ApoioEmocional/ApoioEmocional'
+import ApoioDetalhe from '../pages/ApoioEmocional/ApoioDetalhe'
 import Sintomas from '../pages/Sintomas/Sintomas'
 import Busca from '../pages/Busca/Busca'
 import EmBreve from '../pages/EmBreve/EmBreve'
@@ -73,6 +74,7 @@ function AppRoutes() {
             element={<EspecialidadeDetalhe />}
           />
           <Route path="/apoio" element={<ApoioEmocional />} />
+          <Route path="/apoio/:id" element={<ApoioDetalhe />} />
           <Route path="/bot" element={<Bot />} />
           <Route path="/busca" element={<Busca />} />
 

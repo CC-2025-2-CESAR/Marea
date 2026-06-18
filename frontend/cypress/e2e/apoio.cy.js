@@ -66,7 +66,7 @@ describe('Apoio emocional da Amare', () => {
       .and('contain', 'A espera pelo resultado')
   })
 
-  it('cada card mostra título, texto e tag de categoria', () => {
+  it('cada card e um resumo clicavel (titulo + texto + tag)', () => {
     cy.intercept('GET', ROTA_LISTA, { body: conteudosMock }).as('listar')
     visitarApoio()
     cy.wait('@listar')
@@ -81,6 +81,9 @@ describe('Apoio emocional da Amare', () => {
         cy.get('[data-cy=apoio-card-tag]')
           .should('be.visible')
           .and('contain', 'Espera')
+        cy.get('[data-cy=apoio-card-link]')
+          .should('have.attr', 'href')
+          .and('include', '/apoio/2')
       })
   })
 
@@ -101,5 +104,79 @@ describe('Apoio emocional da Amare', () => {
     cy.get('[data-cy=apoio-mensagem-erro]')
       .should('be.visible')
       .and('contain', 'Não foi possível carregar os conteúdos no momento.')
+  })
+})
+
+describe('Detalhe do apoio emocional', () => {
+  // Padrões exatos: o da lista NÃO casa com /1/ e o de detalhe NÃO casa com a
+  // lista, então interceptam endpoints disjuntos sem ambiguidade.
+  const ROTA_LISTA_EXATA = '**/api/apoio/'
+  const ROTA_DETALHE_1 = '**/api/apoio/1/'
+  const ROTA_DETALHE_2 = '**/api/apoio/2/'
+  const ROTA_DETALHE_999 = '**/api/apoio/999/'
+
+  it('abre o detalhe ao clicar no card', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: conteudosMock }).as('listar')
+    cy.intercept('GET', ROTA_DETALHE_2, { body: conteudosMock[1] }).as(
+      'detalhar',
+    )
+    visitarApoio()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=apoio-card]')
+      .filter(':contains("A espera pelo resultado")')
+      .find('[data-cy=apoio-card-link]')
+      .click()
+
+    cy.wait('@detalhar')
+    cy.location('pathname').should('eq', '/apoio/2')
+    cy.get('[data-cy=page-apoio-detalhe]').should('be.visible')
+    cy.get('[data-cy=apoio-detalhe-titulo]').should(
+      'contain',
+      'A espera pelo resultado',
+    )
+  })
+
+  it('acessa o detalhe diretamente e mostra texto, tag e aviso', () => {
+    cy.intercept('GET', ROTA_DETALHE_1, { body: conteudosMock[0] }).as(
+      'detalhar',
+    )
+    visitarApoio('/apoio/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=apoio-detalhe-titulo]').should(
+      'contain',
+      'Um dia de cada vez',
+    )
+    cy.get('[data-cy=apoio-detalhe-texto]').should(
+      'contain',
+      'Tente focar na etapa de agora',
+    )
+    cy.get('[data-cy=apoio-detalhe-tag]').should('contain', 'Ansiedade')
+    cy.get('[data-cy=apoio-detalhe-aviso]')
+      .should('be.visible')
+      .and('contain', 'não substitui')
+  })
+
+  it('mostra o estado de não encontrado quando a API responde 404', () => {
+    cy.intercept('GET', ROTA_DETALHE_999, {
+      statusCode: 404,
+      body: { detail: 'Não encontrado.' },
+    }).as('detalhar')
+    visitarApoio('/apoio/999')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=apoio-detalhe-nao-encontrado]').should('be.visible')
+  })
+
+  it('volta para a listagem pelo link de voltar', () => {
+    cy.intercept('GET', ROTA_LISTA_EXATA, { body: conteudosMock }).as('listar')
+    cy.intercept('GET', ROTA_DETALHE_1, { body: conteudosMock[0] }).as(
+      'detalhar',
+    )
+    visitarApoio('/apoio/1')
+    cy.wait('@detalhar')
+    cy.get('[data-cy=apoio-detalhe-voltar]').click()
+    cy.wait('@listar')
+    cy.location('pathname').should('eq', '/apoio')
+    cy.get('[data-cy=page-apoio]').should('be.visible')
   })
 })

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import IconeLupa from '../../components/IconeLupa/IconeLupa'
+import InteractiveCard from '../../components/ui/InteractiveCard/InteractiveCard'
 import { listarTermos } from '../../services/dicionarioService'
+import type { TermoDicionario } from '../../types'
 import './Dicionario.css'
 
-function slugCategoria(categoria) {
+function slugCategoria(categoria?: string): string {
   if (!categoria) {
     return 'sem-categoria'
   }
@@ -20,18 +22,21 @@ function slugCategoria(categoria) {
 
 const FILTRO_TODOS = '__todos__'
 
+/**
+ * Dicionário (`/dicionario`). Cada card é um resumo clicável por inteiro que
+ * leva ao detalhe (`/dicionario/:id`), onde ficam o exemplo e os artigos. O
+ * termo da busca vive na URL (?busca=) para permitir deep-link a partir dos
+ * chips de "termos relacionados" de Tratamentos e Orientações.
+ */
 function Dicionario() {
   const [searchParams, setSearchParams] = useSearchParams()
-  // O termo da busca vive na URL (?busca=...). Assim o Dicionário pode ser
-  // aberto já filtrado a partir dos chips de "termos relacionados" das telas
-  // de Tratamentos e Orientações (deep-link).
   const buscaParam = searchParams.get('busca') || ''
 
-  const [termos, setTermos] = useState([])
+  const [termos, setTermos] = useState<TermoDicionario[]>([])
   const [busca, setBusca] = useState(buscaParam)
   const [buscaParamAnterior, setBuscaParamAnterior] = useState(buscaParam)
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState(FILTRO_TODOS)
 
@@ -75,7 +80,7 @@ function Dicionario() {
     }
   }, [buscaParam])
 
-  function handleBuscar(evento) {
+  function handleBuscar(evento: React.FormEvent) {
     evento.preventDefault()
     const termo = busca.trim()
     // Atualiza a URL; o efeito acima dispara a busca de fato.
@@ -85,7 +90,7 @@ function Dicionario() {
   // Categorias presentes nos termos carregados, em ordem alfabética.
   const categoriasDisponiveis = Array.from(
     new Set(termos.map((t) => t.categoria).filter(Boolean)),
-  ).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  ).sort((a, b) => (a ?? '').localeCompare(b ?? '', 'pt-BR'))
 
   const termosVisiveis =
     categoriaSelecionada === FILTRO_TODOS
@@ -158,7 +163,7 @@ function Dicionario() {
                     ? `dicionario-filtro__chip dicionario-filtro__chip--${slug} dicionario-filtro__chip--ativo`
                     : `dicionario-filtro__chip dicionario-filtro__chip--${slug}`
                 }
-                onClick={() => setCategoriaSelecionada(categoria)}
+                onClick={() => setCategoriaSelecionada(categoria as string)}
                 data-cy="dicionario-filtro-chip"
                 data-categoria={categoria}
                 aria-pressed={ativo}
@@ -193,46 +198,20 @@ function Dicionario() {
           Nenhum termo encontrado.
         </p>
       ) : (
-        <ul className="dicionario-grid" data-cy="dicionario-grid">
+        <div className="dicionario-grid" data-cy="dicionario-grid">
           {termosVisiveis.map((termo) => {
             const slug = slugCategoria(termo.categoria)
-            const artigos = termo.artigos_relacionados || []
             return (
-              <li
+              <InteractiveCard
                 key={termo.id}
-                className={`dicionario-card dicionario-card--${slug}`}
-                data-cy="dicionario-card"
-                data-categoria={termo.categoria || ''}
+                to={`/dicionario/${termo.id}`}
+                titulo={termo.termo}
+                cta="Ver no dicionário"
+                dataCy="dicionario-card"
+                linkDataCy="dicionario-card-link"
+                className={`dicionario-card--${slug}`}
               >
-                <h2 className="dicionario-card__titulo">
-                  <Link
-                    className="dicionario-card__link"
-                    to={`/dicionario/${termo.id}`}
-                    data-cy="dicionario-card-link"
-                  >
-                    {termo.termo}
-                  </Link>
-                </h2>
                 <p className="dicionario-card__definicao">{termo.definicao}</p>
-                {artigos.length > 0 ? (
-                  <p
-                    className="dicionario-card__artigos"
-                    data-cy="dicionario-card-artigos"
-                  >
-                    Artigos relacionados:{' '}
-                    {artigos.map((artigo, indice) => (
-                      <span key={`${termo.id}-${artigo.titulo}`}>
-                        <a
-                          className="dicionario-card__artigo"
-                          href={artigo.url || '#'}
-                        >
-                          {artigo.titulo}
-                        </a>
-                        {indice < artigos.length - 1 ? ', ' : ''}
-                      </span>
-                    ))}
-                  </p>
-                ) : null}
                 {termo.categoria ? (
                   <span
                     className={`dicionario-card__tag dicionario-card__tag--${slug}`}
@@ -241,10 +220,10 @@ function Dicionario() {
                     {termo.categoria}
                   </span>
                 ) : null}
-              </li>
+              </InteractiveCard>
             )
           })}
-        </ul>
+        </div>
       )}
     </section>
   )

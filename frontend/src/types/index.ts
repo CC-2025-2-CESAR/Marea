@@ -276,7 +276,8 @@ export interface Especialidade {
 export interface ConteudoApoio {
   id: number
   titulo: string
-  conteudo?: string
+  /** Corpo do conteúdo de apoio (campo `texto` do serializer). */
+  texto?: string
   categoria?: string
 }
 

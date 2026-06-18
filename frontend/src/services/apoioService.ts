@@ -12,4 +12,8 @@ function listarConteudosApoio({
   return requisicao<ConteudoApoio[]>(`/apoio/${query}`)
 }
 
-export { listarConteudosApoio }
+function obterConteudoApoio(id: number): Promise<ConteudoApoio> {
+  return requisicao<ConteudoApoio>(`/apoio/${id}/`)
+}
+
+export { listarConteudosApoio, obterConteudoApoio }
