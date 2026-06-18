@@ -802,9 +802,103 @@ dia do ciclo, os dias para a próxima menstruação e as chances de gravidez
 Amanda) via `criar_usuarios_teste`. Testes em `ciclo/tests.py` (15) e
 `ciclo.cy.js` (13).
 
+## Privacidade e direitos do titular (LGPD na interface)
+
+A política de privacidade e o controle dos próprios dados deixaram de viver só na
+documentação e passaram a ser exercíveis **dentro do app**. A paciente é a
+titular dos dados (sensíveis, de saúde) e pode vê-los, baixá-los e pedir correção
+ou exclusão sem depender apenas do contato com a clínica.
+
+### LGPD na interface — direitos do titular
+
+- Jira: ainda a registrar.
+- GitHub: PR [#66](https://github.com/CC-2025-2-CESAR/Marea/pull/66).
+
+**História**: Como paciente (titular dos dados), quero ver, baixar e solicitar a
+correção ou exclusão dos meus dados pessoais dentro do app, para exercer meus
+direitos previstos na LGPD de forma simples e transparente.
+
+**Objetivo**: Materializar na interface os direitos da LGPD (acesso, portabilidade
+e correção/exclusão), com a barreira de acesso garantida no backend e a exclusão
+tratada como solicitação avaliada pela clínica, respeitando a retenção de
+prontuário.
+
+**Critérios de aceitação**:
+
+- Existe uma página **pública** de Privacidade (`/privacidade`) com a política em
+  linguagem simples, acessível antes do login.
+- A área **Meus dados** (`/meus-dados`, autenticada) exibe um retrato consolidado
+  dos dados da paciente (conta, perfil, dados clínicos e resumo de registros por
+  área).
+- A paciente consegue **baixar uma cópia** dos próprios dados em JSON
+  (portabilidade).
+- A paciente consegue abrir uma **solicitação** de correção ou exclusão, com
+  mensagem, e acompanhar o **status** (pendente/em andamento/concluída/recusada).
+- Cada pessoa vê e solicita **apenas sobre os próprios dados** (escopo garantido
+  no backend pelo `request.user`).
+- A exclusão **não apaga na hora**: entra como solicitação avaliada pela clínica.
+
+**Cenários BDD**:
+
+```
+Cenário: Ver os próprios dados consolidados
+  Dado que a paciente está autenticada
+  Quando ela acessa a área "Meus dados"
+  Então o sistema exibe sua conta, perfil e o resumo dos seus registros
+
+Cenário: Baixar uma cópia dos dados
+  Dado que a paciente está em "Meus dados"
+  Quando ela clica em baixar
+  Então o sistema gera um arquivo JSON com os dados dela
+
+Cenário: Solicitar correção ou exclusão
+  Dado que a paciente está em "Meus dados"
+  Quando ela escolhe o tipo, escreve a mensagem e envia
+  Então o sistema registra a solicitação com status "pendente"
+  E a solicitação passa a aparecer na lista dela
+
+Cenário: Ler a política sem login
+  Dado que uma pessoa não está autenticada
+  Quando ela acessa a página de Privacidade
+  Então o sistema exibe a política de privacidade
+
+Cenário: Escopo de dono
+  Dado que existem dados e solicitações de outras pacientes
+  Quando a paciente acessa "Meus dados"
+  Então ela vê apenas os próprios dados e as próprias solicitações
+```
+
+**Dados envolvidos**: `User`, `PerfilUsuario`, `Paciente` (e seus registros por
+área, contados) e `SolicitacaoPrivacidade` (app `privacidade`).
+
+**Notas de entrega**: app `privacidade` (function-based, `IsAuthenticated`, escopo
+do `request.user`). Endpoints `GET /api/privacidade/meus-dados/` e
+`GET/POST /api/privacidade/solicitacoes/`; model `SolicitacaoPrivacidade`
+(correção/exclusão, status, resposta — `status`/`resposta` são somente-leitura na
+escrita, pois quem decide é a clínica). Front: `/privacidade` (pública, sob o
+`AuthLayout`) e `/meus-dados` (área da paciente, com download em JSON e
+formulário+lista de solicitações). 10 testes em `privacidade/tests.py` (acesso
+negado anônimo e escopo de dono) e 6 em `privacidade.cy.js`. Documentação em
+[docs/lgpd](lgpd/README.md).
+
+## Qualidade e fechamento (PR de encerramento)
+
+Além das histórias funcionais, o programa mantém dois relatórios de qualidade,
+revisados a cada entrega relevante:
+
+- [Acessibilidade](acessibilidade.md) — conformidade WCAG 2.1 AA + checklist do
+  plano, com evidência no código e roteiro de verificação manual (WAVE/Lighthouse/
+  teclado/leitor de tela).
+- [Heurísticas de Nielsen](heuristicas-nielsen.md) — checklist das 10 heurísticas
+  de usabilidade aplicadas à Amare, com evidência e lacunas.
+
+A **validação com usuárias reais** (roteiro + evidências de campo) é a frente
+complementar do encerramento e é registrada à parte quando realizada.
+
 ## Próximas etapas
 
-As histórias do backlog inicial foram entregues. As próximas evoluções
-(migração para TypeScript, design system, mais interatividade das telas, área da
-médica integrada, painel administrativo no site e assistente orientativo) seguem
-no plano do programa, entregues PR a PR.
+O backlog inicial e as evoluções do programa (migração para TypeScript, design
+system, mais interatividade das telas, ciclo menstrual, área da médica integrada
+ao shell, painel administrativo no site, assistente orientativo e LGPD na
+interface) foram entregues PR a PR. O encerramento fica na consolidação dos
+relatórios de qualidade acima e na validação com usuárias.
