@@ -20,6 +20,25 @@
   justify-content: center;
 }
 
+.sidebar__logo-link {
+  display: inline-flex;
+  border-radius: var(--raio-pequeno);
+  transition: transform var(--duracao-rapida) var(--easing-saida);
+}
+
+.sidebar__logo-link:hover {
+  transform: translateY(-1px);
+}
+
+.sidebar__logo-link:active {
+  transform: scale(0.98);
+}
+
+.sidebar__logo-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.45);
+}
+
 .sidebar__logo {
   width: 132px;
   height: auto;

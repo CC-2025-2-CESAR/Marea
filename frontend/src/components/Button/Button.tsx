@@ -1,5 +1,15 @@
 import { motion } from 'motion/react'
+import type { MouseEventHandler, ReactNode } from 'react'
 import './Button.css'
+
+interface ButtonProps {
+  children: ReactNode
+  type?: 'button' | 'submit' | 'reset'
+  onClick?: MouseEventHandler<HTMLButtonElement>
+  disabled?: boolean
+  variant?: string
+  dataCy?: string
+}
 
 function Button({
   children,
@@ -8,7 +18,7 @@ function Button({
   disabled = false,
   variant = 'primary',
   dataCy,
-}) {
+}: ButtonProps) {
   return (
     <motion.button
       type={type}

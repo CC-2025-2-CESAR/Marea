@@ -4,7 +4,12 @@
  * Mantém o padrão dos demais ícones inline (props `tamanho` e `className`).
  */
 
-function IconeLogout({ tamanho = 20, className }) {
+interface IconeProps {
+  tamanho?: number
+  className?: string
+}
+
+function IconeLogout({ tamanho = 20, className }: IconeProps) {
   return (
     <svg
       className={className}

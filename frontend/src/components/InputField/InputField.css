@@ -59,6 +59,17 @@
   color: var(--cor-texto);
 }
 
+/*
+ * O anel de foco vive no container (.campo-controle:focus-within). O input
+ * interno nunca desenha o próprio anel — sem esta regra, o
+ * `input:focus-visible` global do a11y.css (especificidade 0,1,1) venceria o
+ * `.campo-input { outline: none }` (0,1,0) e pintava uma borda dupla/torta no
+ * login. `.campo-input:focus-visible` (0,2,0) restabelece o foco só no container.
+ */
+.campo-input:focus-visible {
+  outline: none;
+}
+
 .campo-input::placeholder {
   color: var(--cor-texto-suave);
 }

@@ -15,7 +15,8 @@ export interface Usuario {
   id: number
   username: string
   email?: string
-  nome?: string
+  /** Nome completo do perfil, devolvido por `/auth/login/` e `/auth/me/`. */
+  nome_completo?: string
   tipo_usuario: TipoUsuario
 }
 
@@ -31,6 +32,22 @@ export interface Sessao {
   access?: string
   refresh?: string
   usuario?: Usuario
+}
+
+/**
+ * Valor exposto pelo `AuthContext` via `useAuth()`. O provider ainda é `.jsx`
+ * (migra na varredura final); este tipo descreve o contrato que os componentes
+ * `.tsx` consomem hoje.
+ */
+export interface AuthContextValue {
+  usuario: Usuario | null
+  /** Papel do usuário (paciente | medica | admin), nulo quando deslogado. */
+  tipoUsuario: TipoUsuario | null
+  autenticado: boolean
+  carregando: boolean
+  login: (username: string, password: string) => Promise<Usuario | undefined>
+  iniciarSessao: (sessao: RespostaLogin) => Usuario | undefined
+  logout: () => void
 }
 
 // ===== Perfil da paciente =====

@@ -1,8 +1,16 @@
 import { Link } from 'react-router-dom'
 import BannerProximaConsulta from '../../components/BannerProximaConsulta/BannerProximaConsulta'
+import { useAuth } from '../../contexts/useAuth'
+import { primeiroNome } from '../../utils/iniciais'
 import './Home.css'
 
-const cards = [
+interface CardHome {
+  titulo: string
+  texto: string
+  caminho: string
+}
+
+const cards: CardHome[] = [
   {
     titulo: 'Calendário',
     texto: 'Organização de consultas, exames e próximos passos.',
@@ -26,10 +34,14 @@ const cards = [
 ]
 
 function Home() {
+  const { usuario } = useAuth()
+  const nome = primeiroNome(usuario?.nome_completo)
+  const saudacao = nome ? `Bem-vinda, ${nome}` : 'Bem-vinda à Amare'
+
   return (
     <section className="home" data-cy="home-page">
       <div className="home__intro">
-        <h1>Bem-vinda à Amare</h1>
+        <h1 data-cy="home-saudacao">{saudacao}</h1>
         <p>
           A plataforma reunirá recursos para acompanhamento, organização e
           compreensão das informações relacionadas aos tratamentos.

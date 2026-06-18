@@ -59,6 +59,16 @@
   box-shadow: 0 16px 34px rgba(128, 82, 53, 0.12);
 }
 
+/* Resposta tátil no toque/clique — leve afundada, boa no celular. */
+.home-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.home-card:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
 .home-card span {
   font-size: 1.1rem;
   font-weight: 700;
@@ -67,6 +77,18 @@
 .home-card p {
   color: var(--cor-texto-suave);
   font-size: 0.95rem;
+}
+
+/* Respeita quem pediu menos movimento no sistema operacional. */
+@media (prefers-reduced-motion: reduce) {
+  .home-card {
+    transition: none;
+  }
+
+  .home-card:hover,
+  .home-card:active {
+    transform: none;
+  }
 }
 
 @media (max-width: 1024px) {

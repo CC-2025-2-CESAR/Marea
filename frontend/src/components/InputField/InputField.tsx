@@ -1,4 +1,20 @@
+import type { ChangeEventHandler, ReactNode } from 'react'
 import './InputField.css'
+
+interface InputFieldProps {
+  id: string
+  name?: string
+  label: string
+  type?: string
+  value: string
+  onChange: ChangeEventHandler<HTMLInputElement>
+  placeholder?: string
+  autoComplete?: string
+  error?: boolean
+  trailing?: ReactNode
+  hideLabel?: boolean
+  dataCy?: string
+}
 
 function InputField({
   id,
@@ -13,7 +29,7 @@ function InputField({
   trailing,
   hideLabel = false,
   dataCy,
-}) {
+}: InputFieldProps) {
   return (
     <div className="campo">
       <label

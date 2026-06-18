@@ -1,9 +1,14 @@
 /**
- * Ícone hambúrguer usado no botão de abrir o menu lateral em telas mobile.
+ * Ícone "X" usado no botão de fechar o menu lateral em telas mobile.
  * Mantém o padrão dos demais ícones inline (props `tamanho` e `className`).
  */
 
-function IconeMenu({ tamanho = 24, className }) {
+interface IconeProps {
+  tamanho?: number
+  className?: string
+}
+
+function IconeFechar({ tamanho = 22, className }: IconeProps) {
   return (
     <svg
       className={className}
@@ -14,7 +19,7 @@ function IconeMenu({ tamanho = 24, className }) {
       aria-hidden="true"
     >
       <path
-        d="M4 7h16M4 12h16M4 17h16"
+        d="M6 6l12 12M18 6 6 18"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
@@ -24,4 +29,4 @@ function IconeMenu({ tamanho = 24, className }) {
   )
 }
 
-export default IconeMenu
+export default IconeFechar
