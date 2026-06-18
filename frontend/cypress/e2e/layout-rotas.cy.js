@@ -74,7 +74,7 @@ describe('Rotas e layout base da Amare', () => {
 
     cy.get('[data-cy=app-layout]').should('be.visible')
     cy.get('[data-cy=home-page]').should('be.visible')
-    cy.contains('h1', 'Bem-vinda à Amare').should('be.visible')
+    cy.get('[data-cy=home-saudacao]').should('contain', 'Bem-vinda, Júlia')
     cy.get('[data-cy=app-sidebar]').should('be.visible')
     cy.get('[data-cy=app-header]').should('be.visible')
     cy.get('[data-cy=app-search]').should('be.visible')
@@ -101,7 +101,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-home]').should('have.attr', 'href', '/')
     cy.get('[data-cy=nav-home]').click()
     cy.location('pathname').should('eq', '/')
-    cy.contains('h1', 'Bem-vinda à Amare').should('be.visible')
+    cy.get('[data-cy=home-saudacao]').should('contain', 'Bem-vinda, Júlia')
 
     cy.get('[data-cy=nav-bot]').should('have.attr', 'href', '/bot')
     cy.get('[data-cy=nav-bot]').click()

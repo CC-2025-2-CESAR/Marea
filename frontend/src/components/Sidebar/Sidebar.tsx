@@ -1,12 +1,20 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import logoAmare from '../../assets/amare-logo.png'
 import IconeFechar from '../IconeFechar/IconeFechar'
 import IconeLogout from '../IconeLogout/IconeLogout'
 import { useAuth } from '../../contexts/useAuth'
+import type { TipoUsuario } from '../../types'
 import './Sidebar.css'
 
+interface LinkNav {
+  to: string
+  label: string
+  dataCy: string
+  end?: boolean
+}
+
 // Navegação da paciente (qualquer usuária autenticada que não seja médica).
-const linksPaciente = [
+const linksPaciente: LinkNav[] = [
   { to: '/', label: 'Início', dataCy: 'nav-home' },
   { to: '/perfil', label: 'Perfil', dataCy: 'nav-perfil' },
   { to: '/meus-dados', label: 'Meus dados', dataCy: 'nav-meus-dados' },
@@ -33,7 +41,7 @@ const linksPaciente = [
 
 // Navegação da médica: o acompanhamento das pacientes + o conteúdo
 // institucional da clínica (compartilhado com a paciente).
-const linksMedica = [
+const linksMedica: LinkNav[] = [
   { to: '/area-medica', label: 'Pacientes', dataCy: 'nav-pacientes' },
   { to: '/dicionario', label: 'Dicionário', dataCy: 'nav-dicionario' },
   { to: '/tratamentos', label: 'Tratamentos', dataCy: 'nav-tratamentos' },
@@ -48,7 +56,7 @@ const linksMedica = [
 ]
 
 // Navegação da administração (painel /gestao).
-const linksAdmin = [
+const linksAdmin: LinkNav[] = [
   { to: '/gestao', label: 'Visão geral', dataCy: 'nav-gestao', end: true },
   {
     to: '/gestao/dicionario',
@@ -58,10 +66,15 @@ const linksAdmin = [
   { to: '/gestao/logs', label: 'Logs de auditoria', dataCy: 'nav-gestao-logs' },
 ]
 
-function navDoPapel(tipoUsuario) {
+function navDoPapel(tipoUsuario: TipoUsuario | null): LinkNav[] {
   if (tipoUsuario === 'medica') return linksMedica
   if (tipoUsuario === 'admin') return linksAdmin
   return linksPaciente
+}
+
+interface SidebarProps {
+  modoDrawer?: boolean
+  onFechar?: () => void
 }
 
 /**
@@ -73,7 +86,7 @@ function navDoPapel(tipoUsuario) {
  * A navegação muda por papel: a médica vê a área dela; as demais usuárias veem
  * a navegação da paciente.
  */
-function Sidebar({ modoDrawer = false, onFechar }) {
+function Sidebar({ modoDrawer = false, onFechar }: SidebarProps) {
   const { logout, tipoUsuario } = useAuth()
   const navegar = useNavigate()
 
@@ -109,7 +122,15 @@ function Sidebar({ modoDrawer = false, onFechar }) {
         </button>
       ) : null}
       <div className="sidebar__topo">
-        <img src={logoAmare} alt="Amare" className="sidebar__logo" />
+        <Link
+          to="/"
+          className="sidebar__logo-link"
+          aria-label="Ir para o início"
+          onClick={handleClicarLink}
+          data-cy="sidebar-logo"
+        >
+          <img src={logoAmare} alt="Amare" className="sidebar__logo" />
+        </Link>
       </div>
       <nav className="sidebar__nav">
         {links.map((link) => (

@@ -1,13 +1,22 @@
 import { useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
 import { useAuth } from '../../contexts/useAuth'
+import type { ErroRequisicao } from '../../services/api'
 import './Login.css'
 
-function IconeOlho({ aberto }) {
+type TipoFeedback = 'erro' | 'sucesso'
+
+interface Feedback {
+  tipo: TipoFeedback
+  texto: string
+}
+
+function IconeOlho({ aberto }: { aberto: boolean }) {
   if (aberto) {
     return (
       <svg
@@ -51,12 +60,12 @@ function Login() {
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [enviando, setEnviando] = useState(false)
   const { login } = useAuth()
   const navegar = useNavigate()
 
-  async function handleSubmit(evento) {
+  async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
 
     if (!usuario.trim() || !senha.trim()) {
@@ -77,12 +86,13 @@ function Login() {
         usuarioLogado?.tipo_usuario === 'medica' ? '/area-medica' : '/perfil',
       )
     } catch (erro) {
-      if (erro?.status === 401) {
+      const status = (erro as ErroRequisicao)?.status
+      if (status === 401) {
         setFeedback({
           tipo: 'erro',
           texto: 'Usuário ou senha inválidos.',
         })
-      } else if (erro?.status === 400) {
+      } else if (status === 400) {
         setFeedback({
           tipo: 'erro',
           texto: 'Preencha usuário/e-mail e senha para continuar.',
@@ -128,7 +138,7 @@ function Login() {
             hideLabel
             type="text"
             value={usuario}
-            onChange={(e) => {
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setUsuario(e.target.value)
               setFeedback(null)
             }}
@@ -145,7 +155,7 @@ function Login() {
             hideLabel
             type={mostrarSenha ? 'text' : 'password'}
             value={senha}
-            onChange={(e) => {
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setSenha(e.target.value)
               setFeedback(null)
             }}

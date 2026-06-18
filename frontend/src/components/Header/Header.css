@@ -24,6 +24,33 @@
   color: var(--cor-texto);
 }
 
+/*
+ * Logo clicável que leva ao início. Só aparece no mobile (no desktop a marca
+ * textual já cumpre o papel e a barra lateral tem o logo grande).
+ */
+.app-header__logo-link {
+  display: none;
+  align-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--raio-pequeno);
+  transition: transform 0.15s ease-out;
+}
+
+.app-header__logo-link:active {
+  transform: scale(0.97);
+}
+
+.app-header__logo-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.45);
+}
+
+.app-header__logo {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
 .app-header__texto p {
   color: var(--cor-texto-suave);
   font-size: 0.92rem;
@@ -59,11 +86,21 @@
     display: inline-flex;
   }
 
-  .app-header__marca {
-    font-size: 1.06rem;
+  /*
+   * No mobile a marca textual saía atrás da busca. Some com o bloco de texto
+   * inteiro e mostra só o logo clicável; a busca encolhe para caber ao lado.
+   */
+  .app-header__texto {
+    display: none;
   }
 
-  .app-header__texto p {
-    display: none;
+  .app-header__logo-link {
+    display: inline-flex;
+  }
+
+  .app-header .search-bar {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
   }
 }
