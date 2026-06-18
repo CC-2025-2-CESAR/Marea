@@ -71,6 +71,8 @@ function visitarAutenticadoMobile(rota, viewport = VIEWPORT_IPHONE_12) {
   cy.intercept('GET', '**/api/consultas/proximas/', { body: [] })
   cy.intercept('GET', '**/api/consultas/', { body: [] })
   cy.intercept('GET', '**/api/medicamentos/', { body: [] })
+  cy.intercept('GET', '**/api/sintomas/', { body: [] })
+  cy.intercept('GET', '**/api/ciclo/registros/', { body: [] })
   return cy.visit(rota, {
     onBeforeLoad(janela) {
       janela.localStorage.setItem('marea_auth', JSON.stringify(SESSAO_FAKE))

@@ -24,6 +24,11 @@ function Privacidade() {
             Amare. Tratamos seus dados com cuidado porque eles envolvem saúde e
             momentos delicados.
           </p>
+          <p className="privacidade__aviso-demo" data-cy="privacidade-aviso-demo">
+            <strong>Ambiente acadêmico de demonstração:</strong> esta é uma
+            versão de estudo. Os dados exibidos na plataforma são fictícios,
+            criados apenas para demonstração, e não representam pacientes reais.
+          </p>
         </header>
 
         <section className="privacidade__secao">

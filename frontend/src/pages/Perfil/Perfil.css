@@ -75,37 +75,24 @@
   box-shadow: var(--sombra-suave);
 }
 
-.perfil-botoes {
+.perfil-identidade {
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-xs);
-  width: 100%;
-}
-
-.perfil-botao-secundario {
-  width: 100%;
-  padding: 10px 18px;
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-campo);
-  background: var(--cor-card);
-  color: var(--cor-texto);
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
+  gap: 2px;
   text-align: center;
-  transition:
-    background-color 0.15s ease-out,
-    border-color 0.15s ease-out;
 }
 
-.perfil-botao-secundario:hover:not(:disabled) {
-  border-color: var(--cor-rosa-secundario);
+.perfil-identidade-nome {
+  margin: 0;
+  font-weight: 700;
+  color: var(--cor-texto);
 }
 
-.perfil-botao-secundario:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+.perfil-identidade-email {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--cor-texto-suave);
+  word-break: break-word;
 }
 
 .perfil-direita {
@@ -182,23 +169,6 @@
 
 .perfil-campo input[aria-invalid='true']:focus {
   box-shadow: 0 0 0 3px rgba(209, 29, 70, 0.18);
-}
-
-.perfil-grupo {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--espaco-sm);
-  align-items: end;
-}
-
-/*
- * O SelectField traz label + botão próprios e fica como filho direto do
- * .perfil-grupo (substitui o <label className="perfil-campo"> de antes).
- * Aqui só garantimos que o label dele tem o mesmo tamanho da label dos
- * outros campos quando aparece dentro do grupo.
- */
-.perfil-grupo .select-field__label {
-  font-size: 0.95rem;
 }
 
 .perfil-feedback {
@@ -282,12 +252,96 @@
   font-style: normal;
 }
 
+/* ----- Meus registros + Privacidade ----- */
+
+.perfil-secao-intro {
+  margin: 0 0 var(--espaco-sm);
+  color: var(--cor-texto-suave);
+  font-size: 0.92rem;
+}
+
+.perfil-registros-painel {
+  margin-top: var(--espaco-sm);
+}
+
+.perfil-registros-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.perfil-registro-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px var(--espaco-sm);
+  padding: 10px 12px;
+  border-radius: var(--raio-pequeno);
+  background: var(--cor-card);
+}
+
+.perfil-registro-data {
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+.perfil-registro-titulo {
+  font-weight: 600;
+}
+
+.perfil-registro-desc {
+  grid-column: 2;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.perfil-privacidade-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-sm);
+  margin-top: var(--espaco-sm);
+}
+
+.perfil-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: var(--cor-rosa-principal);
+  color: var(--cor-grafite);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition:
+    transform var(--duracao-rapida) var(--easing-saida),
+    background-color var(--duracao-rapida) var(--easing-saida);
+}
+
+.perfil-link:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.perfil-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
+.perfil-link--secundario {
+  background: transparent;
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+}
+
 @media (max-width: 767px) {
   .perfil-grade {
-    grid-template-columns: 1fr;
-  }
-
-  .perfil-grupo {
     grid-template-columns: 1fr;
   }
 

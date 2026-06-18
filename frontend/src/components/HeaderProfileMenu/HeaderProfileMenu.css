@@ -1,0 +1,144 @@
+/*
+ * Menu da conta no cabecalho. Aparece so no desktop (>=768px) — no mobile a
+ * navegacao e as acoes de conta vivem no drawer lateral (hamburguer).
+ */
+.header-perfil {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.header-perfil__gatilho {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(
+    135deg,
+    var(--cor-rosa-principal),
+    var(--cor-rosa-secundario)
+  );
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--sombra-suave);
+  transition: transform 0.15s ease-out;
+}
+
+.header-perfil__gatilho:hover {
+  transform: translateY(-1px);
+}
+
+.header-perfil__gatilho:active {
+  transform: scale(0.97);
+}
+
+.header-perfil__gatilho:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.55);
+}
+
+.header-perfil__iniciais {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.header-perfil__painel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  padding: var(--espaco-sm);
+  border: 1px solid rgba(128, 82, 53, 0.12);
+  border-radius: var(--raio-medio);
+  background: var(--cor-card);
+  box-shadow: 0 18px 40px rgba(128, 82, 53, 0.16);
+}
+
+.header-perfil__nome {
+  margin: 0;
+  padding: 4px 10px;
+  font-weight: 700;
+  color: var(--cor-texto);
+}
+
+.header-perfil__grupo {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-perfil__grupo + .header-perfil__grupo {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(128, 82, 53, 0.1);
+}
+
+.header-perfil__grupo-titulo {
+  margin: 2px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--cor-texto-suave);
+}
+
+.header-perfil__item {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--raio-pequeno);
+  background: transparent;
+  color: var(--cor-texto);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease-out;
+}
+
+.header-perfil__item:hover {
+  background: rgba(219, 183, 185, 0.22);
+  text-decoration: none;
+}
+
+.header-perfil__item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(219, 183, 185, 0.5);
+}
+
+.header-perfil__item--sair {
+  color: var(--cor-vermelho-alerta);
+  font-weight: 600;
+}
+
+.header-perfil__item--sair:hover {
+  background: rgba(209, 29, 70, 0.08);
+}
+
+/* No mobile o menu da conta vive no drawer; aqui ele some. */
+@media (max-width: 767px) {
+  .header-perfil {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-perfil__gatilho {
+    transition: none;
+  }
+
+  .header-perfil__gatilho:hover,
+  .header-perfil__gatilho:active {
+    transform: none;
+  }
+}

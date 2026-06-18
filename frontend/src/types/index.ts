@@ -53,12 +53,19 @@ export interface AuthContextValue {
 // ===== Perfil da paciente =====
 
 export interface Perfil {
-  id: number
+  id?: number
   username: string
   email?: string
+  tipo_usuario?: TipoUsuario
   nome_completo?: string
   telefone?: string
+  foto_url?: string
   data_nascimento?: string | null
+  /** Ainda no banco (Paciente), mas nao mais editavel na interface (PR2). */
+  tipo_sanguineo?: string
+  /** Dados clinicos: leitura na interface, gerenciados pela clinica. */
+  medicamentos_em_uso?: string
+  observacoes_medicas?: string
 }
 
 // ===== Vínculo médica ↔ paciente / acesso por papel (RBAC, PR8) =====
