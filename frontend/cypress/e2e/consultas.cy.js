@@ -477,6 +477,108 @@ describe('Calendário de consultas da Amare', () => {
     cy.get('[data-cy=calendario-dia-consulta]').should('have.length', 1)
     cy.get('[data-cy=calendario-dia-medicamentos]').should('not.exist')
   })
+
+  it('registra menstruação pelo dia direto no drawer (PROJ-5)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('POST', '**/api/ciclo/registros/', {
+      statusCode: 201,
+      body: {
+        id: 50,
+        data: '2026-05-10',
+        etapa: 'menstruacao',
+        etapa_display: 'Menstruação',
+        observacoes: '',
+        status: 'registrado',
+        status_display: 'Registrado',
+      },
+    }).as('criarCiclo')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    // Dia 10 não tem consulta/evento: abre o drawer com a seção de registro.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+    cy.get('[data-cy=calendario-dia-drawer]').should('be.visible')
+    cy.get('[data-cy=calendario-dia-registrar]').should('be.visible')
+
+    cy.get('[data-cy=calendario-dia-registrar-ciclo]').click()
+    cy.get('[data-cy=calendario-dia-form-ciclo]').should('be.visible')
+    // A etapa já vem como "Menstruação"; basta salvar.
+    cy.get('[data-cy=calendario-dia-ciclo-salvar]').click()
+
+    cy.wait('@criarCiclo').its('request.body').should((body) => {
+      expect(body.data).to.eq('2026-05-10')
+      expect(body.etapa).to.eq('menstruacao')
+    })
+    // O drawer fecha no sucesso e o toast de confirmação aparece.
+    cy.get('[data-cy=calendario-dia-drawer]').should('not.exist')
+    cy.get('[data-cy=toast]').should('be.visible')
+  })
+
+  it('registra sintoma pelo dia direto no drawer (PROJ-21)', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('POST', '**/api/sintomas/', {
+      statusCode: 201,
+      body: {
+        id: 60,
+        data: '2026-05-10',
+        tipo: 'cólica',
+        descricao: 'leve à tarde',
+        intensidade: 2,
+      },
+    }).as('criarSintoma')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+    cy.get('[data-cy=calendario-dia-registrar-sintoma]').click()
+    cy.get('[data-cy=calendario-dia-form-sintoma]').should('be.visible')
+    cy.get('[data-cy=calendario-dia-sintoma-tipo]').type('cólica')
+    cy.get('[data-cy=calendario-dia-sintoma-descricao]').type('leve à tarde')
+    cy.get('[data-cy=calendario-dia-sintoma-salvar]').click()
+
+    cy.wait('@criarSintoma').its('request.body').should((body) => {
+      expect(body.data).to.eq('2026-05-10')
+      expect(body.tipo).to.eq('cólica')
+      expect(body.descricao).to.eq('leve à tarde')
+    })
+    cy.get('[data-cy=calendario-dia-drawer]').should('not.exist')
+    cy.get('[data-cy=toast]').should('be.visible')
+  })
+
+  it('valida o sintoma no drawer sem chamar a API', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+    cy.get('[data-cy=calendario-dia-registrar-sintoma]').click()
+    // Salvar sem tipo/descrição é bloqueado no cliente.
+    cy.get('[data-cy=calendario-dia-sintoma-salvar]').click()
+    cy.get('[data-cy=calendario-dia-erro]')
+      .should('be.visible')
+      .and('contain', 'Preencha o tipo e a descrição')
+  })
+
+  it('permite voltar do formulário de registro sem salvar', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-mes-dia][data-dia="10"]')
+      .find('[data-cy=calendario-mes-dia-botao]')
+      .click()
+    cy.get('[data-cy=calendario-dia-registrar-ciclo]').click()
+    cy.get('[data-cy=calendario-dia-form-ciclo]').should('be.visible')
+    cy.get('[data-cy=calendario-dia-registrar-voltar]').click()
+    cy.get('[data-cy=calendario-dia-form-ciclo]').should('not.exist')
+    cy.get('[data-cy=calendario-dia-registrar-ciclo]').should('be.visible')
+  })
 })
 
 describe('Banner de próxima consulta na Home', () => {
