@@ -1,36 +1,76 @@
+/* Linha do tempo horizontal: trilha de etapas que rola lado a lado no celular
+   (scroll-snap) e se alinha numa linha no desktop. */
 .treatment-timeline {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 0 var(--espaco-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
 .treatment-timeline__item {
   position: relative;
-  display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: var(--espaco-sm);
-  padding-bottom: var(--espaco-md);
+  box-sizing: border-box;
+  flex: 0 0 82%;
+  max-width: 300px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--espaco-xs);
 }
 
-/* Linha vertical conectando os marcadores. */
-.treatment-timeline__item::before {
+@media (min-width: 768px) {
+  .treatment-timeline {
+    overflow-x: visible;
+  }
+  .treatment-timeline__item {
+    flex: 1 1 0;
+    max-width: none;
+  }
+}
+
+/* Trilha (marcador + linha conectora horizontal). */
+.treatment-timeline__trilha {
+  position: relative;
+  height: 24px;
+  margin-bottom: var(--espaco-sm);
+}
+
+.treatment-timeline__trilha::before {
   content: '';
   position: absolute;
-  left: 13px;
-  top: 22px;
-  bottom: -2px;
-  width: 2px;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
   background-color: var(--cor-borda);
+  transform: translateY(-50%);
 }
 
-.treatment-timeline__item:last-child::before {
-  display: none;
+/* Sem trecho de linha "saindo" nas pontas. */
+.treatment-timeline__item:first-child .treatment-timeline__trilha::before {
+  left: 50%;
+}
+.treatment-timeline__item:last-child .treatment-timeline__trilha::before {
+  right: 50%;
+}
+
+/* Etapas concluídas deixam a linha preenchida (sensação de progresso). */
+.treatment-timeline__item--concluida .treatment-timeline__trilha::before {
+  background-color: var(--cor-verde-confirmacao);
 }
 
 .treatment-timeline__marcador {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 16px;
   height: 16px;
-  margin-top: 14px;
   border-radius: 50%;
   border: 3px solid var(--cor-borda);
   background-color: var(--cor-card);
@@ -61,7 +101,7 @@
 }
 
 .treatment-timeline__item--futura .treatment-timeline__conteudo {
-  opacity: 0.75;
+  opacity: 0.78;
 }
 
 /* Cabeçalho clicável que abre/fecha a etapa. */
@@ -89,13 +129,13 @@
 
 .treatment-timeline__titulo-area {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--espaco-xs) var(--espaco-sm);
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .treatment-timeline__titulo {
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--cor-marrom);
 }
@@ -114,14 +154,33 @@
   color: var(--cor-verde-confirmacao);
 }
 
+.treatment-timeline__ver {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--cor-azul-link);
+}
+
 .treatment-timeline__chevron {
   flex-shrink: 0;
-  color: var(--cor-texto-suave);
+  color: var(--cor-azul-link);
   transition: transform 0.2s ease-out;
 }
 
 .treatment-timeline__chevron--aberto {
   transform: rotate(180deg);
+}
+
+/* Previsão estimada (só na etapa atual). */
+.treatment-timeline__previsao {
+  margin: 0;
+  padding: var(--espaco-xs) var(--espaco-md) var(--espaco-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--cor-terracota);
 }
 
 /* Região de detalhes (altura animada via motion). */
@@ -167,7 +226,7 @@
 
 .treatment-timeline__acoes-grade {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--espaco-xs);
   margin-top: var(--espaco-xs);
 }
@@ -175,6 +234,7 @@
 .treatment-timeline__acao {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 44px;
   padding: 8px 16px;
   border-radius: 999px;
@@ -206,15 +266,7 @@
   .treatment-timeline__chevron {
     transition: none;
   }
-}
-
-@media (max-width: 480px) {
-  .treatment-timeline__acoes-grade {
-    flex-direction: column;
-  }
-
-  .treatment-timeline__acao {
-    width: 100%;
-    justify-content: center;
+  .treatment-timeline {
+    scroll-behavior: auto;
   }
 }

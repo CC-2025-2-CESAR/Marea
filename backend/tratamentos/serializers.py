@@ -76,6 +76,7 @@ class EtapaJornadaSerializer(serializers.ModelSerializer):
     etapa_descricao = serializers.SerializerMethodField()
     etapa_ordem = serializers.SerializerMethodField()
     tratamento_nome = serializers.SerializerMethodField()
+    dias_para_proxima = serializers.SerializerMethodField()
     status_label = serializers.CharField(
         source='get_status_display', read_only=True
     )
@@ -92,6 +93,7 @@ class EtapaJornadaSerializer(serializers.ModelSerializer):
             'etapa_descricao',
             'etapa_ordem',
             'tratamento_nome',
+            'dias_para_proxima',
         )
 
     def get_etapa_titulo(self, obj):
@@ -105,3 +107,12 @@ class EtapaJornadaSerializer(serializers.ModelSerializer):
 
     def get_tratamento_nome(self, obj):
         return obj.etapa.tratamento.nome
+
+    def get_dias_para_proxima(self, obj):
+        """Estimativa de dias até a próxima etapa (= duração desta etapa).
+
+        Pode ser `None` quando a clínica ainda não definiu a estimativa. A tela
+        só mostra esse número na etapa atual, sempre com o aviso de que é
+        estimativa.
+        """
+        return obj.etapa.duracao_estimada_dias

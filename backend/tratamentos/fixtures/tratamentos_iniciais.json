@@ -62,7 +62,8 @@
       "tratamento": 1,
       "titulo": "Avaliação inicial",
       "descricao": "Consultas e exames para entender o histórico do casal e planejar o tratamento.",
-      "ordem": 1
+      "ordem": 1,
+      "duracao_estimada_dias": 14
     }
   },
   {
@@ -72,7 +73,8 @@
       "tratamento": 1,
       "titulo": "Estimulação ovariana",
       "descricao": "Uso de medicação para o desenvolvimento de vários óvulos, acompanhado por ultrassom.",
-      "ordem": 2
+      "ordem": 2,
+      "duracao_estimada_dias": 12
     }
   },
   {
@@ -82,7 +84,8 @@
       "tratamento": 1,
       "titulo": "Coleta dos óvulos (punção folicular)",
       "descricao": "Procedimento rápido, com sedação, para recolher os óvulos maduros.",
-      "ordem": 3
+      "ordem": 3,
+      "duracao_estimada_dias": 3
     }
   },
   {
@@ -92,7 +95,8 @@
       "tratamento": 1,
       "titulo": "Fertilização em laboratório",
       "descricao": "Os óvulos e os espermatozoides são unidos no laboratório e os embriões são acompanhados.",
-      "ordem": 4
+      "ordem": 4,
+      "duracao_estimada_dias": 5
     }
   },
   {
@@ -102,7 +106,8 @@
       "tratamento": 1,
       "titulo": "Transferência embrionária",
       "descricao": "O embrião é colocado no útero em um procedimento simples e indolor.",
-      "ordem": 5
+      "ordem": 5,
+      "duracao_estimada_dias": 3
     }
   },
   {
@@ -112,7 +117,8 @@
       "tratamento": 1,
       "titulo": "Teste de gravidez (Beta hCG)",
       "descricao": "Exame de sangue, cerca de duas semanas depois, para confirmar a gestação.",
-      "ordem": 6
+      "ordem": 6,
+      "duracao_estimada_dias": 14
     }
   },
   {
@@ -122,7 +128,8 @@
       "tratamento": 2,
       "titulo": "Estimulação leve da ovulação",
       "descricao": "Medicação suave para favorecer a ovulação, com acompanhamento.",
-      "ordem": 1
+      "ordem": 1,
+      "duracao_estimada_dias": 10
     }
   },
   {
@@ -132,7 +139,8 @@
       "tratamento": 2,
       "titulo": "Preparo do sêmen",
       "descricao": "Seleção, no laboratório, dos espermatozoides com melhor movimentação.",
-      "ordem": 2
+      "ordem": 2,
+      "duracao_estimada_dias": 1
     }
   },
   {
@@ -142,7 +150,8 @@
       "tratamento": 2,
       "titulo": "Inseminação",
       "descricao": "Os espermatozoides preparados são colocados no útero no dia da ovulação.",
-      "ordem": 3
+      "ordem": 3,
+      "duracao_estimada_dias": 14
     }
   },
   {
@@ -152,7 +161,8 @@
       "tratamento": 3,
       "titulo": "Monitoramento do ciclo",
       "descricao": "Acompanhamento do ciclo para planejar o início da medicação.",
-      "ordem": 1
+      "ordem": 1,
+      "duracao_estimada_dias": 7
     }
   },
   {
@@ -162,7 +172,8 @@
       "tratamento": 3,
       "titulo": "Medicação para induzir a ovulação",
       "descricao": "Uso da medicação prescrita para estimular a liberação do óvulo.",
-      "ordem": 2
+      "ordem": 2,
+      "duracao_estimada_dias": 5
     }
   },
   {
@@ -172,7 +183,8 @@
       "tratamento": 3,
       "titulo": "Acompanhamento por ultrassom",
       "descricao": "Ultrassons para identificar o melhor momento da tentativa.",
-      "ordem": 3
+      "ordem": 3,
+      "duracao_estimada_dias": 7
     }
   },
   {
@@ -182,7 +194,8 @@
       "tratamento": 4,
       "titulo": "Estimulação ovariana",
       "descricao": "Medicação para o desenvolvimento de vários óvulos.",
-      "ordem": 1
+      "ordem": 1,
+      "duracao_estimada_dias": 12
     }
   },
   {
@@ -192,7 +205,8 @@
       "tratamento": 4,
       "titulo": "Coleta dos óvulos",
       "descricao": "Procedimento, com sedação, para recolher os óvulos maduros.",
-      "ordem": 2
+      "ordem": 2,
+      "duracao_estimada_dias": 3
     }
   },
   {
@@ -202,7 +216,8 @@
       "tratamento": 4,
       "titulo": "Congelamento (vitrificação)",
       "descricao": "Os óvulos são congelados por uma técnica rápida e guardados com segurança.",
-      "ordem": 3
+      "ordem": 3,
+      "duracao_estimada_dias": 1
     }
   }
 ]

@@ -213,7 +213,10 @@ class JornadaAPITests(TestCase):
             tratamento=self.fiv, titulo='Avaliação inicial', ordem=1
         )
         self.etapa2 = EtapaTratamento.objects.create(
-            tratamento=self.fiv, titulo='Estimulação ovariana', ordem=2
+            tratamento=self.fiv,
+            titulo='Estimulação ovariana',
+            ordem=2,
+            duracao_estimada_dias=12,
         )
 
         u1 = User.objects.create_user(username='renata', password='x')
@@ -267,6 +270,16 @@ class JornadaAPITests(TestCase):
         atual = next(e for e in resp.data if e['status'] == 'atual')
         self.assertEqual(atual['status_label'], 'Atual')
         self.assertEqual(atual['tratamento_nome'], 'FIV')
+
+    def test_jornada_expoe_dias_para_proxima_estimados(self):
+        """A previsão por etapa vem da duração estimada (None quando ausente)."""
+        self.client.force_authenticate(user=self.u1)
+        resp = self.client.get('/api/jornada/')
+        concluida = next(e for e in resp.data if e['status'] == 'concluida')
+        atual = next(e for e in resp.data if e['status'] == 'atual')
+        # etapa1 não tem estimativa definida; etapa2 (atual) tem 12 dias.
+        self.assertIsNone(concluida['dias_para_proxima'])
+        self.assertEqual(atual['dias_para_proxima'], 12)
 
     def test_jornada_vazia(self):
         self.client.force_authenticate(user=self.u1)

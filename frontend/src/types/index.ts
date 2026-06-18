@@ -309,6 +309,8 @@ export interface EtapaJornada {
   etapa_descricao?: string
   etapa_ordem?: number
   tratamento_nome?: string
+  /** Estimativa de dias até a próxima etapa (duração da etapa). Pode ser null. */
+  dias_para_proxima?: number | null
 }
 
 // ===== Busca global (PROJ-25) =====

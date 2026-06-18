@@ -19,11 +19,19 @@ interface Props {
   acoesTexto?: string
 }
 
+function textoPrevisao(dias: number) {
+  return `Faltam aproximadamente ${dias} ${
+    dias === 1 ? 'dia' : 'dias'
+  } para a próxima etapa.`
+}
+
 /**
- * Linha do tempo do tratamento com etapas expansíveis. Cada etapa é um
- * cabeçalho clicável que abre/fecha os detalhes (descrição, observação e, na
- * etapa atual, o painel "o que fazer agora"). A etapa atual começa aberta; as
- * concluídas e futuras começam recolhidas, deixando o foco no momento presente.
+ * Linha do tempo do tratamento, na horizontal: as etapas viram uma trilha que
+ * rola lado a lado no celular (scroll-snap) e se alinha numa linha no desktop.
+ * Cada etapa é um cartão com um cabeçalho clicável que abre/fecha os detalhes
+ * (descrição, observação e, na etapa atual, o painel "o que fazer agora"). A
+ * etapa atual começa aberta e mostra a previsão estimada de dias até a próxima;
+ * as concluídas e futuras começam recolhidas, deixando o foco no presente.
  *
  * É um componente de leitura, reutilizável — a paciente vê a própria jornada e,
  * mais adiante, a visão da médica pode reusar o mesmo desenho.
@@ -49,12 +57,15 @@ function TreatmentTimeline({
 
   return (
     <ol className="treatment-timeline" data-cy="linha-do-tempo-lista">
-      {etapas.map((etapa) => {
+      {etapas.map((etapa, indice) => {
         const aberta = expandidas[etapa.id] ?? false
         const ehAtual = etapa.status === 'atual'
+        const ehUltima = indice === etapas.length - 1
         const temAcoes = ehAtual && acoesEtapaAtual.length > 0
         const temDetalhe =
           Boolean(etapa.etapa_descricao) || Boolean(etapa.observacao) || temAcoes
+        const mostrarPrevisao =
+          ehAtual && !ehUltima && etapa.dias_para_proxima != null
         const regiaoId = `treatment-timeline-detalhe-${etapa.id}`
         return (
           <li
@@ -64,7 +75,9 @@ function TreatmentTimeline({
             data-status={etapa.status}
             aria-current={ehAtual ? 'step' : undefined}
           >
-            <span className="treatment-timeline__marcador" aria-hidden="true" />
+            <div className="treatment-timeline__trilha" aria-hidden="true">
+              <span className="treatment-timeline__marcador" />
+            </div>
             <div className="treatment-timeline__conteudo">
               <button
                 type="button"
@@ -85,12 +98,24 @@ function TreatmentTimeline({
                     {etapa.status_label}
                   </span>
                 </span>
-                <IconeChevron
-                  className={`treatment-timeline__chevron${
-                    aberta ? ' treatment-timeline__chevron--aberto' : ''
-                  }`}
-                />
+                <span className="treatment-timeline__ver">
+                  {aberta ? 'Ocultar' : 'Ver detalhes'}
+                  <IconeChevron
+                    className={`treatment-timeline__chevron${
+                      aberta ? ' treatment-timeline__chevron--aberto' : ''
+                    }`}
+                  />
+                </span>
               </button>
+
+              {mostrarPrevisao ? (
+                <p
+                  className="treatment-timeline__previsao"
+                  data-cy="linha-do-tempo-previsao"
+                >
+                  {textoPrevisao(etapa.dias_para_proxima as number)}
+                </p>
+              ) : null}
 
               <AnimatePresence initial={false}>
                 {aberta && temDetalhe ? (

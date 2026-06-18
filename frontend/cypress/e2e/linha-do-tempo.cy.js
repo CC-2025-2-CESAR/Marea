@@ -44,6 +44,7 @@ const jornadaMock = [
     etapa_descricao: 'Uso de medicação acompanhado por ultrassom.',
     etapa_ordem: 2,
     tratamento_nome: 'Fertilização in vitro (FIV)',
+    dias_para_proxima: 12,
   },
   {
     id: 3,
@@ -97,6 +98,35 @@ describe('Linha do tempo da Amare', () => {
         cy.contains('Estimulação ovariana').should('be.visible')
         cy.get('[data-cy=linha-do-tempo-item-status]').should('contain', 'Atual')
       })
+  })
+
+  it('mostra a previsão estimada de dias na etapa atual', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: jornadaMock }).as('listar')
+    visitarLinhaDoTempo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=linha-do-tempo-item][data-status="atual"]').within(() => {
+      cy.get('[data-cy=linha-do-tempo-previsao]')
+        .should('be.visible')
+        .and('contain', 'Faltam aproximadamente 12 dias')
+    })
+    // Concluída e futura não mostram a previsão de dias.
+    cy.get('[data-cy=linha-do-tempo-item][data-status="concluida"]').within(
+      () => {
+        cy.get('[data-cy=linha-do-tempo-previsao]').should('not.exist')
+      },
+    )
+  })
+
+  it('mostra o aviso de que a previsão é estimada', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: jornadaMock }).as('listar')
+    visitarLinhaDoTempo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=linha-do-tempo-aviso-previsao]')
+      .should('be.visible')
+      .and('contain', 'estimada')
+      .and('contain', 'orientação da equipe médica')
   })
 
   it('mostra o painel "O que fazer agora" só na etapa atual, com os atalhos', () => {
