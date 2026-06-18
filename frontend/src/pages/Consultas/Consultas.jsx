@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import CalendarioMes from '../../components/CalendarioMes/CalendarioMes'
 import ChecklistMedicamentos from '../../components/ChecklistMedicamentos/ChecklistMedicamentos'
+import LegendaCiclo from '../../components/LegendaCiclo/LegendaCiclo'
+import { useMarcacoesCiclo } from '../../hooks/useMarcacoesCiclo'
 import { listarConsultas, listarEventos } from '../../services/consultasService'
 import { listarMedicamentos } from '../../services/medicamentosService'
 import './Consultas.css'
@@ -30,6 +32,11 @@ function Consultas() {
   const [medicamentos, setMedicamentos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
+
+  // Marcações do ciclo (menstruação/fértil/ovulação/previsão) no mesmo
+  // calendário das consultas — uma visão única do mês. O ciclo é secundário
+  // aqui: se a busca falhar, o hook degrada para [] sem afetar a agenda.
+  const { marcacoes } = useMarcacoesCiclo()
 
   useEffect(() => {
     let cancelado = false
@@ -123,14 +130,20 @@ function Consultas() {
         </p>
       ) : (
         <div className="consultas-layout" data-cy="consultas-layout">
-          <CalendarioMes
-            consultas={agendadas}
-            eventos={eventos}
-            medicamentos={medicamentos}
-            mesInicial={mesInicial}
-            diaClicavel
-            key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
-          />
+          <div className="consultas-calendario">
+            <CalendarioMes
+              consultas={agendadas}
+              eventos={eventos}
+              marcacoes={marcacoes}
+              medicamentos={medicamentos}
+              mesInicial={mesInicial}
+              diaClicavel
+              key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
+            />
+            {marcacoes.length > 0 ? (
+              <LegendaCiclo dataCy="calendario-legenda-ciclo" />
+            ) : null}
+          </div>
 
           <aside className="consultas-painel" aria-label="Próximas consultas, eventos e lembretes">
             <PainelProximas

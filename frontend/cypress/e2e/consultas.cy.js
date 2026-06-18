@@ -129,6 +129,10 @@ describe('Calendário de consultas da Amare', () => {
     cy.intercept('GET', '**/api/medicamentos/', { body: [] })
     // A página /calendario carrega consultas E eventos (Promise.all).
     cy.intercept('GET', '**/api/eventos/', { body: [] })
+    // O calendário também busca o ciclo para marcar menstruação/fértil/etc.
+    // Por padrão, sem dados de ciclo (não aparecem marcações nem legenda).
+    cy.intercept('GET', '**/api/ciclo/registros/', { body: [] })
+    cy.intercept('GET', '**/api/ciclo/previsoes/', { body: { tem_dados: false } })
   })
 
   it('exibe o título e o cabeçalho da página', () => {
@@ -181,6 +185,68 @@ describe('Calendário de consultas da Amare', () => {
       'data-com-consulta',
       'false',
     )
+  })
+
+  it('marca o ciclo no calendario (menstruacao/fertil/previsao) e mostra a legenda', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    cy.intercept('GET', '**/api/ciclo/registros/', {
+      body: [
+        {
+          id: 1,
+          data: '2026-05-03',
+          etapa: 'menstruacao',
+          etapa_display: 'Menstruação',
+          observacoes: '',
+          status: 'concluido',
+          status_display: 'Concluído',
+        },
+      ],
+    }).as('cicloRegistros')
+    cy.intercept('GET', '**/api/ciclo/previsoes/', {
+      body: {
+        tem_dados: true,
+        ciclo_medio_dias: 28,
+        proxima_menstruacao: '2026-05-31',
+        ovulacao_estimada: '2026-05-18',
+        janela_fertil_inicio: '2026-05-14',
+        janela_fertil_fim: '2026-05-19',
+        etapa_atual: 'folicular',
+        etapa_atual_display: 'Fase folicular',
+        dia_do_ciclo: 23,
+        total_do_ciclo: 28,
+        dias_para_proxima: 6,
+        atrasada: false,
+        chance_gravidez: 'baixa',
+      },
+    }).as('cicloPrevisoes')
+    visitarConsultas()
+    cy.wait('@listar')
+    cy.wait('@cicloRegistros')
+    cy.wait('@cicloPrevisoes')
+
+    // Dia 3: menstruação (registro real).
+    cy.get('[data-cy=calendario-mes-dia][data-dia="3"]')
+      .find('[data-cy=calendario-mes-ciclo][data-ciclo="menstruacao"]')
+      .should('exist')
+    // Dia 14: início da janela fértil estimada.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="14"]')
+      .find('[data-cy=calendario-mes-ciclo][data-ciclo="fertil"]')
+      .should('exist')
+    // Dia 31: próxima menstruação prevista.
+    cy.get('[data-cy=calendario-mes-dia][data-dia="31"]')
+      .find('[data-cy=calendario-mes-ciclo][data-ciclo="previsto"]')
+      .should('exist')
+    // A legenda do ciclo aparece quando há marcações.
+    cy.get('[data-cy=calendario-legenda-ciclo]').should('be.visible')
+  })
+
+  it('nao mostra a legenda do ciclo quando nao ha marcacoes', () => {
+    cy.intercept('GET', ROTA_LISTA, { body: consultasMock }).as('listar')
+    visitarConsultas()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=calendario-legenda-ciclo]').should('not.exist')
+    cy.get('[data-cy=calendario-mes-ciclo]').should('not.exist')
   })
 
   it('permite navegar para o mês seguinte e voltar para hoje', () => {
