@@ -3,8 +3,10 @@ const ROTA_REGISTRO = '**/api/ciclo/registros/*'
 const ROTA_PREVISOES = '**/api/ciclo/previsoes/'
 
 // O ciclo menstrual (PROJ-5 registro, PROJ-6 previsões) vive dentro do
-// AppLayout protegido. A paciente registra/edita/exclui os próprios registros e
-// vê uma estimativa do próximo ciclo.
+// AppLayout protegido. A página é de acompanhamento: mostra a fase atual, as
+// estimativas e os registros recentes; criar/editar acontece num modal — o
+// registro novo é guiado por um passo a passo curto. O calendário com os
+// marcadores do ciclo agora vive em /calendario (não mais aqui).
 const SESSAO_FAKE = {
   access: 'token-de-acesso-fake',
   refresh: 'token-de-refresh-fake',
@@ -64,7 +66,7 @@ const previsoesVazia = {
 }
 
 describe('Meu ciclo da Amare', () => {
-  it('exibe título, formulário e o aviso das previsões', () => {
+  it('exibe título, resumo e o aviso das previsões', () => {
     cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
     cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
     visitarCiclo()
@@ -73,11 +75,13 @@ describe('Meu ciclo da Amare', () => {
 
     cy.get('[data-cy=page-ciclo]').should('be.visible')
     cy.contains('h1', 'Meu ciclo').should('be.visible')
-    cy.get('[data-cy=ciclo-form]').should('be.visible')
     cy.get('[data-cy=ciclo-previsoes]').should('be.visible')
+    cy.get('[data-cy=ciclo-novo-registro]').should('be.visible')
     cy.get('[data-cy=ciclo-aviso]')
       .should('be.visible')
       .and('contain', 'Não substitui a orientação da equipe médica')
+    // O modal de registro só aparece quando a paciente pede.
+    cy.get('[data-cy=ciclo-registro-modal]').should('not.exist')
   })
 
   it('mostra a próxima menstruação quando há dados suficientes', () => {
@@ -115,7 +119,25 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-previsao-vazia]').should('be.visible')
   })
 
-  it('cria um novo registro e ele aparece na lista', () => {
+  it('abre o passo a passo de novo registro e fecha sem salvar', () => {
+    cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
+    cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
+    visitarCiclo()
+    cy.wait('@listar')
+
+    cy.get('[data-cy=ciclo-novo-registro]').click()
+    cy.get('[data-cy=ciclo-registro-modal]').should('be.visible')
+    cy.contains('h2', 'Novo registro').should('be.visible')
+    cy.get('[data-cy=ciclo-wizard-passo]').should('contain', 'Passo 1 de 4')
+    cy.get('[data-cy=ciclo-wizard-opcao-menstruacao]').should('be.visible')
+    cy.get('[data-cy=ciclo-wizard-opcao-ovulacao]').should('be.visible')
+    cy.get('[data-cy=ciclo-wizard-opcao-anotacao]').should('be.visible')
+
+    cy.get('[data-cy=ciclo-registro-modal-fechar]').click()
+    cy.get('[data-cy=ciclo-registro-modal]').should('not.exist')
+  })
+
+  it('cria um novo registro pelo passo a passo e ele aparece na lista', () => {
     cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
     cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
     visitarCiclo()
@@ -136,17 +158,27 @@ describe('Meu ciclo da Amare', () => {
       },
     }).as('criar')
 
-    // Etapa e status já vêm com padrão (menstruação / registrado).
+    cy.get('[data-cy=ciclo-novo-registro]').click()
+    // Passo 1: o que registrar (já define a etapa e avança).
+    cy.get('[data-cy=ciclo-wizard-opcao-menstruacao]').click()
+    // Passo 2: qual dia (a data já vem com hoje).
+    cy.get('[data-cy=ciclo-data]').should('be.visible')
+    cy.get('[data-cy=ciclo-wizard-avancar]').click()
+    // Passo 3: como está se sentindo (observação opcional).
     cy.get('[data-cy=ciclo-observacoes]').type('Novo ciclo.')
+    cy.get('[data-cy=ciclo-wizard-avancar]').click()
+    // Passo 4: revisar e salvar.
+    cy.get('[data-cy=ciclo-wizard-resumo]').should('contain', 'Menstruação')
     cy.get('[data-cy=ciclo-enviar]').click()
     cy.wait('@criar')
 
     cy.get('[data-cy=toast]').should('be.visible')
+    cy.get('[data-cy=ciclo-registro-modal]').should('not.exist')
     cy.get('[data-cy=ciclo-item]').should('have.length', 1)
     cy.get('[data-cy=ciclo-lista]').should('contain', 'Novo ciclo.')
   })
 
-  it('edita um registro existente', () => {
+  it('edita um registro existente pelo modal', () => {
     cy.intercept('GET', ROTA_REGISTROS, { body: registrosMock }).as('listar')
     cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
     visitarCiclo()
@@ -161,14 +193,13 @@ describe('Meu ciclo da Amare', () => {
     }).as('atualizar')
 
     cy.get('[data-cy=ciclo-item-editar]').click()
+    cy.get('[data-cy=ciclo-registro-modal]').should('be.visible')
     cy.contains('h2', 'Editar registro').should('be.visible')
     cy.get('[data-cy=ciclo-observacoes]').clear().type('Observação editada.')
     cy.get('[data-cy=ciclo-enviar]').click()
     cy.wait('@atualizar')
 
-    cy.get('[data-cy=toast]')
-      .should('be.visible')
-      .and('contain', 'atualizado')
+    cy.get('[data-cy=toast]').should('be.visible').and('contain', 'atualizado')
     cy.get('[data-cy=ciclo-lista]').should('contain', 'Observação editada.')
   })
 
@@ -189,15 +220,17 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-vazia]').should('be.visible')
   })
 
-  it('valida campos obrigatórios sem chamar a API', () => {
+  it('valida a data no passo a passo sem chamar a API', () => {
     cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
     cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
     visitarCiclo()
     cy.wait('@listar')
 
-    // Limpando a data, o envio é bloqueado no cliente.
+    cy.get('[data-cy=ciclo-novo-registro]').click()
+    cy.get('[data-cy=ciclo-wizard-opcao-menstruacao]').click()
+    // Limpando a data, o avanço é bloqueado no cliente.
     cy.get('[data-cy=ciclo-data]').clear()
-    cy.get('[data-cy=ciclo-enviar]').click()
+    cy.get('[data-cy=ciclo-wizard-avancar]').click()
     cy.get('[data-cy=ciclo-erro-envio]')
       .should('be.visible')
       .and('contain', 'Informe a data')
@@ -215,7 +248,7 @@ describe('Meu ciclo da Amare', () => {
       .and('contain', 'Não foi possível carregar seu ciclo no momento.')
   })
 
-  it('exibe o anel de fase, a chance de gravidez e o calendário', () => {
+  it('exibe o anel de fase e a chance, sem calendário embutido', () => {
     cy.intercept('GET', ROTA_REGISTROS, { body: registrosMock }).as('listar')
     cy.intercept('GET', ROTA_PREVISOES, { body: previsoesComDados }).as('prever')
     visitarCiclo()
@@ -225,10 +258,9 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-anel]').should('be.visible')
     cy.get('[data-cy=ciclo-fase]').should('contain', 'Fase ovulatória')
     cy.get('[data-cy=ciclo-dia]').should('contain', '13')
-    cy.get('[data-cy=ciclo-chance]')
-      .should('be.visible')
-      .and('contain', 'Alta')
-    cy.get('[data-cy=calendario-mes]').should('be.visible')
+    cy.get('[data-cy=ciclo-chance]').should('be.visible').and('contain', 'Alta')
+    // O calendário (com os marcadores) foi movido para /calendario.
+    cy.get('[data-cy=calendario-mes]').should('not.exist')
   })
 
   it('mostra o estado vazio do anel quando faltam dados', () => {
@@ -241,22 +273,6 @@ describe('Meu ciclo da Amare', () => {
     cy.get('[data-cy=ciclo-anel]').should('not.exist')
   })
 
-  it('tem atalhos de registro e leva ao formulário', () => {
-    cy.intercept('GET', ROTA_REGISTROS, { body: [] }).as('listar')
-    cy.intercept('GET', ROTA_PREVISOES, { body: previsoesVazia }).as('prever')
-    visitarCiclo()
-    cy.wait('@listar')
-
-    cy.get('[data-cy=ciclo-acao-sintomas]').should(
-      'have.attr',
-      'href',
-      '/sintomas',
-    )
-    cy.get('[data-cy=ciclo-acao-menstruacao]').click()
-    cy.get('[data-cy=ciclo-form]').should('be.visible')
-    cy.contains('h2', 'Novo registro').should('be.visible')
-  })
-
   it('funciona no celular (viewport mobile)', () => {
     cy.viewport(375, 667)
     cy.intercept('GET', ROTA_REGISTROS, { body: registrosMock }).as('listar')
@@ -265,7 +281,7 @@ describe('Meu ciclo da Amare', () => {
     cy.wait('@listar')
 
     cy.get('[data-cy=page-ciclo]').should('be.visible')
-    cy.get('[data-cy=ciclo-form]').should('be.visible')
+    cy.get('[data-cy=ciclo-novo-registro]').should('be.visible')
     cy.get('[data-cy=ciclo-item]').should('be.visible')
     // Sem rolagem horizontal: o conteúdo cabe na largura da viewport.
     cy.document().then((doc) => {

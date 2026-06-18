@@ -1,0 +1,173 @@
+/* Conteúdo do modal de registro do ciclo (wizard de criação + edição). O
+   shell visual e a animação vêm do componente Modal. */
+
+.ciclo-registro__wizard,
+.ciclo-registro__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.ciclo-registro__passo {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-registro__etapa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-registro__titulo {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--cor-marrom);
+}
+
+.ciclo-registro__ajuda {
+  margin: 0;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+/* --- Passo 1: cartões de escolha --- */
+.ciclo-registro__opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-registro__opcao {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--espaco-md);
+  background: var(--cor-creme-claro);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.ciclo-registro__opcao:hover {
+  border-color: var(--cor-rosa-secundario);
+  background: var(--cor-card);
+}
+
+.ciclo-registro__opcao:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
+
+.ciclo-registro__opcao-titulo {
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+.ciclo-registro__opcao-descricao {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+/* --- Campos --- */
+.ciclo-registro__campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+}
+
+.ciclo-registro__label {
+  font-size: 0.9rem;
+  color: var(--cor-texto);
+}
+
+.ciclo-registro__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--cor-texto);
+  background: var(--cor-creme-claro);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-pequeno);
+  padding: var(--espaco-sm);
+  resize: vertical;
+}
+
+.ciclo-registro__textarea:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 1px;
+}
+
+/* --- Passo 4: resumo --- */
+.ciclo-registro__resumo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-sm);
+}
+
+.ciclo-registro__resumo > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--espaco-md);
+  padding-bottom: var(--espaco-sm);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.ciclo-registro__resumo > div:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ciclo-registro__resumo dt {
+  font-size: 0.85rem;
+  color: var(--cor-texto-suave);
+}
+
+.ciclo-registro__resumo dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+  color: var(--cor-marrom);
+}
+
+/* --- Erro --- */
+.ciclo-registro__erro {
+  margin: 0;
+  color: var(--cor-erro);
+  font-size: 0.9rem;
+}
+
+/* --- Botão "Cancelar/Voltar" no rodapé --- */
+.ciclo-registro__cancelar {
+  min-height: 44px;
+  padding: 0 var(--espaco-md);
+  background: transparent;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-campo);
+  color: var(--cor-texto);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.ciclo-registro__cancelar:hover {
+  background: var(--cor-creme-claro);
+}
+
+.ciclo-registro__cancelar:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+}
