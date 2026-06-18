@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   listarRegistrosCiclo,
   obterPrevisoesCiclo,
@@ -64,13 +64,36 @@ export function calcularMarcacoesCiclo(
 
 /**
  * Busca o ciclo da paciente (registros + previsões) e devolve as marcações
- * prontas para o `CalendarioMes`. O ciclo é secundário no calendário: se a
- * busca falhar (ex.: usuária sem perfil de paciente), degrada para `[]` sem
- * travar a página.
+ * prontas para o `CalendarioMes`, junto de um `recarregar()` para re-derivar
+ * depois que a paciente registra algo pelo próprio dia do calendário. O ciclo é
+ * secundário no calendário: se a busca falhar (ex.: usuária sem perfil de
+ * paciente), degrada para `[]` sem travar a página.
  */
-export function useMarcacoesCiclo(): { marcacoes: MarcacaoCiclo[] } {
+export function useMarcacoesCiclo(): {
+  marcacoes: MarcacaoCiclo[]
+  recarregar: () => Promise<void>
+} {
   const [marcacoes, setMarcacoes] = useState<MarcacaoCiclo[]>([])
 
+  const recarregar = useCallback(async () => {
+    try {
+      const [registros, previsoes] = await Promise.all([
+        listarRegistrosCiclo(),
+        obterPrevisoesCiclo(),
+      ])
+      setMarcacoes(
+        calcularMarcacoesCiclo(
+          Array.isArray(registros) ? registros : [],
+          previsoes ?? null,
+        ),
+      )
+    } catch {
+      setMarcacoes([])
+    }
+  }, [])
+
+  // Carga inicial. O setState mora numa função assíncrona com guarda de
+  // cancelamento (após o await) — não é síncrono no corpo do efeito.
   useEffect(() => {
     let cancelado = false
 
@@ -99,5 +122,5 @@ export function useMarcacoesCiclo(): { marcacoes: MarcacaoCiclo[] } {
     }
   }, [])
 
-  return { marcacoes }
+  return { marcacoes, recarregar }
 }

@@ -54,6 +54,8 @@ interface Props {
    * A página /ciclo usa o calendário só para marcações e mantém isso desligado.
    */
   diaClicavel?: boolean
+  /** Chamado quando a paciente registra ciclo/sintoma pelo drawer do dia. */
+  onRegistrado?: () => void
 }
 
 // Chave dia-a-dia (mês 0-based) tolerante a Date e a string ISO 'YYYY-MM-DD'.
@@ -147,6 +149,7 @@ function CalendarioMes({
   medicamentos = [],
   mesInicial,
   diaClicavel = false,
+  onRegistrado,
 }: Props) {
   const inicial = useMemo(() => {
     if (mesInicial instanceof Date) {
@@ -349,6 +352,7 @@ function CalendarioMes({
         medicamentos={medicamentos}
         ehHoje={diaSelecionado ? mesmoDia(diaSelecionado, hoje) : false}
         onFechar={() => setDiaSelecionado(null)}
+        onRegistrado={onRegistrado}
       />
     </div>
   )

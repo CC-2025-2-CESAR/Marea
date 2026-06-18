@@ -36,7 +36,7 @@ function Consultas() {
   // Marcações do ciclo (menstruação/fértil/ovulação/previsão) no mesmo
   // calendário das consultas — uma visão única do mês. O ciclo é secundário
   // aqui: se a busca falhar, o hook degrada para [] sem afetar a agenda.
-  const { marcacoes } = useMarcacoesCiclo()
+  const { marcacoes, recarregar } = useMarcacoesCiclo()
 
   useEffect(() => {
     let cancelado = false
@@ -138,6 +138,7 @@ function Consultas() {
               medicamentos={medicamentos}
               mesInicial={mesInicial}
               diaClicavel
+              onRegistrado={recarregar}
               key={mesInicial ? mesInicial.toISOString() : 'sem-mes'}
             />
             {marcacoes.length > 0 ? (
