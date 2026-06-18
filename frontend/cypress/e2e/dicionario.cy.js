@@ -94,7 +94,7 @@ describe('Dicionário da Amare', () => {
       .and('contain', 'Nenhum termo encontrado.')
   })
 
-  it('cada card mostra título, definição, artigos relacionados e tag', () => {
+  it('cada card e um resumo clicavel (titulo + definicao + tag)', () => {
     cy.intercept('GET', ROTA_LISTA, { body: termosMock }).as('listar')
     visitarDicionario()
     cy.wait('@listar')
@@ -106,12 +106,14 @@ describe('Dicionário da Amare', () => {
         cy.contains(
           'Condição em que o tecido cresce fora do útero.',
         ).should('be.visible')
-        cy.get('[data-cy=dicionario-card-artigos]')
-          .should('contain', 'Endometriose e fertilidade')
-          .and('contain', 'Sinais que merecem atenção')
         cy.get('[data-cy=dicionario-card-tag]')
           .should('be.visible')
           .and('contain', 'Doença')
+        // Os artigos relacionados saem do card e passam a viver no detalhe.
+        cy.get('[data-cy=dicionario-card-artigos]').should('not.exist')
+        cy.get('[data-cy=dicionario-card-link]')
+          .should('have.attr', 'href')
+          .and('include', '/dicionario/2')
       })
   })
 

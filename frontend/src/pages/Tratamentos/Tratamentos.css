@@ -19,116 +19,28 @@
 }
 
 .tratamentos-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--espaco-md);
   align-items: start;
 }
 
-.tratamentos-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-sm);
-  padding: var(--espaco-md);
-  border-radius: var(--raio-medio);
-  background: var(--cor-card);
-  box-shadow: var(--sombra-suave);
-  border-top: 4px solid var(--cor-terracota);
-  transition:
-    transform 0.18s ease-out,
-    box-shadow 0.18s ease-out;
-}
-
-/* Leve elevação no hover/foco, ecoando o InteractiveCard das especialidades.
-   O título segue sendo o alvo de clique — o card tem links internos (chips de
-   termos), então não pode virar um link inteiro. */
-.tratamentos-card:hover,
-.tratamentos-card:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 22px 48px rgba(128, 82, 53, 0.18);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tratamentos-card {
-    transition: none;
-  }
-
-  .tratamentos-card:hover,
-  .tratamentos-card:focus-within {
-    transform: none;
-  }
-}
-
-.tratamentos-card__titulo {
-  margin: 0;
-  font-size: 1.2rem;
-  color: var(--cor-texto);
-}
-
-.tratamentos-card__link {
-  color: inherit;
-  text-decoration: none;
-}
-
-.tratamentos-card__link:hover {
-  color: var(--cor-terracota);
-  text-decoration: underline;
-}
-
-.tratamentos-card__link:focus-visible {
-  outline: 2px solid var(--cor-rosa-secundario);
-  outline-offset: 2px;
-  border-radius: 4px;
+/* Os cards reusam o InteractiveCard (card inteiro clicável); aqui só damos o
+   acento de cor da seção. */
+.tratamentos-grid .interactive-card {
+  --card-acento: var(--cor-terracota);
 }
 
 .tratamentos-card__descricao {
   margin: 0;
   line-height: 1.5;
   color: var(--cor-texto);
-}
-
-.tratamentos-card__indicacao {
-  margin: 0;
-  line-height: 1.5;
-  font-size: 0.95rem;
-  color: var(--cor-texto-suave);
-}
-
-.tratamentos-card__etapas {
-  margin-top: var(--espaco-xs);
-  border-top: 1px solid var(--cor-borda);
-  padding-top: var(--espaco-sm);
-}
-
-.tratamentos-card__etapas-titulo {
-  margin: 0 0 var(--espaco-xs);
-  font-size: 0.95rem;
-  color: var(--cor-marrom);
-}
-
-.tratamentos-card__etapas-lista {
-  margin: 0;
-  padding-left: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tratamentos-card__etapa {
-  line-height: 1.4;
-}
-
-.tratamentos-card__etapa-nome {
-  font-weight: 600;
-}
-
-.tratamentos-card__etapa-descricao {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--cor-texto-suave);
+  /* Resumo curto no card; o texto completo fica no detalhe. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tratamentos-mensagem {

@@ -36,40 +36,31 @@
 }
 
 .apoio-grid {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--espaco-md);
+  align-items: start;
 }
 
-.apoio-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--espaco-sm);
-  padding: var(--espaco-md);
-  background-color: var(--cor-card);
-  border: 1px solid var(--cor-borda);
-  border-radius: var(--raio-medio);
-  box-shadow: var(--sombra-suave);
-}
-
-.apoio-card__titulo {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--cor-marrom);
+/* Cards reusam o InteractiveCard (card inteiro clicável); aqui só o acento. */
+.apoio-grid .interactive-card {
+  --card-acento: var(--cor-caramelo);
 }
 
 .apoio-card__texto {
   margin: 0;
   color: var(--cor-texto);
   line-height: 1.5;
+  /* Resumo curto no card; o texto completo fica no detalhe. */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .apoio-card__tag {
   align-self: flex-start;
-  margin-top: auto;
   padding: 4px 12px;
   border-radius: var(--raio-grande);
   background-color: var(--cor-azul-suave);

@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import TermosRelacionados from '../../components/TermosRelacionados/TermosRelacionados'
+import InteractiveCard from '../../components/ui/InteractiveCard/InteractiveCard'
 import { listarOrientacoes } from '../../services/tratamentosService'
+import type { Orientacao } from '../../types'
 import './Orientacoes.css'
 
 const FILTRO_TODOS = '__todos__'
 
+/**
+ * Lista de orientações (`/orientacoes`). Cada card é um resumo clicável por
+ * inteiro que leva ao detalhe (`/orientacoes/:id`), onde ficam o texto completo
+ * e os termos relacionados. Mantém o filtro por categoria.
+ */
 function Orientacoes() {
-  const [orientacoes, setOrientacoes] = useState([])
+  const [orientacoes, setOrientacoes] = useState<Orientacao[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState(FILTRO_TODOS)
 
@@ -43,7 +48,7 @@ function Orientacoes() {
 
   const categoriasDisponiveis = Array.from(
     new Set(orientacoes.map((o) => o.categoria).filter(Boolean)),
-  ).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  ).sort((a, b) => (a ?? '').localeCompare(b ?? '', 'pt-BR'))
 
   const orientacoesVisiveis =
     categoriaSelecionada === FILTRO_TODOS
@@ -56,7 +61,8 @@ function Orientacoes() {
         <h1>Orientações</h1>
         <p>
           Orientações em linguagem simples para te ajudar em cada etapa do
-          tratamento. Em caso de dúvida, fale sempre com a sua equipe.
+          tratamento. Toque em um card para ler com calma. Em caso de dúvida,
+          fale sempre com a sua equipe.
         </p>
       </header>
 
@@ -92,7 +98,7 @@ function Orientacoes() {
                     ? 'orientacoes-filtro__chip orientacoes-filtro__chip--ativo'
                     : 'orientacoes-filtro__chip'
                 }
-                onClick={() => setCategoriaSelecionada(categoria)}
+                onClick={() => setCategoriaSelecionada(categoria as string)}
                 data-cy="orientacoes-filtro-chip"
                 data-categoria={categoria}
                 aria-pressed={ativo}
@@ -127,7 +133,7 @@ function Orientacoes() {
           Nenhuma orientação cadastrada no momento.
         </p>
       ) : (
-        <ul className="orientacoes-grid" data-cy="orientacoes-grid">
+        <div className="orientacoes-grid" data-cy="orientacoes-grid">
           {orientacoesVisiveis.map((orientacao) => {
             const relacao = [
               orientacao.tratamento_nome,
@@ -136,24 +142,19 @@ function Orientacoes() {
               .filter(Boolean)
               .join(' — ')
             return (
-              <li
+              <InteractiveCard
                 key={orientacao.id}
-                className="orientacoes-card"
-                data-cy="orientacoes-card"
-                data-categoria={orientacao.categoria || ''}
+                to={`/orientacoes/${orientacao.id}`}
+                titulo={orientacao.titulo}
+                cta="Ver orientação"
+                dataCy="orientacoes-card"
+                linkDataCy="orientacoes-card-link"
               >
-                <h2 className="orientacoes-card__titulo">
-                  <Link
-                    className="orientacoes-card__link"
-                    to={`/orientacoes/${orientacao.id}`}
-                    data-cy="orientacoes-card-link"
-                  >
-                    {orientacao.titulo}
-                  </Link>
-                </h2>
-                <p className="orientacoes-card__conteudo">
-                  {orientacao.conteudo}
-                </p>
+                {orientacao.conteudo ? (
+                  <p className="orientacoes-card__conteudo">
+                    {orientacao.conteudo}
+                  </p>
+                ) : null}
                 {relacao ? (
                   <p
                     className="orientacoes-card__relacao"
@@ -162,7 +163,6 @@ function Orientacoes() {
                     Relacionado a: {relacao}
                   </p>
                 ) : null}
-                <TermosRelacionados termos={orientacao.termos_relacionados} />
                 {orientacao.categoria ? (
                   <span
                     className="orientacoes-card__tag"
@@ -171,10 +171,10 @@ function Orientacoes() {
                     {orientacao.categoria}
                   </span>
                 ) : null}
-              </li>
+              </InteractiveCard>
             )
           })}
-        </ul>
+        </div>
       )}
     </section>
   )

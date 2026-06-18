@@ -128,38 +128,18 @@ describe('Orientações da Amare', () => {
     cy.get('[data-cy=orientacoes-card]').should('have.length', 3)
   })
 
-  it('mostra os chips de termos do dicionário e leva ao dicionário filtrado', () => {
+  it('o card nao mostra os chips de termos (eles vivem no detalhe)', () => {
     cy.intercept('GET', ROTA_LISTA, { body: orientacoesMock }).as('listar')
-    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
     visitarOrientacoes()
     cy.wait('@listar')
 
     cy.get('[data-cy=orientacoes-card]')
       .filter(':contains("Como se preparar para a coleta de óvulos")')
       .within(() => {
-        cy.get('[data-cy=termos-relacionados]').should('be.visible')
-        cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
-        cy.get('[data-cy=termo-relacionado-chip][data-termo="Folículo"]')
-          .should('have.attr', 'href')
-          .and('include', '/dicionario?busca=')
-        cy.get(
-          '[data-cy=termo-relacionado-chip][data-termo="Folículo"]',
-        ).click()
-      })
-
-    cy.location('pathname').should('eq', '/dicionario')
-    cy.location('search').should('include', 'busca=')
-  })
-
-  it('não renderiza o bloco de termos quando a orientação não tem termos', () => {
-    cy.intercept('GET', ROTA_LISTA, { body: orientacoesMock }).as('listar')
-    visitarOrientacoes()
-    cy.wait('@listar')
-
-    cy.get('[data-cy=orientacoes-card]')
-      .filter(':contains("Lidando com a ansiedade da espera")')
-      .within(() => {
         cy.get('[data-cy=termos-relacionados]').should('not.exist')
+        cy.get('[data-cy=orientacoes-card-link]')
+          .should('have.attr', 'href')
+          .and('include', '/orientacoes/1')
       })
   })
 
@@ -228,6 +208,23 @@ describe('Detalhe da orientação', () => {
     cy.get('[data-cy=orientacao-detalhe-conteudo]').should('be.visible')
     cy.get('[data-cy=termos-relacionados]').should('be.visible')
     cy.get('[data-cy=termo-relacionado-chip]').should('have.length', 2)
+  })
+
+  it('os chips de termos no detalhe levam ao dicionario filtrado', () => {
+    cy.intercept('GET', ROTA_DETALHE_1, { body: orientacoesMock[0] }).as(
+      'detalhar',
+    )
+    cy.intercept('GET', '**/api/dicionario/termos/**', { body: [] })
+    visitarOrientacoes('/orientacoes/1')
+    cy.wait('@detalhar')
+
+    cy.get('[data-cy=termo-relacionado-chip][data-termo="Folículo"]')
+      .should('have.attr', 'href')
+      .and('include', '/dicionario?busca=')
+    cy.get('[data-cy=termo-relacionado-chip][data-termo="Folículo"]').click()
+
+    cy.location('pathname').should('eq', '/dicionario')
+    cy.location('search').should('include', 'busca=')
   })
 
   it('não mostra relação nem termos quando a orientação não tem vínculos', () => {

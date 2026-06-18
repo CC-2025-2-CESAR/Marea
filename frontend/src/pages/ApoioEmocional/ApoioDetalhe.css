@@ -1,0 +1,100 @@
+.apoio-detalhe {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.apoio-detalhe__voltar {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--cor-azul-link);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.apoio-detalhe__voltar:hover {
+  text-decoration: underline;
+}
+
+.apoio-detalhe__voltar:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.apoio-detalhe__conteudo {
+  background: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-top: 4px solid var(--cor-caramelo);
+  border-radius: var(--raio-medio);
+  box-shadow: var(--sombra-suave);
+  padding: var(--espaco-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+}
+
+.apoio-detalhe__cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-xs);
+  align-items: flex-start;
+}
+
+.apoio-detalhe__cabecalho h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--cor-marrom);
+}
+
+.apoio-detalhe__tag {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: var(--raio-grande);
+  background-color: var(--cor-azul-suave);
+  color: var(--cor-marrom);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.apoio-detalhe__texto {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--cor-texto);
+}
+
+.apoio-detalhe__aviso {
+  margin: 0;
+  padding: var(--espaco-sm) var(--espaco-md);
+  background-color: var(--cor-creme);
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-caramelo);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-marrom);
+  font-size: 0.92rem;
+}
+
+.apoio-detalhe__mensagem {
+  margin: 0;
+  padding: var(--espaco-lg);
+  text-align: center;
+  color: var(--cor-texto-suave);
+  font-style: italic;
+}
+
+.apoio-detalhe__mensagem--erro {
+  color: var(--cor-erro);
+  font-style: normal;
+}
+
+.apoio-detalhe__acao {
+  color: var(--cor-azul-link);
+  font-weight: 600;
+}

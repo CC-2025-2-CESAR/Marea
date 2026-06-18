@@ -12,6 +12,8 @@ interface Props {
   cta?: string
   /** data-cy aplicado ao `<article>`. */
   dataCy?: string
+  /** data-cy aplicado ao `<a>` interno (preserva hooks `*-card-link`). */
+  linkDataCy?: string
   className?: string
 }
 
@@ -27,6 +29,7 @@ function InteractiveCard({
   children,
   cta = 'Ver detalhes',
   dataCy,
+  linkDataCy,
   className,
 }: Props) {
   const reduzir = useReducedMotion()
@@ -37,7 +40,12 @@ function InteractiveCard({
       whileHover={reduzir ? undefined : { y: -4 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
     >
-      <Link className="interactive-card__link" to={to} aria-label={titulo}>
+      <Link
+        className="interactive-card__link"
+        to={to}
+        aria-label={titulo}
+        data-cy={linkDataCy}
+      >
         <h2 className="interactive-card__titulo">{titulo}</h2>
         {children ? (
           <div className="interactive-card__corpo">{children}</div>
