@@ -759,3 +759,79 @@ class RecuperacaoSenhaTests(APITestCase):
         )
         self.assertEqual(resposta.status_code, 200)
         self.assertIn('access', resposta.data)
+
+
+class AlterarSenhaViewTests(APITestCase):
+    """Troca de senha pelo próprio usuário autenticado (auth/alterar-senha/)."""
+
+    URL = '/api/auth/alterar-senha/'
+    SENHA_ATUAL = 'PrimeiraChave2026'
+    SENHA_NOVA = 'OutraChave2027!'
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'paciente_p3', password=self.SENHA_ATUAL
+        )
+        PerfilUsuario.objects.create(
+            usuario=self.user,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Paciente Tres',
+        )
+
+    def test_troca_senha_com_sucesso(self):
+        self.client.force_authenticate(self.user)
+        resposta = self.client.post(
+            self.URL,
+            {'senha_atual': self.SENHA_ATUAL, 'nova_senha': self.SENHA_NOVA},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.SENHA_NOVA))
+
+    def test_senha_atual_incorreta_recusada(self):
+        self.client.force_authenticate(self.user)
+        resposta = self.client.post(
+            self.URL,
+            {'senha_atual': 'chave-errada', 'nova_senha': self.SENHA_NOVA},
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.SENHA_ATUAL))
+
+    def test_nova_senha_fraca_recusada(self):
+        self.client.force_authenticate(self.user)
+        resposta = self.client.post(
+            self.URL,
+            {'senha_atual': self.SENHA_ATUAL, 'nova_senha': '123'},
+        )
+        self.assertEqual(resposta.status_code, 400)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password(self.SENHA_ATUAL))
+
+    def test_campos_faltando_recusado(self):
+        self.client.force_authenticate(self.user)
+        resposta = self.client.post(
+            self.URL, {'senha_atual': self.SENHA_ATUAL}
+        )
+        self.assertEqual(resposta.status_code, 400)
+
+    def test_anonimo_recebe_401(self):
+        resposta = self.client.post(
+            self.URL,
+            {'senha_atual': self.SENHA_ATUAL, 'nova_senha': self.SENHA_NOVA},
+        )
+        self.assertEqual(resposta.status_code, 401)
+
+    def test_login_com_a_nova_senha_apos_trocar(self):
+        self.client.force_authenticate(self.user)
+        self.client.post(
+            self.URL,
+            {'senha_atual': self.SENHA_ATUAL, 'nova_senha': self.SENHA_NOVA},
+        )
+        self.client.force_authenticate(user=None)
+        resposta = self.client.post(
+            '/api/auth/login/',
+            {'username': 'paciente_p3', 'password': self.SENHA_NOVA},
+        )
+        self.assertEqual(resposta.status_code, 200)
+        self.assertIn('access', resposta.data)

@@ -3,6 +3,7 @@
 from django.urls import path
 
 from .views import (
+    alterar_senha,
     criar_paciente,
     definir_senha_convite,
     detalhar_convite,
@@ -19,6 +20,8 @@ urlpatterns = [
     path('auth/login/', login_view, name='auth-login'),
     path('auth/refresh/', refresh_view, name='auth-refresh'),
     path('auth/me/', me_view, name='auth-me'),
+    # Troca de senha pelo próprio usuário autenticado (Segurança da conta).
+    path('auth/alterar-senha/', alterar_senha, name='auth-alterar-senha'),
     # Recuperação de senha (PROJ-7): pedir o link por e-mail e redefinir.
     path('auth/recuperar/', recuperar_senha, name='auth-recuperar'),
     path('auth/redefinir/<str:token>/', redefinir_senha, name='auth-redefinir'),
