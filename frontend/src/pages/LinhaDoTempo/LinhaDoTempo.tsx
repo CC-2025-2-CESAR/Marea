@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import TreatmentTimeline from '../../components/TreatmentTimeline/TreatmentTimeline'
+import type { AcaoTimeline } from '../../components/TreatmentTimeline/TreatmentTimeline'
 import { listarJornada } from '../../services/linhaTempoService'
+import type { EtapaJornada } from '../../types'
 import './LinhaDoTempo.css'
 
 // Atalhos da etapa atual ("o que fazer agora"): levam às áreas onde a paciente
 // age sobre o tratamento neste momento.
-const ACOES_ETAPA_ATUAL = [
+const ACOES_ETAPA_ATUAL: AcaoTimeline[] = [
   {
     to: '/calendario',
     rotulo: 'Ver a agenda',
@@ -30,9 +32,9 @@ const ACOES_ETAPA_ATUAL = [
 ]
 
 function LinhaDoTempo() {
-  const [etapas, setEtapas] = useState([])
+  const [etapas, setEtapas] = useState<EtapaJornada[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelado = false
@@ -41,7 +43,7 @@ function LinhaDoTempo() {
       try {
         const dados = await listarJornada()
         if (!cancelado) {
-          setEtapas(dados)
+          setEtapas(Array.isArray(dados) ? dados : [])
         }
       } catch {
         if (!cancelado) {
@@ -110,6 +112,13 @@ function LinhaDoTempo() {
             etapas={etapas}
             acoesEtapaAtual={ACOES_ETAPA_ATUAL}
           />
+          <p
+            className="linha-tempo-aviso"
+            data-cy="linha-do-tempo-aviso-previsao"
+          >
+            Essa previsão é estimada e pode mudar de acordo com a orientação da
+            equipe médica.
+          </p>
         </>
       )}
     </section>

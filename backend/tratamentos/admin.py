@@ -11,7 +11,7 @@ from .models import (
 class EtapaTratamentoInline(admin.TabularInline):
     model = EtapaTratamento
     extra = 1
-    fields = ('ordem', 'titulo', 'descricao')
+    fields = ('ordem', 'titulo', 'descricao', 'duracao_estimada_dias')
     ordering = ('ordem', 'id')
 
 

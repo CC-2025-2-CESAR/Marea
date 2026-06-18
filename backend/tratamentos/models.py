@@ -49,6 +49,16 @@ class EtapaTratamento(models.Model):
     titulo = models.CharField('Título', max_length=120)
     descricao = models.TextField('Descrição', blank=True)
     ordem = models.PositiveIntegerField('Ordem', default=0)
+    duracao_estimada_dias = models.PositiveIntegerField(
+        'Duração estimada (dias)',
+        null=True,
+        blank=True,
+        help_text=(
+            'Estimativa, definida pela clínica, de quantos dias esta etapa '
+            'costuma levar até a próxima. Usada como previsão na linha do '
+            'tempo; é só uma estimativa, nunca um prazo garantido.'
+        ),
+    )
 
     class Meta:
         ordering = ['ordem', 'id']
