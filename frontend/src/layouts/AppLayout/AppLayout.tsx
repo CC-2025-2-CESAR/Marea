@@ -33,7 +33,7 @@ function AppLayout() {
     if (!menuAberto) return undefined
     const overflowAnterior = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    function aoApertarTecla(evento) {
+    function aoApertarTecla(evento: KeyboardEvent) {
       if (evento.key === 'Escape') {
         setMenuAberto(false)
       }

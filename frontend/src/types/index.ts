@@ -50,6 +50,14 @@ export interface AuthContextValue {
   logout: () => void
 }
 
+// ===== Primitivos de UI =====
+
+/** Opção de um `SelectField` (`valor` interno + `rotulo` visível). */
+export interface OpcaoSelect<T extends string = string> {
+  valor: T
+  rotulo: string
+}
+
 // ===== Perfil da paciente =====
 
 export interface Perfil {

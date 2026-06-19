@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import type { TermoDicionario } from '../../types'
 import './TermosRelacionados.css'
 
 /**
@@ -6,7 +7,7 @@ import './TermosRelacionados.css'
  * orientação). Cada chip leva ao Dicionário já filtrado pelo termo, criando a
  * ligação entre o conteúdo da paciente e a explicação simples do termo.
  */
-function TermosRelacionados({ termos }) {
+function TermosRelacionados({ termos }: { termos?: TermoDicionario[] }) {
   const lista = termos || []
   if (lista.length === 0) {
     return null

@@ -4,7 +4,12 @@
  * inline (props `tamanho` e `className`).
  */
 
-function IconeChevron({ tamanho = 18, className }) {
+interface IconeChevronProps {
+  tamanho?: number
+  className?: string
+}
+
+function IconeChevron({ tamanho = 18, className }: IconeChevronProps) {
   return (
     <svg
       className={className}
