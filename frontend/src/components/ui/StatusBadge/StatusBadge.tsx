@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import './StatusBadge.css'
 
-type TomBadge = 'neutro' | 'info' | 'sucesso' | 'aviso' | 'perigo'
+export type TomBadge = 'neutro' | 'info' | 'sucesso' | 'aviso' | 'perigo'
 
 interface Props {
   children: ReactNode

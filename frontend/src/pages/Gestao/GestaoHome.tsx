@@ -8,9 +8,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/useAuth'
 import { visaoGeral } from '../../services/adminService'
+import type { VisaoGeralAdmin } from '../../types'
 import './Gestao.css'
 
-const CARDS = [
+const CARDS: { chave: keyof VisaoGeralAdmin; rotulo: string }[] = [
   { chave: 'pacientes', rotulo: 'Pacientes' },
   { chave: 'medicas', rotulo: 'Médicas' },
   { chave: 'convites_pendentes', rotulo: 'Convites pendentes' },
@@ -20,7 +21,7 @@ const CARDS = [
 
 function GestaoHome() {
   const { usuario } = useAuth()
-  const [dados, setDados] = useState(null)
+  const [dados, setDados] = useState<VisaoGeralAdmin | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 

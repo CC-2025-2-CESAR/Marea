@@ -9,7 +9,7 @@
  * Devolve apenas os dígitos do valor recebido.
  * Exemplo: somenteNumeros("(81) abc 99999-8888") -> "81999998888"
  */
-function somenteNumeros(valor) {
+function somenteNumeros(valor: string): string {
   return (valor || '').replace(/\D/g, '')
 }
 
@@ -24,7 +24,7 @@ function somenteNumeros(valor) {
  * formatarTelefone("abc")         -> ""
  * formatarTelefone("81")          -> "(81"
  */
-function formatarTelefone(valor) {
+function formatarTelefone(valor: string): string {
   const digitos = somenteNumeros(valor).slice(0, 11)
   if (digitos.length === 0) return ''
   if (digitos.length <= 2) return `(${digitos}`
@@ -41,7 +41,7 @@ function formatarTelefone(valor) {
  * Devolve só os dígitos do telefone — útil se algum dia for preciso
  * enviar ao backend sem máscara.
  */
-function normalizarTelefone(valor) {
+function normalizarTelefone(valor: string): string {
   return somenteNumeros(valor)
 }
 
@@ -50,7 +50,7 @@ function normalizarTelefone(valor) {
  * (telefone fixo ou celular brasileiro). Qualquer outro tamanho é
  * considerado inválido.
  */
-function telefoneValido(valor) {
+function telefoneValido(valor: string): boolean {
   const digitos = somenteNumeros(valor)
   return digitos.length === 0 || digitos.length === 10 || digitos.length === 11
 }

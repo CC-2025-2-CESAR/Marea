@@ -1,46 +1,68 @@
 /**
- * Cadastro de nova paciente na área da médica (PROJ-7).
+ * Cadastro de nova paciente na area da medica (PROJ-7).
  *
- * A clínica informa os dados mínimos; o backend cria a conta inativa e devolve
- * um link de primeiro acesso, que a médica copia e repassa à paciente. A conta
- * só é ativada quando a paciente define a própria senha pelo link.
+ * A clinica informa os dados minimos; o backend cria a conta inativa e devolve
+ * um link de primeiro acesso, que a medica copia e repassa a paciente. A conta
+ * so e ativada quando a paciente define a propria senha pelo link.
  */
 
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { criarPaciente, reenviarConvite } from '../../services/conviteService'
+import type { ErroRequisicao } from '../../services/api'
+import type { NovaPacienteEntrada, RespostaCriarPaciente } from '../../types'
 
-const FORM_VAZIO = {
+interface Props {
+  aoCadastrar?: () => void
+}
+
+interface Feedback {
+  tipo: 'erro'
+  texto: string
+}
+
+type CampoForm = keyof NovaPacienteEntrada
+
+const FORM_VAZIO: NovaPacienteEntrada = {
   nome_completo: '',
   email: '',
   telefone: '',
   data_nascimento: '',
 }
 
-function mensagemErro(erro) {
-  const detalhe = erro?.detalhe
+function mensagemErro(erro: unknown): string {
+  const detalhe = (erro as ErroRequisicao)?.detalhe
   if (detalhe && typeof detalhe === 'object') {
-    if (Array.isArray(detalhe.email) && detalhe.email.length) {
-      return detalhe.email[0]
+    const campos = detalhe as {
+      email?: string[]
+      nome_completo?: string[]
+      detail?: string
     }
-    if (Array.isArray(detalhe.nome_completo) && detalhe.nome_completo.length) {
-      return detalhe.nome_completo[0]
+    if (Array.isArray(campos.email) && campos.email.length > 0) {
+      return campos.email[0]
     }
-    if (typeof detalhe.detail === 'string') {
-      return detalhe.detail
+    if (
+      Array.isArray(campos.nome_completo) &&
+      campos.nome_completo.length > 0
+    ) {
+      return campos.nome_completo[0]
+    }
+    if (typeof campos.detail === 'string') {
+      return campos.detail
     }
   }
-  return 'Não foi possível concluir agora. Tente novamente.'
+  return 'Nao foi possivel concluir agora. Tente novamente.'
 }
 
-function NovaPaciente({ aoCadastrar }) {
+function NovaPaciente({ aoCadastrar }: Props) {
   const [aberto, setAberto] = useState(false)
-  const [form, setForm] = useState(FORM_VAZIO)
+  const [form, setForm] = useState<NovaPacienteEntrada>(FORM_VAZIO)
   const [enviando, setEnviando] = useState(false)
-  const [feedback, setFeedback] = useState(null)
-  const [resultado, setResultado] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
+  const [resultado, setResultado] = useState<RespostaCriarPaciente | null>(null)
   const [copiado, setCopiado] = useState(false)
 
-  function atualizar(campo, valor) {
+  function atualizar(campo: CampoForm, valor: string) {
     setForm((f) => ({ ...f, [campo]: valor }))
   }
 
@@ -52,7 +74,7 @@ function NovaPaciente({ aoCadastrar }) {
     setCopiado(false)
   }
 
-  async function handleSubmit(evento) {
+  async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     if (!form.nome_completo.trim() || !form.email.trim()) {
       setFeedback({ tipo: 'erro', texto: 'Informe ao menos nome e e-mail.' })
@@ -64,13 +86,13 @@ function NovaPaciente({ aoCadastrar }) {
       const dados = await criarPaciente({
         nome_completo: form.nome_completo.trim(),
         email: form.email.trim(),
-        telefone: form.telefone.trim(),
+        telefone: form.telefone?.trim(),
         data_nascimento: form.data_nascimento || null,
       })
       setResultado(dados)
       setForm(FORM_VAZIO)
       setCopiado(false)
-      if (aoCadastrar) aoCadastrar()
+      aoCadastrar?.()
     } catch (erro) {
       setFeedback({ tipo: 'erro', texto: mensagemErro(erro) })
     } finally {
@@ -94,7 +116,9 @@ function NovaPaciente({ aoCadastrar }) {
     setFeedback(null)
     try {
       const dados = await reenviarConvite(resultado.paciente.id)
-      setResultado((r) => ({ ...r, convite: dados.convite }))
+      setResultado((atual) =>
+        atual ? { ...atual, convite: dados.convite } : atual,
+      )
       setCopiado(false)
     } catch (erro) {
       setFeedback({ tipo: 'erro', texto: mensagemErro(erro) })
@@ -126,15 +150,15 @@ function NovaPaciente({ aoCadastrar }) {
           onClick={fechar}
           aria-label="Fechar cadastro"
         >
-          ×
+          x
         </button>
       </div>
 
       {resultado ? (
         <div className="nova-paciente__sucesso" data-cy="nova-paciente-sucesso">
           <p className="nova-paciente__ok">
-            <strong>{resultado.paciente.nome_completo}</strong> cadastrada. Envie
-            o link de primeiro acesso (válido por 48h):
+            <strong>{resultado.paciente.nome_completo}</strong> cadastrada.
+            Envie o link de primeiro acesso (valido por 48h):
           </p>
           <input
             className="nova-paciente__link"
@@ -164,7 +188,7 @@ function NovaPaciente({ aoCadastrar }) {
             </button>
           </div>
           <p className="nova-paciente__aviso">
-            A conta só é ativada quando a paciente define a própria senha pelo
+            A conta so e ativada quando a paciente define a propria senha pelo
             link.
           </p>
           {feedback ? (
@@ -214,7 +238,7 @@ function NovaPaciente({ aoCadastrar }) {
             Telefone (opcional)
             <input
               type="tel"
-              value={form.telefone}
+              value={form.telefone ?? ''}
               onChange={(e) => atualizar('telefone', e.target.value)}
               data-cy="nova-paciente-telefone"
               autoComplete="off"
@@ -224,7 +248,7 @@ function NovaPaciente({ aoCadastrar }) {
             Data de nascimento (opcional)
             <input
               type="date"
-              value={form.data_nascimento}
+              value={form.data_nascimento ?? ''}
               onChange={(e) => atualizar('data_nascimento', e.target.value)}
               data-cy="nova-paciente-nascimento"
             />
@@ -246,7 +270,7 @@ function NovaPaciente({ aoCadastrar }) {
             disabled={enviando}
             data-cy="nova-paciente-enviar"
           >
-            {enviando ? 'Cadastrando…' : 'Cadastrar e gerar link'}
+            {enviando ? 'Cadastrando...' : 'Cadastrar e gerar link'}
           </button>
         </form>
       )}

@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import Button from '../../components/Button/Button'
 import ConfirmDialog from '../../components/ui/ConfirmDialog/ConfirmDialog'
 import {
@@ -13,6 +14,8 @@ import {
   excluirTermo,
   listarTermos,
 } from '../../services/adminService'
+import type { ErroRequisicao } from '../../services/api'
+import type { TermoAdmin } from '../../types'
 import './Gestao.css'
 
 const FORM_VAZIO = {
@@ -23,17 +26,26 @@ const FORM_VAZIO = {
   ativo: true,
 }
 
+interface Feedback {
+  tipo: 'erro' | 'sucesso'
+  texto: string
+}
+
+interface DetalheTermo {
+  termo?: string[]
+}
+
 function GestaoDicionario() {
-  const [termos, setTermos] = useState([])
+  const [termos, setTermos] = useState<TermoAdmin[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 
   const [form, setForm] = useState(FORM_VAZIO)
-  const [editandoId, setEditandoId] = useState(null)
+  const [editandoId, setEditandoId] = useState<number | null>(null)
   const [enviando, setEnviando] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
 
-  const [excluindo, setExcluindo] = useState(null)
+  const [excluindo, setExcluindo] = useState<TermoAdmin | null>(null)
   const [removendo, setRemovendo] = useState(false)
 
   const [recarregar, setRecarregar] = useState(0)
@@ -64,7 +76,7 @@ function GestaoDicionario() {
     setFeedback(null)
   }
 
-  function iniciarEdicao(termo) {
+  function iniciarEdicao(termo: TermoAdmin) {
     setEditandoId(termo.id)
     setForm({
       termo: termo.termo,
@@ -76,7 +88,7 @@ function GestaoDicionario() {
     setFeedback(null)
   }
 
-  async function enviar(evento) {
+  async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     if (!form.termo.trim() || !form.definicao.trim()) {
       setFeedback({ tipo: 'erro', texto: 'Informe o termo e a definição.' })
@@ -97,10 +109,12 @@ function GestaoDicionario() {
       setRecarregar((n) => n + 1)
     } catch (erroReq) {
       // Mostra a mensagem do backend quando houver (ex.: termo duplicado).
-      const detalhe = erroReq?.detalhe?.termo?.[0]
+      const detalhe = (erroReq as ErroRequisicao)?.detalhe as
+        | DetalheTermo
+        | undefined
       setFeedback({
         tipo: 'erro',
-        texto: detalhe || 'Não foi possível salvar o termo.',
+        texto: detalhe?.termo?.[0] || 'Não foi possível salvar o termo.',
       })
     } finally {
       setEnviando(false)

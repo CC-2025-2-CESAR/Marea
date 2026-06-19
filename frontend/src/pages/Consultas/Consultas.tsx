@@ -6,9 +6,10 @@ import LegendaCiclo from '../../components/LegendaCiclo/LegendaCiclo'
 import { useMarcacoesCiclo } from '../../hooks/useMarcacoesCiclo'
 import { listarConsultas, listarEventos } from '../../services/consultasService'
 import { listarMedicamentos } from '../../services/medicamentosService'
+import type { Consulta, EventoTratamento, Medicamento } from '../../types'
 import './Consultas.css'
 
-function formatarDataCurta(iso) {
+function formatarDataCurta(iso?: string) {
   if (!iso) return ''
   const data = new Date(iso)
   return data.toLocaleString('pt-BR', {
@@ -17,7 +18,7 @@ function formatarDataCurta(iso) {
   })
 }
 
-function formatarHorario(iso) {
+function formatarHorario(iso?: string) {
   if (!iso) return ''
   const data = new Date(iso)
   return data.toLocaleTimeString('pt-BR', {
@@ -27,11 +28,11 @@ function formatarHorario(iso) {
 }
 
 function Consultas() {
-  const [consultas, setConsultas] = useState([])
-  const [eventos, setEventos] = useState([])
-  const [medicamentos, setMedicamentos] = useState([])
+  const [consultas, setConsultas] = useState<Consulta[]>([])
+  const [eventos, setEventos] = useState<EventoTratamento[]>([])
+  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   // Marcações do ciclo (menstruação/fértil/ovulação/previsão) no mesmo
   // calendário das consultas — uma visão única do mês. O ciclo é secundário
@@ -48,7 +49,7 @@ function Consultas() {
           await Promise.all([
             listarConsultas(),
             listarEventos(),
-            listarMedicamentos().catch(() => []),
+            listarMedicamentos().catch(() => [] as Medicamento[]),
           ])
         if (!cancelado) {
           setConsultas(Array.isArray(dadosConsultas) ? dadosConsultas : [])
@@ -81,7 +82,9 @@ function Consultas() {
     return agendadas
       .filter((c) => new Date(c.data_horario) >= agora)
       .sort(
-        (a, b) => new Date(a.data_horario) - new Date(b.data_horario),
+        (a, b) =>
+          new Date(a.data_horario).getTime() -
+          new Date(b.data_horario).getTime(),
       )
       .slice(0, 5)
   }, [agendadas])
@@ -90,7 +93,11 @@ function Consultas() {
     const agora = new Date()
     return eventos
       .filter((e) => new Date(e.data_horario) >= agora)
-      .sort((a, b) => new Date(a.data_horario) - new Date(b.data_horario))
+      .sort(
+        (a, b) =>
+          new Date(a.data_horario).getTime() -
+          new Date(b.data_horario).getTime(),
+      )
       .slice(0, 5)
   }, [eventos])
 
@@ -160,7 +167,13 @@ function Consultas() {
   )
 }
 
-function PainelProximas({ proximas, totalCadastrado }) {
+function PainelProximas({
+  proximas,
+  totalCadastrado,
+}: {
+  proximas: Consulta[]
+  totalCadastrado: number
+}) {
   if (totalCadastrado === 0) {
     return (
       <div
@@ -233,7 +246,13 @@ function PainelProximas({ proximas, totalCadastrado }) {
   )
 }
 
-function PainelEventos({ proximos, total }) {
+function PainelEventos({
+  proximos,
+  total,
+}: {
+  proximos: EventoTratamento[]
+  total: number
+}) {
   return (
     <div
       className="painel-card painel-card--eventos"

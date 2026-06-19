@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import type { FormEvent } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
+import { useAuth } from '../../contexts/useAuth'
 import {
-  redefinirSenha,
-  validarRedefinicao,
-} from '../../services/recuperacaoService'
-import './Redefinicao.css'
+  definirSenhaConvite,
+  detalharConvite,
+} from '../../services/conviteService'
+import type { ErroRequisicao } from '../../services/api'
+import type { ConviteDetalhe } from '../../types'
+import './Ativacao.css'
 
-function IconeOlho({ aberto }) {
+function IconeOlho({ aberto }: { aberto: boolean }) {
   if (aberto) {
     return (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -38,16 +42,28 @@ function IconeOlho({ aberto }) {
   )
 }
 
-const MENSAGEM_INVALIDO = {
-  expirado:
-    'Este link de redefinição expirou. Solicite um novo na tela de recuperação.',
-  usado: 'Este link já foi utilizado. Se você já redefiniu a senha, faça login.',
-  nao_encontrado: 'Link de redefinição não encontrado. Confira o endereço.',
-  falha: 'Não foi possível validar o link agora. Tente novamente em instantes.',
+type MotivoInvalido = 'expirado' | 'usado' | 'nao_encontrado' | 'falha'
+
+// Mensagem mostrada quando o convite não pode ser usado.
+const MENSAGEM_INVALIDO: Record<MotivoInvalido, string> = {
+  expirado: 'Este convite expirou. Solicite um novo link à clínica.',
+  usado: 'Este convite já foi utilizado. Se você já criou sua senha, faça login.',
+  nao_encontrado: 'Convite não encontrado. Confira o link com a clínica.',
+  falha: 'Não foi possível validar o convite agora. Tente novamente em instantes.',
 }
 
-function mensagemErroSenha(erro) {
-  const detalhe = erro?.detalhe
+interface DetalheSenha {
+  password?: string[]
+  detail?: string
+}
+
+interface Feedback {
+  tipo: 'erro' | 'sucesso'
+  texto: string
+}
+
+function mensagemErroSenha(erro: ErroRequisicao): string {
+  const detalhe = erro?.detalhe as DetalheSenha | undefined
   if (detalhe && typeof detalhe === 'object') {
     if (Array.isArray(detalhe.password) && detalhe.password.length) {
       return detalhe.password.join(' ')
@@ -57,36 +73,44 @@ function mensagemErroSenha(erro) {
     }
   }
   if (erro?.status === 404) {
-    return 'Link de redefinição não encontrado. Confira o endereço.'
+    return 'Convite não encontrado. Confira o link com a clínica.'
   }
-  return 'Não foi possível redefinir a senha agora. Tente novamente.'
+  return 'Não foi possível definir a senha agora. Tente novamente.'
 }
 
-function Redefinicao() {
+function Ativacao() {
   const { token } = useParams()
+  const navegar = useNavigate()
+  const { iniciarSessao } = useAuth()
 
   const [carregando, setCarregando] = useState(true)
-  const [motivoInvalido, setMotivoInvalido] = useState(null)
-  const [concluido, setConcluido] = useState(false)
+  const [convite, setConvite] = useState<ConviteDetalhe | null>(null)
+  const [motivoInvalido, setMotivoInvalido] = useState<MotivoInvalido | null>(
+    null,
+  )
 
   const [senha, setSenha] = useState('')
   const [confirmar, setConfirmar] = useState('')
   const [mostrarSenha, setMostrarSenha] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [enviando, setEnviando] = useState(false)
 
   useEffect(() => {
     let cancelado = false
     async function carregar() {
       try {
-        const dados = await validarRedefinicao(token)
+        const dados = await detalharConvite(token ?? '')
         if (cancelado) return
-        if (!dados.valido) {
+        if (dados.valido) {
+          setConvite(dados)
+        } else {
           setMotivoInvalido(dados.status === 'usado' ? 'usado' : 'expirado')
         }
       } catch (erro) {
         if (cancelado) return
-        setMotivoInvalido(erro?.status === 404 ? 'nao_encontrado' : 'falha')
+        setMotivoInvalido(
+          (erro as ErroRequisicao)?.status === 404 ? 'nao_encontrado' : 'falha',
+        )
       } finally {
         if (!cancelado) setCarregando(false)
       }
@@ -97,11 +121,14 @@ function Redefinicao() {
     }
   }, [token])
 
-  async function handleSubmit(evento) {
+  async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
 
     if (!senha || !confirmar) {
-      setFeedback({ tipo: 'erro', texto: 'Crie e confirme a sua nova senha.' })
+      setFeedback({
+        tipo: 'erro',
+        texto: 'Crie e confirme sua senha para continuar.',
+      })
       return
     }
     if (senha !== confirmar) {
@@ -112,80 +139,75 @@ function Redefinicao() {
     setEnviando(true)
     setFeedback(null)
     try {
-      await redefinirSenha(token, senha)
-      setConcluido(true)
+      const sessao = await definirSenhaConvite(token ?? '', senha)
+      const usuario = iniciarSessao(sessao)
+      navegar(
+        usuario?.tipo_usuario === 'medica' ? '/area-medica' : '/perfil',
+        { replace: true },
+      )
     } catch (erro) {
-      setFeedback({ tipo: 'erro', texto: mensagemErroSenha(erro) })
+      setFeedback({ tipo: 'erro', texto: mensagemErroSenha(erro as ErroRequisicao) })
       setEnviando(false)
     }
   }
 
   return (
-    <main className="redefinicao-tela" data-cy="page-redefinicao">
+    <main className="ativacao-tela" data-cy="page-ativacao">
       <motion.section
-        className="redefinicao-card"
+        className="ativacao-card"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
       >
-        <img className="redefinicao-logo" src={logoAmare} alt="Amare" data-cy="amare-logo" />
+        <img className="ativacao-logo" src={logoAmare} alt="Amare" data-cy="amare-logo" />
 
         {carregando ? (
-          <p className="redefinicao-sub" data-cy="redefinicao-carregando">
-            Validando o link…
+          <p className="ativacao-sub" data-cy="ativacao-carregando">
+            Validando seu convite…
           </p>
-        ) : concluido ? (
-          <div className="redefinicao-sucesso" data-cy="redefinicao-sucesso">
-            <h1 className="redefinicao-titulo">Senha redefinida</h1>
-            <p className="redefinicao-sub">
-              Tudo certo! Agora é só entrar com a sua nova senha.
-            </p>
-            <Link className="redefinicao-voltar" to="/login" data-cy="redefinicao-ir-login">
-              Ir para o login
-            </Link>
-          </div>
         ) : motivoInvalido ? (
-          <div className="redefinicao-invalido" data-cy="redefinicao-invalido">
-            <h1 className="redefinicao-titulo">Link indisponível</h1>
-            <p className="redefinicao-sub">{MENSAGEM_INVALIDO[motivoInvalido]}</p>
-            <Link
-              className="redefinicao-voltar"
-              to="/recuperar"
-              data-cy="redefinicao-ir-recuperar"
-            >
-              Pedir um novo link
+          <div className="ativacao-invalido" data-cy="ativacao-invalido">
+            <h1 className="ativacao-titulo">Convite indisponível</h1>
+            <p className="ativacao-sub">{MENSAGEM_INVALIDO[motivoInvalido]}</p>
+            <Link className="ativacao-voltar" to="/login" data-cy="ativacao-ir-login">
+              Ir para o login
             </Link>
           </div>
         ) : (
           <>
-            <div className="redefinicao-intro">
-              <h1 className="redefinicao-titulo">Criar nova senha</h1>
-              <p className="redefinicao-sub">
-                Escolha uma nova senha para a sua conta.
+            <div className="ativacao-intro">
+              <h1 className="ativacao-titulo">Bem-vinda à Amare</h1>
+              <p className="ativacao-sub">
+                Olá,{' '}
+                <span className="ativacao-nome" data-cy="ativacao-nome">
+                  {convite?.nome}
+                </span>
+                . Crie sua senha para ativar o acesso de{' '}
+                <span className="ativacao-email">{convite?.email}</span>.
               </p>
             </div>
 
-            <form className="redefinicao-form" onSubmit={handleSubmit} noValidate>
+            <form className="ativacao-form" onSubmit={handleSubmit} noValidate>
               <InputField
                 id="senha"
                 name="senha"
-                label="Nova senha"
+                label="Senha"
                 type={mostrarSenha ? 'text' : 'password'}
                 value={senha}
                 onChange={(e) => {
                   setSenha(e.target.value)
                   setFeedback(null)
                 }}
-                placeholder="crie uma nova senha"
+                placeholder="crie uma senha"
                 autoComplete="new-password"
-                dataCy="redefinicao-senha"
+                dataCy="ativacao-senha"
                 trailing={
                   <button
                     type="button"
-                    className="redefinicao-olho"
+                    className="ativacao-olho"
                     onClick={() => setMostrarSenha((v) => !v)}
                     aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
-                    data-cy="redefinicao-toggle-password"
+                    data-cy="ativacao-toggle-password"
                   >
                     <IconeOlho aberto={mostrarSenha} />
                   </button>
@@ -195,19 +217,19 @@ function Redefinicao() {
               <InputField
                 id="confirmar"
                 name="confirmar"
-                label="Confirmar nova senha"
+                label="Confirmar senha"
                 type={mostrarSenha ? 'text' : 'password'}
                 value={confirmar}
                 onChange={(e) => {
                   setConfirmar(e.target.value)
                   setFeedback(null)
                 }}
-                placeholder="repita a nova senha"
+                placeholder="repita a senha"
                 autoComplete="new-password"
-                dataCy="redefinicao-confirmar"
+                dataCy="ativacao-confirmar"
               />
 
-              <p className="redefinicao-ajuda">
+              <p className="ativacao-ajuda">
                 Use ao menos 8 caracteres, evitando senhas óbvias ou só números.
               </p>
 
@@ -215,9 +237,9 @@ function Redefinicao() {
                 {feedback ? (
                   <motion.p
                     key={feedback.texto}
-                    className={`redefinicao-feedback redefinicao-feedback--${feedback.tipo}`}
+                    className={`ativacao-feedback ativacao-feedback--${feedback.tipo}`}
                     role="alert"
-                    data-cy="redefinicao-feedback"
+                    data-cy="ativacao-feedback"
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
@@ -228,8 +250,8 @@ function Redefinicao() {
                 ) : null}
               </AnimatePresence>
 
-              <Button type="submit" dataCy="redefinicao-submit" disabled={enviando}>
-                {enviando ? 'Salvando…' : 'Redefinir senha'}
+              <Button type="submit" dataCy="ativacao-submit" disabled={enviando}>
+                {enviando ? 'Ativando…' : 'Definir senha e entrar'}
               </Button>
             </form>
           </>
@@ -239,4 +261,4 @@ function Redefinicao() {
   )
 }
 
-export default Redefinicao
+export default Ativacao

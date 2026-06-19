@@ -6,9 +6,10 @@
 
 import { useEffect, useState } from 'react'
 import { listarLogs } from '../../services/adminService'
+import type { LogAtividade } from '../../types'
 import './Gestao.css'
 
-function formatarDataHora(iso) {
+function formatarDataHora(iso?: string) {
   if (!iso) return ''
   try {
     return new Date(iso).toLocaleString('pt-BR', {
@@ -24,7 +25,7 @@ function formatarDataHora(iso) {
 }
 
 function GestaoLogs() {
-  const [logs, setLogs] = useState([])
+  const [logs, setLogs] = useState<LogAtividade[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 
