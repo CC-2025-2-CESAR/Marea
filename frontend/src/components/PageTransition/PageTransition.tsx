@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useLocation } from 'react-router-dom'
 
@@ -16,7 +17,7 @@ import { useLocation } from 'react-router-dom'
  *   ou refresh entram instantâneos).
  * - key={pathname}: sinaliza a troca de rota para o AnimatePresence.
  */
-function PageTransition({ children }) {
+function PageTransition({ children }: { children: ReactNode }) {
   const local = useLocation()
   const movimentoReduzido = useReducedMotion()
 

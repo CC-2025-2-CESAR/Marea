@@ -5,20 +5,21 @@ import {
   alternarTomada,
   listarMedicamentos,
 } from '../../services/medicamentosService'
+import type { Medicamento, StatusDiaMedicamento } from '../../types'
 import './ChecklistMedicamentos.css'
 
-function formatarHorario(horario) {
+function formatarHorario(horario?: string) {
   if (!horario) return 'sem horário fixo'
   return horario.slice(0, 5)
 }
 
-const ROTULO_STATUS = {
+const ROTULO_STATUS: Record<StatusDiaMedicamento, string> = {
   tomado: 'Tomado',
   atrasado: 'Atrasado',
   pendente: 'Pendente',
 }
 
-const TOM_STATUS = {
+const TOM_STATUS: Record<StatusDiaMedicamento, 'sucesso' | 'aviso' | 'neutro'> = {
   tomado: 'sucesso',
   atrasado: 'aviso',
   pendente: 'neutro',
@@ -27,16 +28,20 @@ const TOM_STATUS = {
 // Resolve o status do dia de um medicamento para exibição. Dá prioridade ao
 // `tomado` local (atualização otimista ao marcar) e cai no `status_dia` vindo
 // da API; sem dado, assume "pendente".
-function statusDoDia(medicamento) {
+function statusDoDia(medicamento: Medicamento): StatusDiaMedicamento {
   if (medicamento.tomado) return 'tomado'
   return medicamento.status_dia || 'pendente'
 }
 
-function ChecklistMedicamentos({ modo = 'completo' }) {
-  const [medicamentos, setMedicamentos] = useState([])
+interface ChecklistMedicamentosProps {
+  modo?: 'completo' | 'compacto'
+}
+
+function ChecklistMedicamentos({ modo = 'completo' }: ChecklistMedicamentosProps) {
+  const [medicamentos, setMedicamentos] = useState<Medicamento[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erroCarregamento, setErroCarregamento] = useState(null)
-  const [erroAtualizacao, setErroAtualizacao] = useState(null)
+  const [erroCarregamento, setErroCarregamento] = useState<string | null>(null)
+  const [erroAtualizacao, setErroAtualizacao] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelado = false
@@ -62,7 +67,7 @@ function ChecklistMedicamentos({ modo = 'completo' }) {
     }
   }, [])
 
-  async function aoAlternar(medicamento) {
+  async function aoAlternar(medicamento: Medicamento) {
     const estadoAnterior = medicamento.tomado
     const novoEstado = !estadoAnterior
 

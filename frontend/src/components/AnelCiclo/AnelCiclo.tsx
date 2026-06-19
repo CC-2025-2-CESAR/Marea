@@ -7,7 +7,7 @@ import './AnelCiclo.css'
 const RAIO = 52
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO
 
-function textoRestante(diasParaProxima, atrasada) {
+function textoRestante(diasParaProxima: number, atrasada: boolean) {
   if (atrasada) {
     const dias = Math.abs(diasParaProxima)
     return `menstruação prevista há ${dias} ${dias === 1 ? 'dia' : 'dias'}`
@@ -18,6 +18,15 @@ function textoRestante(diasParaProxima, atrasada) {
   } nesse ciclo`
 }
 
+interface AnelCicloProps {
+  etapa?: string
+  etapaDisplay?: string
+  diaDoCiclo?: number
+  totalDoCiclo?: number
+  diasParaProxima?: number
+  atrasada?: boolean
+}
+
 function AnelCiclo({
   etapa = 'menstruacao',
   etapaDisplay = '',
@@ -25,7 +34,7 @@ function AnelCiclo({
   totalDoCiclo = 28,
   diasParaProxima = 0,
   atrasada = false,
-}) {
+}: AnelCicloProps) {
   const fracao = Math.min(1, Math.max(0, diaDoCiclo / (totalDoCiclo || 1)))
   const preenchido = fracao * CIRCUNFERENCIA
 

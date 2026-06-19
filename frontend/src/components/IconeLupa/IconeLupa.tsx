@@ -1,4 +1,9 @@
-function IconeLupa({ tamanho = 20, className }) {
+interface IconeLupaProps {
+  tamanho?: number
+  className?: string
+}
+
+function IconeLupa({ tamanho = 20, className }: IconeLupaProps) {
   return (
     <svg
       className={className}

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listarProximasConsultas } from '../../services/consultasService'
+import type { Consulta } from '../../types'
 import './BannerProximaConsulta.css'
 
-function formatarHorario(iso) {
+function formatarHorario(iso?: string) {
   if (!iso) return ''
   const data = new Date(iso)
   return data.toLocaleString('pt-BR', {
@@ -16,7 +17,7 @@ function formatarHorario(iso) {
 }
 
 function BannerProximaConsulta() {
-  const [proxima, setProxima] = useState(null)
+  const [proxima, setProxima] = useState<Consulta | null>(null)
   const [restantes, setRestantes] = useState(0)
 
   useEffect(() => {

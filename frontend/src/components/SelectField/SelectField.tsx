@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import IconeChevron from '../IconeChevron/IconeChevron'
+import type { OpcaoSelect } from '../../types'
 import './SelectField.css'
 
 /**
@@ -8,34 +10,39 @@ import './SelectField.css'
  *
  * Existe porque o <select> nativo abre o dropdown do sistema operacional
  * e não permite animar nem estilizar a abertura. Para campos onde a
- * sensação de fluidez importa (ex.: tipo sanguíneo no perfil), este
- * componente entrega abertura suave com Motion, navegação por teclado
- * e ARIA combobox/listbox/option.
+ * sensação de fluidez importa, este componente entrega abertura suave com
+ * Motion, navegação por teclado e ARIA combobox/listbox/option.
+ *
+ * É genérico em `T extends string`: o valor e as opções compartilham o mesmo
+ * tipo (ex.: `EtapaCiclo`), então o `onChange` devolve exatamente esse tipo
+ * — sem `as` no consumidor.
  *
  * Props:
- * - id (string, obrigatório): id base, usado também para a label e o
- *   aria-controls do listbox.
- * - label (string, opcional): rótulo visível acima do campo.
- * - value (string): valor atualmente selecionado.
+ * - id (obrigatório): id base, usado também para a label e o aria-controls.
+ * - label (opcional): rótulo visível acima do campo.
+ * - value: valor atualmente selecionado.
  * - onChange(novoValor): chamado quando a paciente escolhe uma opção.
  * - opcoes: array de { valor, rotulo }.
- * - dataCy (string): vai no <button> raiz (mantém compatibilidade com
- *   testes que esperam `[data-cy=...]` no campo). Cada opção recebe
- *   `${dataCy}-opcao-${valor}`.
- * - placeholder (string, opcional): texto exibido quando value não bate
- *   com nenhuma opção.
- * - disabled (bool, opcional).
+ * - dataCy: vai no <button> raiz; cada opção recebe `${dataCy}-opcao-${valor}`.
+ * - placeholder (opcional): texto quando value não bate com nenhuma opção.
+ * - disabled (opcional).
  *
- * Teclado:
- * - Setas ↑ / ↓ movem o destaque (abrem se fechado).
- * - Enter / Espaço abrem ou confirmam o destaque.
- * - Esc fecha e devolve foco ao botão.
- * - Tab fecha e deixa o navegador seguir o fluxo.
- *
- * O click-outside é tratado por um listener global de mousedown que
- * fecha a lista quando o clique sai do contêiner.
+ * Teclado: ↑/↓ movem o destaque (abrem se fechado); Enter/Espaço abrem ou
+ * confirmam; Esc fecha e devolve o foco; Tab fecha e segue o fluxo. O
+ * click-outside é tratado por um listener global de mousedown.
  */
-function SelectField({
+interface SelectFieldProps<T extends string> {
+  id: string
+  label?: string
+  value: T
+  onChange?: (valor: T) => void
+  opcoes: OpcaoSelect<T>[]
+  dataCy?: string
+  placeholder?: string
+  disabled?: boolean
+}
+
+function SelectField<T extends string>({
   id,
   label,
   value,
@@ -44,14 +51,14 @@ function SelectField({
   dataCy,
   placeholder = 'Selecione',
   disabled = false,
-}) {
+}: SelectFieldProps<T>) {
   const [aberto, setAberto] = useState(false)
   const [destacado, setDestacado] = useState(() => {
     const indice = opcoes.findIndex((o) => o.valor === value)
     return indice >= 0 ? indice : 0
   })
-  const containerRef = useRef(null)
-  const botaoRef = useRef(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const botaoRef = useRef<HTMLButtonElement>(null)
   const idGerado = useId()
   const movimentoReduzido = useReducedMotion()
 
@@ -64,9 +71,9 @@ function SelectField({
   // Fecha ao clicar fora.
   useEffect(() => {
     if (!aberto) return undefined
-    function aoMousedown(evento) {
+    function aoMousedown(evento: MouseEvent) {
       if (!containerRef.current) return
-      if (!containerRef.current.contains(evento.target)) {
+      if (!containerRef.current.contains(evento.target as Node)) {
         setAberto(false)
       }
     }
@@ -81,14 +88,14 @@ function SelectField({
     setAberto(true)
   }
 
-  function fechar({ devolverFoco = true } = {}) {
+  function fechar({ devolverFoco = true }: { devolverFoco?: boolean } = {}) {
     setAberto(false)
     if (devolverFoco && botaoRef.current) {
       botaoRef.current.focus()
     }
   }
 
-  function selecionar(novoValor) {
+  function selecionar(novoValor: T) {
     onChange?.(novoValor)
     fechar()
   }
@@ -101,7 +108,7 @@ function SelectField({
     }
   }
 
-  function aoTeclarBotao(evento) {
+  function aoTeclarBotao(evento: KeyboardEvent<HTMLButtonElement>) {
     if (disabled) return
     if (evento.key === 'ArrowDown' || evento.key === 'ArrowUp') {
       evento.preventDefault()

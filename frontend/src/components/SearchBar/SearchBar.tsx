@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import IconeLupa from '../IconeLupa/IconeLupa'
 import './SearchBar.css'
@@ -12,7 +13,7 @@ function SearchBar() {
   const navegar = useNavigate()
   const [termo, setTermo] = useState('')
 
-  function handleSubmit(evento) {
+  function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     const q = termo.trim()
     if (!q) {
@@ -45,7 +46,9 @@ function SearchBar() {
         placeholder="Buscar na Amare"
         aria-label="Buscar na Amare"
         value={termo}
-        onChange={(evento) => setTermo(evento.target.value)}
+        onChange={(evento: ChangeEvent<HTMLInputElement>) =>
+          setTermo(evento.target.value)
+        }
         data-cy="app-search-input"
       />
     </form>
