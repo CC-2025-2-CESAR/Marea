@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { FormEvent } from 'react'
 import Button from '../../components/Button/Button'
 import InputField from '../../components/InputField/InputField'
 import SelectField from '../../components/SelectField/SelectField'
@@ -10,6 +11,7 @@ import {
   excluirSintoma,
   listarSintomas,
 } from '../../services/sintomasService'
+import type { RegistroSintoma } from '../../types'
 import './Sintomas.css'
 
 const OPCOES_INTENSIDADE = [
@@ -25,30 +27,30 @@ function hojeISO() {
   return new Date().toISOString().slice(0, 10)
 }
 
-function formatarData(iso) {
+function formatarData(iso?: string) {
   if (!iso) return ''
   const [ano, mes, dia] = iso.split('-')
   return `${dia}/${mes}/${ano}`
 }
 
 function Sintomas() {
-  const [registros, setRegistros] = useState([])
+  const [registros, setRegistros] = useState<RegistroSintoma[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   const [data, setData] = useState(hojeISO())
   const [tipo, setTipo] = useState('')
   const [descricao, setDescricao] = useState('')
   const [intensidade, setIntensidade] = useState('')
-  const [editandoId, setEditandoId] = useState(null)
+  const [editandoId, setEditandoId] = useState<number | null>(null)
 
   const [enviando, setEnviando] = useState(false)
-  const [erroEnvio, setErroEnvio] = useState(null)
-  const [confirmandoId, setConfirmandoId] = useState(null)
+  const [erroEnvio, setErroEnvio] = useState<string | null>(null)
+  const [confirmandoId, setConfirmandoId] = useState<number | null>(null)
   const [excluindo, setExcluindo] = useState(false)
 
   const { mostrarToast } = useToast()
-  const formRef = useRef(null)
+  const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     let cancelado = false
@@ -87,9 +89,9 @@ function Sintomas() {
     setErroEnvio(null)
   }
 
-  function iniciarEdicao(registro) {
+  function iniciarEdicao(registro: RegistroSintoma) {
     setEditandoId(registro.id)
-    setData(registro.data)
+    setData(registro.data ?? '')
     setTipo(registro.tipo || '')
     setDescricao(registro.descricao || '')
     setIntensidade(registro.intensidade ? String(registro.intensidade) : '')
@@ -97,7 +99,7 @@ function Sintomas() {
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
-  async function handleSubmit(evento) {
+  async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     setErroEnvio(null)
 
@@ -134,7 +136,7 @@ function Sintomas() {
     }
   }
 
-  async function confirmarExclusao(id) {
+  async function confirmarExclusao(id: number) {
     setExcluindo(true)
     try {
       await excluirSintoma(id)

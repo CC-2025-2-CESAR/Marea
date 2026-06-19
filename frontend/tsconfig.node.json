@@ -5,10 +5,10 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "skipLibCheck": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "strict": true,
     "noEmit": true
   },
-  "include": ["vite.config.js"]
+  "include": ["vite.config.ts"]
 }

@@ -1,13 +1,13 @@
 /**
- * Pacientes — "casa" das usuárias com papel de médica.
+ * Pacientes - "casa" das usuarias com papel de medica.
  *
- * Antes era uma tela autônoma; agora vive dentro do mesmo shell da paciente
- * (header, busca, rodapé, transição, drawer), com a navegação por papel na
- * Sidebar. Mostra as pacientes da clínica em abas (Minhas / Compartilhadas /
+ * Antes era uma tela autonoma; agora vive dentro do mesmo shell da paciente
+ * (header, busca, rodape, transicao, drawer), com a navegacao por papel na
+ * Sidebar. Mostra as pacientes da clinica em abas (Minhas / Compartilhadas /
  * Todas) e, ao selecionar uma, o painel de detalhe com o status de acesso.
  *
- * O escopo (quais pacientes aparecem) e a permissão de escrita são sempre
- * decididos pelo backend; aqui as abas só organizam o que ele já devolveu.
+ * O escopo (quais pacientes aparecem) e a permissao de escrita sao sempre
+ * decididos pelo backend; aqui as abas so organizam o que ele ja devolveu.
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -15,17 +15,22 @@ import { useAuth } from '../../contexts/useAuth'
 import { listarPacientes } from '../../services/medicaService'
 import Tabs from '../../components/ui/Tabs/Tabs'
 import StatusBadge from '../../components/ui/StatusBadge/StatusBadge'
+import type { PacienteResumo } from '../../types'
 import DetalhePaciente from './DetalhePaciente'
 import NovaPaciente from './NovaPaciente'
 import { ROTULO_CURTO_PAPEL, tomDoPapel } from './permissaoUi'
 import './AreaMedica.css'
 
-// Abas: cada uma é um filtro sobre o papel de acesso da médica à paciente.
 const ABA_MINHAS = 'minhas'
 const ABA_COMPARTILHADAS = 'compartilhadas'
 const ABA_TODAS = 'todas'
 
-function pertenceAAba(paciente, aba) {
+type AbaPacientes =
+  | typeof ABA_MINHAS
+  | typeof ABA_COMPARTILHADAS
+  | typeof ABA_TODAS
+
+function pertenceAAba(paciente: PacienteResumo, aba: AbaPacientes): boolean {
   const papel = paciente.permissao?.papel
   if (aba === ABA_MINHAS) return papel === 'responsavel'
   if (aba === ABA_COMPARTILHADAS) return papel === 'assumido'
@@ -35,14 +40,14 @@ function pertenceAAba(paciente, aba) {
 function AreaMedica() {
   const { usuario } = useAuth()
 
-  const [pacientes, setPacientes] = useState([])
+  const [pacientes, setPacientes] = useState<PacienteResumo[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
-  const [selecionadaId, setSelecionadaId] = useState(null)
-  const [aba, setAba] = useState(ABA_MINHAS)
+  const [selecionadaId, setSelecionadaId] = useState<number | null>(null)
+  const [aba, setAba] = useState<AbaPacientes>(ABA_MINHAS)
   const [recarregarLista, setRecarregarLista] = useState(0)
 
-  const nome = usuario?.nome_completo?.trim() || 'médica'
+  const nome = usuario?.nome_completo?.trim() || 'medica'
 
   useEffect(() => {
     let cancelado = false
@@ -82,13 +87,21 @@ function AreaMedica() {
   )
 
   const abas = [
-    { id: ABA_MINHAS, rotulo: `Minhas (${contagens[ABA_MINHAS]})`, dataCy: 'aba-minhas' },
+    {
+      id: ABA_MINHAS,
+      rotulo: `Minhas (${contagens[ABA_MINHAS]})`,
+      dataCy: 'aba-minhas',
+    },
     {
       id: ABA_COMPARTILHADAS,
       rotulo: `Compartilhadas (${contagens[ABA_COMPARTILHADAS]})`,
       dataCy: 'aba-compartilhadas',
     },
-    { id: ABA_TODAS, rotulo: `Todas (${contagens[ABA_TODAS]})`, dataCy: 'aba-todas' },
+    {
+      id: ABA_TODAS,
+      rotulo: `Todas (${contagens[ABA_TODAS]})`,
+      dataCy: 'aba-todas',
+    },
   ]
 
   const semPacientes = !carregando && !erro && visiveis.length === 0
@@ -97,7 +110,7 @@ function AreaMedica() {
     <div className="area-medica" data-cy="page-area-medica">
       <header className="area-medica__cabecalho">
         <h1 className="area-medica__titulo">Pacientes</h1>
-        <p className="area-medica__saudacao">Olá, {nome}.</p>
+        <p className="area-medica__saudacao">Ola, {nome}.</p>
       </header>
 
       <div className="area-medica__conteudo">
@@ -107,8 +120,8 @@ function AreaMedica() {
           <Tabs
             abas={abas}
             ativa={aba}
-            onMudar={setAba}
-            rotuloLista="Filtrar pacientes por vínculo"
+            onMudar={(id) => setAba(id as AbaPacientes)}
+            rotuloLista="Filtrar pacientes por vinculo"
             dataCy="abas-pacientes"
           />
 
@@ -118,16 +131,16 @@ function AreaMedica() {
             role="tabpanel"
             aria-labelledby={`tab-${aba}`}
           >
-            {carregando && <p className="area-medica__estado">Carregando…</p>}
+            {carregando && <p className="area-medica__estado">Carregando...</p>}
             {erro && (
               <p className="area-medica__estado">
-                Não foi possível carregar as pacientes.
+                Nao foi possivel carregar as pacientes.
               </p>
             )}
             {semPacientes && (
               <p className="area-medica__estado" data-cy="lista-vazia">
                 {aba === ABA_TODAS
-                  ? 'Nenhuma paciente na clínica ainda.'
+                  ? 'Nenhuma paciente na clinica ainda.'
                   : 'Nenhuma paciente nesta aba.'}
               </p>
             )}
@@ -159,7 +172,7 @@ function AreaMedica() {
                       ) : null}
                     </span>
                     <span className="area-medica__paciente-meta">
-                      {paciente.total_consultas ?? 0} consulta(s) ·{' '}
+                      {paciente.total_consultas ?? 0} consulta(s) -{' '}
                       {paciente.total_medicamentos ?? 0} medicamento(s)
                     </span>
                   </button>
@@ -178,7 +191,7 @@ function AreaMedica() {
             />
           ) : (
             <p className="area-medica__placeholder">
-              Selecione uma paciente à esquerda para ver e gerenciar consultas e
+              Selecione uma paciente a esquerda para ver e gerenciar consultas e
               medicamentos.
             </p>
           )}

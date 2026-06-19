@@ -12,7 +12,7 @@
     "noEmit": true,
 
     "strict": true,
-    "allowJs": true,
+    "allowJs": false,
     "checkJs": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

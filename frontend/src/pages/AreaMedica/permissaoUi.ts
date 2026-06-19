@@ -6,8 +6,11 @@
  * lista, onde o rótulo completo do backend ficaria longo).
  */
 
+import type { TomBadge } from '../../components/ui/StatusBadge/StatusBadge'
+import type { PapelNoCuidado } from '../../types'
+
 // Tom do StatusBadge por papel de acesso.
-const TOM_POR_PAPEL = {
+const TOM_POR_PAPEL: Record<PapelNoCuidado, TomBadge> = {
   responsavel: 'sucesso',
   assumido: 'info',
   visualizacao: 'aviso',
@@ -15,13 +18,13 @@ const TOM_POR_PAPEL = {
 }
 
 // Rótulo enxuto para a lista de pacientes.
-export const ROTULO_CURTO_PAPEL = {
+export const ROTULO_CURTO_PAPEL: Record<PapelNoCuidado, string> = {
   responsavel: 'Responsável',
   assumido: 'Assumido',
   visualizacao: 'Só leitura',
   admin: 'Admin',
 }
 
-export function tomDoPapel(papel) {
+export function tomDoPapel(papel: PapelNoCuidado): TomBadge {
   return TOM_POR_PAPEL[papel] ?? 'neutro'
 }

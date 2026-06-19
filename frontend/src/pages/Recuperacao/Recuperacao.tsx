@@ -1,23 +1,30 @@
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import logoAmare from '../../assets/amare-logo.png'
 import InputField from '../../components/InputField/InputField'
 import Button from '../../components/Button/Button'
 import { solicitarRecuperacao } from '../../services/recuperacaoService'
+import type { ErroRequisicao } from '../../services/api'
 import './Recuperacao.css'
 
 // Mensagem genérica de sucesso: não revela se o e-mail tem conta.
 const MENSAGEM_GENERICA =
   'Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha. Confira a sua caixa de entrada.'
 
+interface Feedback {
+  tipo: 'erro' | 'sucesso'
+  texto: string
+}
+
 function Recuperacao() {
   const [email, setEmail] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
 
-  async function handleSubmit(evento) {
+  async function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
 
     if (!email.trim()) {
@@ -34,7 +41,7 @@ function Recuperacao() {
       await solicitarRecuperacao(email.trim())
       setEnviado(true)
     } catch (erro) {
-      if (erro?.status === 400) {
+      if ((erro as ErroRequisicao)?.status === 400) {
         setFeedback({
           tipo: 'erro',
           texto: 'Informe o seu e-mail para continuar.',

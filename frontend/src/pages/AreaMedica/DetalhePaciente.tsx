@@ -1,14 +1,15 @@
 /**
- * Detalhe de uma paciente na área da médica.
+ * Detalhe de uma paciente na area da medica.
  *
- * Mostra os dados básicos, o status de acesso (selo), as consultas e os
- * medicamentos. A escrita (agendar consulta / cadastrar medicamento) só aparece
- * para quem o backend autoriza (`permissao.pode_editar`). Quem está em modo de
- * visualização pode **assumir o atendimento** — com motivo registrado na trilha
- * de auditoria — para liberar a edição.
+ * Mostra os dados basicos, o status de acesso (selo), as consultas e os
+ * medicamentos. A escrita (agendar consulta / cadastrar medicamento) so aparece
+ * para quem o backend autoriza (`permissao.pode_editar`). Quem esta em modo de
+ * visualizacao pode assumir o atendimento, com motivo registrado na trilha de
+ * auditoria, para liberar a edicao.
  */
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import Button from '../../components/Button/Button'
 import Modal from '../../components/ui/Modal/Modal'
 import StatusBadge from '../../components/ui/StatusBadge/StatusBadge'
@@ -18,9 +19,39 @@ import {
   criarMedicamento,
   obterPaciente,
 } from '../../services/medicaService'
+import type {
+  Consulta,
+  EntradaAssumir,
+  Medicamento,
+  MotivoAssumir,
+  PacienteDetalhe,
+} from '../../types'
 import { tomDoPapel } from './permissaoUi'
 
-function formatarDataHora(iso) {
+interface Props {
+  pacienteId: number
+  aoAtualizarResumo?: () => void
+}
+
+interface Feedback {
+  tipo: 'erro' | 'sucesso'
+  texto: string
+}
+
+interface FormConsulta {
+  data_horario: string
+  local: string
+  observacoes: string
+}
+
+interface FormMedicamento {
+  nome: string
+  dose: string
+  horario: string
+  instrucoes: string
+}
+
+function formatarDataHora(iso?: string): string {
   if (!iso) return ''
   try {
     return new Date(iso).toLocaleString('pt-BR', {
@@ -35,35 +66,46 @@ function formatarDataHora(iso) {
   }
 }
 
-const CONSULTA_VAZIA = { data_horario: '', local: '', observacoes: '' }
-const MEDICAMENTO_VAZIO = { nome: '', dose: '', horario: '', instrucoes: '' }
+const CONSULTA_VAZIA: FormConsulta = {
+  data_horario: '',
+  local: '',
+  observacoes: '',
+}
 
-// Motivos para assumir o atendimento (espelham o backend; "outro" exige
-// observação).
-const MOTIVOS_ASSUMIR = [
+const MEDICAMENTO_VAZIO: FormMedicamento = {
+  nome: '',
+  dose: '',
+  horario: '',
+  instrucoes: '',
+}
+
+const MOTIVOS_ASSUMIR: { valor: MotivoAssumir; rotulo: string }[] = [
   { valor: 'cobertura_agenda', rotulo: 'Cobertura de agenda' },
-  { valor: 'plantao', rotulo: 'Plantão' },
+  { valor: 'plantao', rotulo: 'Plantao' },
   { valor: 'consulta_compartilhada', rotulo: 'Consulta compartilhada' },
   { valor: 'retorno_emergencial', rotulo: 'Retorno emergencial' },
   { valor: 'outro', rotulo: 'Outro' },
 ]
 
-function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
-  const [paciente, setPaciente] = useState(null)
+function DetalhePaciente({ pacienteId, aoAtualizarResumo }: Props) {
+  const [paciente, setPaciente] = useState<PacienteDetalhe | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(false)
 
-  const [formConsulta, setFormConsulta] = useState(CONSULTA_VAZIA)
-  const [formMedicamento, setFormMedicamento] = useState(MEDICAMENTO_VAZIO)
+  const [formConsulta, setFormConsulta] = useState<FormConsulta>(CONSULTA_VAZIA)
+  const [formMedicamento, setFormMedicamento] =
+    useState<FormMedicamento>(MEDICAMENTO_VAZIO)
   const [enviandoConsulta, setEnviandoConsulta] = useState(false)
   const [enviandoMedicamento, setEnviandoMedicamento] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
 
   const [assumirAberto, setAssumirAberto] = useState(false)
-  const [motivo, setMotivo] = useState(MOTIVOS_ASSUMIR[0].valor)
+  const [motivo, setMotivo] = useState<MotivoAssumir>(
+    MOTIVOS_ASSUMIR[0].valor,
+  )
   const [observacao, setObservacao] = useState('')
   const [enviandoAssumir, setEnviandoAssumir] = useState(false)
-  const [erroAssumir, setErroAssumir] = useState(null)
+  const [erroAssumir, setErroAssumir] = useState<string | null>(null)
 
   const [recarregar, setRecarregar] = useState(0)
 
@@ -88,36 +130,40 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
     }
   }, [pacienteId, recarregar])
 
-  async function enviarConsulta(evento) {
+  async function enviarConsulta(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     if (!formConsulta.data_horario) {
-      setFeedback({ tipo: 'erro', texto: 'Informe a data e o horário da consulta.' })
+      setFeedback({
+        tipo: 'erro',
+        texto: 'Informe a data e o horario da consulta.',
+      })
       return
     }
     setEnviandoConsulta(true)
     setFeedback(null)
     try {
-      await criarConsulta(pacienteId, formConsulta)
+      await criarConsulta(pacienteId, formConsulta as Partial<Consulta>)
       setFormConsulta(CONSULTA_VAZIA)
       setFeedback({ tipo: 'sucesso', texto: 'Consulta agendada.' })
       setRecarregar((n) => n + 1)
       aoAtualizarResumo?.()
     } catch {
-      setFeedback({ tipo: 'erro', texto: 'Não foi possível agendar a consulta.' })
+      setFeedback({
+        tipo: 'erro',
+        texto: 'Nao foi possivel agendar a consulta.',
+      })
     } finally {
       setEnviandoConsulta(false)
     }
   }
 
-  async function enviarMedicamento(evento) {
+  async function enviarMedicamento(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     if (!formMedicamento.nome.trim()) {
       setFeedback({ tipo: 'erro', texto: 'Informe o nome do medicamento.' })
       return
     }
-    // Omite o horário quando vazio: o campo é opcional e o backend não aceita
-    // string vazia em um campo de hora.
-    const dados = {
+    const dados: Partial<Medicamento> = {
       nome: formMedicamento.nome,
       dose: formMedicamento.dose,
       instrucoes: formMedicamento.instrucoes,
@@ -134,7 +180,10 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
       setRecarregar((n) => n + 1)
       aoAtualizarResumo?.()
     } catch {
-      setFeedback({ tipo: 'erro', texto: 'Não foi possível cadastrar o medicamento.' })
+      setFeedback({
+        tipo: 'erro',
+        texto: 'Nao foi possivel cadastrar o medicamento.',
+      })
     } finally {
       setEnviandoMedicamento(false)
     }
@@ -154,38 +203,41 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
     }
     setEnviandoAssumir(true)
     setErroAssumir(null)
+    const dados: EntradaAssumir = {
+      motivo,
+      observacao: observacao.trim(),
+    }
     try {
-      await assumirAtendimento(pacienteId, {
-        motivo,
-        observacao: observacao.trim(),
-      })
+      await assumirAtendimento(pacienteId, dados)
       setAssumirAberto(false)
       setFeedback({
         tipo: 'sucesso',
-        texto: 'Atendimento assumido. Você já pode registrar alterações.',
+        texto: 'Atendimento assumido. Voce ja pode registrar alteracoes.',
       })
       setRecarregar((n) => n + 1)
       aoAtualizarResumo?.()
     } catch {
-      setErroAssumir('Não foi possível assumir o atendimento. Tente novamente.')
+      setErroAssumir('Nao foi possivel assumir o atendimento. Tente novamente.')
     } finally {
       setEnviandoAssumir(false)
     }
   }
 
   if (carregando) {
-    return <p className="area-medica__estado">Carregando paciente…</p>
+    return <p className="area-medica__estado">Carregando paciente...</p>
   }
   if (erro || !paciente) {
     return (
-      <p className="area-medica__estado">Não foi possível carregar a paciente.</p>
+      <p className="area-medica__estado">
+        Nao foi possivel carregar a paciente.
+      </p>
     )
   }
 
   const permissao = paciente.permissao
-  // Sem permissão no payload (ex.: dado antigo), assume editável — o backend
-  // continua sendo a barreira real.
   const podeEditar = permissao ? permissao.pode_editar : true
+  const consultas = paciente.consultas ?? []
+  const medicamentos = paciente.medicamentos ?? []
 
   return (
     <div className="detalhe" data-cy="detalhe-paciente">
@@ -203,11 +255,11 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
         </div>
         <p className="detalhe__meta">
           {paciente.email}
-          {paciente.telefone ? ` · ${paciente.telefone}` : ''}
+          {paciente.telefone ? ` - ${paciente.telefone}` : ''}
         </p>
       </header>
 
-      {feedback && (
+      {feedback ? (
         <p
           className={`detalhe__feedback detalhe__feedback--${feedback.tipo}`}
           role="alert"
@@ -215,50 +267,53 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
         >
           {feedback.texto}
         </p>
-      )}
+      ) : null}
 
-      {!podeEditar && (
+      {!podeEditar ? (
         <div className="detalhe__leitura" data-cy="detalhe-somente-leitura">
           <p>
-            Você está em modo de visualização. Para registrar consultas ou
-            medicamentos, assuma o atendimento — o motivo fica na trilha de
+            Voce esta em modo de visualizacao. Para registrar consultas ou
+            medicamentos, assuma o atendimento; o motivo fica na trilha de
             auditoria.
           </p>
           <Button onClick={abrirAssumir} dataCy="assumir-abrir">
             Assumir atendimento
           </Button>
         </div>
-      )}
+      ) : null}
 
       <div className="detalhe__colunas">
         <section className="detalhe__bloco">
           <h3>Consultas</h3>
-          {paciente.consultas.length === 0 ? (
+          {consultas.length === 0 ? (
             <p className="detalhe__vazio">Nenhuma consulta registrada.</p>
           ) : (
             <ul className="detalhe__itens" data-cy="lista-consultas">
-              {paciente.consultas.map((consulta) => (
+              {consultas.map((consulta) => (
                 <li key={consulta.id} className="detalhe__item">
                   <strong>{formatarDataHora(consulta.data_horario)}</strong>
                   <span>
                     {consulta.status_label}
-                    {consulta.local ? ` · ${consulta.local}` : ''}
+                    {consulta.local ? ` - ${consulta.local}` : ''}
                   </span>
                 </li>
               ))}
             </ul>
           )}
 
-          {podeEditar && (
+          {podeEditar ? (
             <form className="detalhe__form" onSubmit={enviarConsulta}>
               <h4>Agendar consulta</h4>
               <label>
-                Data e horário
+                Data e horario
                 <input
                   type="datetime-local"
                   value={formConsulta.data_horario}
                   onChange={(e) =>
-                    setFormConsulta({ ...formConsulta, data_horario: e.target.value })
+                    setFormConsulta({
+                      ...formConsulta,
+                      data_horario: e.target.value,
+                    })
                   }
                   data-cy="consulta-data"
                   required
@@ -272,47 +327,54 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
                   onChange={(e) =>
                     setFormConsulta({ ...formConsulta, local: e.target.value })
                   }
-                  placeholder="Ex.: Clínica Amare"
+                  placeholder="Ex.: Clinica Amare"
                   data-cy="consulta-local"
                 />
               </label>
               <label>
-                Observações
+                Observacoes
                 <textarea
                   value={formConsulta.observacoes}
                   onChange={(e) =>
-                    setFormConsulta({ ...formConsulta, observacoes: e.target.value })
+                    setFormConsulta({
+                      ...formConsulta,
+                      observacoes: e.target.value,
+                    })
                   }
                   rows={2}
                 />
               </label>
-              <Button type="submit" dataCy="consulta-enviar" disabled={enviandoConsulta}>
-                {enviandoConsulta ? 'Agendando…' : 'Agendar consulta'}
+              <Button
+                type="submit"
+                dataCy="consulta-enviar"
+                disabled={enviandoConsulta}
+              >
+                {enviandoConsulta ? 'Agendando...' : 'Agendar consulta'}
               </Button>
             </form>
-          )}
+          ) : null}
         </section>
 
         <section className="detalhe__bloco">
           <h3>Medicamentos</h3>
-          {paciente.medicamentos.length === 0 ? (
+          {medicamentos.length === 0 ? (
             <p className="detalhe__vazio">Nenhum medicamento ativo.</p>
           ) : (
             <ul className="detalhe__itens" data-cy="lista-medicamentos">
-              {paciente.medicamentos.map((medicamento) => (
+              {medicamentos.map((medicamento) => (
                 <li key={medicamento.id} className="detalhe__item">
                   <strong>{medicamento.nome}</strong>
                   <span>
                     {[medicamento.dose, medicamento.horario]
                       .filter(Boolean)
-                      .join(' · ')}
+                      .join(' - ')}
                   </span>
                 </li>
               ))}
             </ul>
           )}
 
-          {podeEditar && (
+          {podeEditar ? (
             <form className="detalhe__form" onSubmit={enviarMedicamento}>
               <h4>Cadastrar medicamento</h4>
               <label>
@@ -321,7 +383,10 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
                   type="text"
                   value={formMedicamento.nome}
                   onChange={(e) =>
-                    setFormMedicamento({ ...formMedicamento, nome: e.target.value })
+                    setFormMedicamento({
+                      ...formMedicamento,
+                      nome: e.target.value,
+                    })
                   }
                   placeholder="Ex.: Progesterona"
                   data-cy="medicamento-nome"
@@ -334,23 +399,29 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
                   type="text"
                   value={formMedicamento.dose}
                   onChange={(e) =>
-                    setFormMedicamento({ ...formMedicamento, dose: e.target.value })
+                    setFormMedicamento({
+                      ...formMedicamento,
+                      dose: e.target.value,
+                    })
                   }
                   placeholder="Ex.: 200mg"
                 />
               </label>
               <label>
-                Horário
+                Horario
                 <input
                   type="time"
                   value={formMedicamento.horario}
                   onChange={(e) =>
-                    setFormMedicamento({ ...formMedicamento, horario: e.target.value })
+                    setFormMedicamento({
+                      ...formMedicamento,
+                      horario: e.target.value,
+                    })
                   }
                 />
               </label>
               <label>
-                Instruções
+                Instrucoes
                 <textarea
                   value={formMedicamento.instrucoes}
                   onChange={(e) =>
@@ -367,10 +438,12 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
                 dataCy="medicamento-enviar"
                 disabled={enviandoMedicamento}
               >
-                {enviandoMedicamento ? 'Cadastrando…' : 'Cadastrar medicamento'}
+                {enviandoMedicamento
+                  ? 'Cadastrando...'
+                  : 'Cadastrar medicamento'}
               </Button>
             </form>
-          )}
+          ) : null}
         </section>
       </div>
 
@@ -394,20 +467,20 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
               disabled={enviandoAssumir}
               dataCy="assumir-confirmar"
             >
-              {enviandoAssumir ? 'Assumindo…' : 'Confirmar'}
+              {enviandoAssumir ? 'Assumindo...' : 'Confirmar'}
             </Button>
           </>
         }
       >
         <p className="detalhe__assumir-texto">
-          Você passará a poder editar esta paciente. A ação e as edições
+          Voce passara a poder editar esta paciente. A acao e as edicoes
           seguintes ficam registradas na trilha de auditoria.
         </p>
         <label className="detalhe__assumir-campo">
           Motivo
           <select
             value={motivo}
-            onChange={(e) => setMotivo(e.target.value)}
+            onChange={(e) => setMotivo(e.target.value as MotivoAssumir)}
             data-cy="assumir-motivo"
           >
             {MOTIVOS_ASSUMIR.map((opcao) => (
@@ -418,7 +491,9 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
           </select>
         </label>
         <label className="detalhe__assumir-campo">
-          {motivo === 'outro' ? 'Observação (obrigatória)' : 'Observação (opcional)'}
+          {motivo === 'outro'
+            ? 'Observacao (obrigatoria)'
+            : 'Observacao (opcional)'}
           <textarea
             value={observacao}
             onChange={(e) => setObservacao(e.target.value)}
@@ -426,11 +501,15 @@ function DetalhePaciente({ pacienteId, aoAtualizarResumo }) {
             data-cy="assumir-observacao"
           />
         </label>
-        {erroAssumir && (
-          <p className="detalhe__assumir-erro" role="alert" data-cy="assumir-erro">
+        {erroAssumir ? (
+          <p
+            className="detalhe__assumir-erro"
+            role="alert"
+            data-cy="assumir-erro"
+          >
             {erroAssumir}
           </p>
-        )}
+        ) : null}
       </Modal>
     </div>
   )

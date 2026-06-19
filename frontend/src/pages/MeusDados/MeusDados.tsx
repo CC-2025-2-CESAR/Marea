@@ -1,32 +1,51 @@
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/Button/Button'
 import SelectField from '../../components/SelectField/SelectField'
 import EmptyState from '../../components/ui/EmptyState/EmptyState'
 import StatusBadge from '../../components/ui/StatusBadge/StatusBadge'
+import type { TomBadge } from '../../components/ui/StatusBadge/StatusBadge'
 import { useToast } from '../../components/ui/Toast/useToast'
 import {
   criarSolicitacao,
   listarSolicitacoes,
   obterMeusDados,
 } from '../../services/privacidadeService'
+import type { ErroRequisicao } from '../../services/api'
+import type {
+  MeusDados as RetratoMeusDados,
+  SolicitacaoPrivacidade,
+  StatusSolicitacao,
+  TipoSolicitacao,
+} from '../../types'
 import './MeusDados.css'
 
 // Tipos de solicitacao oferecidos no formulario (espelham o backend).
-const TIPOS = [
+const TIPOS: { valor: TipoSolicitacao; rotulo: string }[] = [
   { valor: 'correcao', rotulo: 'Correção de dados' },
   { valor: 'exclusao', rotulo: 'Exclusão / anonimização' },
 ]
 
 // Status da solicitacao -> tom do selo.
-const TOM_STATUS = {
+const TOM_STATUS: Record<StatusSolicitacao, TomBadge> = {
   pendente: 'aviso',
   em_andamento: 'info',
   concluida: 'sucesso',
   recusada: 'perigo',
 }
 
-function formatarData(iso) {
+interface Feedback {
+  tipo: 'erro' | 'sucesso'
+  texto: string
+}
+
+interface DetalheSolicitacao {
+  mensagem?: string[]
+  tipo?: string[]
+}
+
+function formatarData(iso?: string | null) {
   if (!iso) return '—'
   const data = new Date(iso)
   if (Number.isNaN(data.getTime())) return '—'
@@ -39,19 +58,19 @@ function formatarData(iso) {
  * exclusão. O backend garante que tudo é escopo do próprio usuário.
  */
 function MeusDados() {
-  const [dados, setDados] = useState(null)
+  const [dados, setDados] = useState<RetratoMeusDados | null>(null)
   const [carregandoDados, setCarregandoDados] = useState(true)
   const [erroDados, setErroDados] = useState(false)
 
-  const [solicitacoes, setSolicitacoes] = useState([])
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoPrivacidade[]>([])
   const [carregandoSolic, setCarregandoSolic] = useState(true)
   const [erroSolic, setErroSolic] = useState(false)
   const [recarregar, setRecarregar] = useState(0)
 
-  const [tipo, setTipo] = useState('correcao')
+  const [tipo, setTipo] = useState<TipoSolicitacao>('correcao')
   const [mensagem, setMensagem] = useState('')
   const [enviando, setEnviando] = useState(false)
-  const [feedback, setFeedback] = useState(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
 
   const { mostrarToast } = useToast()
 
@@ -110,7 +129,7 @@ function MeusDados() {
     mostrarToast('Download da sua cópia iniciado.', 'sucesso')
   }
 
-  async function enviarSolicitacao(evento) {
+  async function enviarSolicitacao(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     if (!mensagem.trim()) {
       setFeedback({ tipo: 'erro', texto: 'Descreva a sua solicitação.' })
@@ -129,11 +148,15 @@ function MeusDados() {
       mostrarToast('Solicitação enviada.', 'sucesso')
       setRecarregar((n) => n + 1)
     } catch (erroReq) {
-      const detalhe =
-        erroReq?.detalhe?.mensagem?.[0] || erroReq?.detalhe?.tipo?.[0]
+      const detalhe = (erroReq as ErroRequisicao)?.detalhe as
+        | DetalheSolicitacao
+        | undefined
       setFeedback({
         tipo: 'erro',
-        texto: detalhe || 'Não foi possível enviar a solicitação.',
+        texto:
+          detalhe?.mensagem?.[0] ||
+          detalhe?.tipo?.[0] ||
+          'Não foi possível enviar a solicitação.',
       })
     } finally {
       setEnviando(false)

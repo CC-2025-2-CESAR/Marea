@@ -203,6 +203,9 @@ export interface Consulta {
   medica_nome?: string
   local?: string
   observacoes?: string
+  /** Situação da consulta (ex.: "agendada"), usada para filtrar a agenda. */
+  status?: string
+  status_label?: string
 }
 
 export interface EventoTratamento {
@@ -235,7 +238,8 @@ export interface RegistroSintoma {
   data?: string
   tipo?: string
   descricao?: string
-  intensidade?: number
+  /** Escala 1–5; `null` quando a paciente não informa. */
+  intensidade?: number | null
   criado_em?: string
 }
 
@@ -343,6 +347,8 @@ export interface EtapaJornada {
 
 export interface ResultadoBusca {
   tipo: string
+  /** Rótulo do tipo já pronto para exibição (ex.: "Tratamento"). */
+  tipo_label?: string
   id: number
   titulo: string
   descricao?: string

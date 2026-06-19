@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { buscarGlobal } from '../../services/buscaService'
+import type { ResultadoBusca } from '../../types'
 import './Busca.css'
 
 // Ordem fixa das seções por tipo, com o rótulo plural mostrado na tela. A
@@ -17,9 +18,9 @@ function Busca() {
   const [searchParams] = useSearchParams()
   const termo = searchParams.get('q') || ''
 
-  const [resultados, setResultados] = useState([])
+  const [resultados, setResultados] = useState<ResultadoBusca[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   // Refaz a busca sempre que o termo da URL muda.
   useEffect(() => {
@@ -109,7 +110,7 @@ function Busca() {
                       data-cy="busca-item"
                       data-tipo={item.tipo}
                     >
-                      <Link className="busca-item__link" to={item.url}>
+                      <Link className="busca-item__link" to={item.url ?? '#'}>
                         <span className="busca-item__tag">
                           {item.tipo_label}
                         </span>
