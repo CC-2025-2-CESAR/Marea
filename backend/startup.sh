@@ -10,6 +10,13 @@ set -e
 
 python manage.py migrate --noinput
 
+# Respostas do Assistente Amare (conteúdo guiado do bot). Roda SEMPRE, fora do
+# gate de demonstração: a tabela precisa estar populada também em produção, ou o
+# assistente cai no texto genérico. O comando é idempotente — só cria o que
+# falta e preserva as respostas que a clínica editar no painel.
+python manage.py seed_assistente \
+  || echo "[startup] aviso: seed_assistente falhou (seguindo mesmo assim)"
+
 # Seed OPCIONAL de demonstração (idempotente):
 #   - o conteúdo de referência (dicionário, tratamentos/etapas/orientações e
 #     apoio emocional) vem de fixtures, sem vínculo com paciente;
@@ -32,9 +39,6 @@ if [ "${SEED_DEMO}" = "true" ]; then
     || echo "[startup] aviso: loaddata de tratamentos/orientações falhou (seguindo mesmo assim)"
   python manage.py loaddata apoio_inicial \
     || echo "[startup] aviso: loaddata apoio_inicial falhou (seguindo mesmo assim)"
-  # Respostas do Assistente Amare (conteúdo guiado do bot).
-  python manage.py loaddata respostas_iniciais \
-    || echo "[startup] aviso: loaddata respostas_iniciais falhou (seguindo mesmo assim)"
   # Equipe médica real da clínica (conteúdo público, contas inativas). Roda
   # antes de criar_usuarios_teste para as especialidades já existirem.
   python manage.py seed_equipe_medica \

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import Button from '../../components/Button/Button'
 import InputField from '../../components/InputField/InputField'
@@ -8,6 +9,11 @@ import {
   obterSugestoesAssistente,
   perguntarAssistente,
 } from '../../services/assistenteService'
+import type {
+  AcaoAssistente,
+  FonteAssistente,
+  SugestaoAssistente,
+} from '../../types'
 import './Bot.css'
 
 // Aviso exibido enquanto o disclaimer do backend não chega (ou se a carga
@@ -16,6 +22,26 @@ const DISCLAIMER_PADRAO =
   'O Assistente Amare ajuda com informações gerais da Amare e não substitui a ' +
   'orientação da sua equipe médica. Ele não faz diagnósticos nem ajusta doses ' +
   'de medicação.'
+
+/** Balão da conversa: ou da usuária, ou do assistente. */
+interface MensagemUsuaria {
+  id: number
+  autor: 'usuaria'
+  texto: string
+}
+
+interface MensagemAssistente {
+  id: number
+  autor: 'assistente'
+  texto: string
+  sensivel?: boolean
+  encontrou?: boolean
+  fonte?: FonteAssistente | null
+  acoes?: AcaoAssistente[]
+  falhou?: boolean
+}
+
+type Mensagem = MensagemUsuaria | MensagemAssistente
 
 // Contador simples para dar uma chave estável a cada balão da conversa.
 let proximoId = 0
@@ -26,16 +52,16 @@ function novoId() {
 
 function Bot() {
   const [disclaimer, setDisclaimer] = useState(DISCLAIMER_PADRAO)
-  const [sugestoes, setSugestoes] = useState([])
+  const [sugestoes, setSugestoes] = useState<SugestaoAssistente[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
-  const [mensagens, setMensagens] = useState([])
+  const [mensagens, setMensagens] = useState<Mensagem[]>([])
   const [pergunta, setPergunta] = useState('')
   const [enviando, setEnviando] = useState(false)
 
   const { mostrarToast } = useToast()
-  const fimRef = useRef(null)
+  const fimRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     let cancelado = false
@@ -70,7 +96,7 @@ function Bot() {
     fimRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [mensagens, enviando])
 
-  async function enviarPergunta(texto) {
+  async function enviarPergunta(texto: string) {
     const limpo = (texto || '').trim()
     if (!limpo || enviando) return
 
@@ -96,10 +122,7 @@ function Bot() {
         },
       ])
     } catch {
-      mostrarToast(
-        'Não foi possível responder agora. Tente novamente.',
-        'erro',
-      )
+      mostrarToast('Não foi possível responder agora. Tente novamente.', 'erro')
       setMensagens((atuais) => [
         ...atuais,
         {
@@ -117,7 +140,7 @@ function Bot() {
     }
   }
 
-  function handleSubmit(evento) {
+  function handleSubmit(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault()
     enviarPergunta(pergunta)
   }
@@ -249,7 +272,9 @@ function Bot() {
           label="Sua pergunta"
           hideLabel
           value={pergunta}
-          onChange={(evento) => setPergunta(evento.target.value)}
+          onChange={(evento: ChangeEvent<HTMLInputElement>) =>
+            setPergunta(evento.target.value)
+          }
           placeholder="Escreva sua pergunta..."
           dataCy="bot-input"
         />
