@@ -38,7 +38,7 @@
     "fields": {
       "termo": "Endometriose",
       "definicao": "Condição em que o tecido semelhante ao endométrio cresce fora do útero. Pode causar dor pélvica, alterações menstruais e impacto na fertilidade. O diagnóstico e o tratamento são feitos pela equipe médica.",
-      "categoria": "Doença",
+      "categoria": "Condição",
       "exemplo": "Mulheres com endometriose costumam ser acompanhadas por ginecologistas especializados em reprodução assistida.",
       "artigos_relacionados": [
         {"titulo": "Endometriose e fertilidade", "url": "#"},
@@ -152,7 +152,7 @@
     "fields": {
       "termo": "Miomas",
       "definicao": "Crescimentos não cancerosos que podem aparecer no útero. Em alguns casos influenciam o ciclo, geram desconforto ou impactam a fertilidade. O acompanhamento é feito pela equipe médica.",
-      "categoria": "Doença",
+      "categoria": "Condição",
       "exemplo": "A presença de miomas pode ser identificada em exames de ultrassom de rotina.",
       "artigos_relacionados": [
         {"titulo": "Tipos de miomas e quando preocupar", "url": "#"}

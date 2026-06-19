@@ -23,6 +23,10 @@ const DISCLAIMER_PADRAO =
   'orientação da sua equipe médica. Ele não faz diagnósticos nem ajusta doses ' +
   'de medicação.'
 
+// Quantas perguntas frequentes aparecem antes do "ver mais". Mantém o bloco
+// enxuto: poucas sugestões à mostra e o restante a um clique de distância.
+const LIMITE_SUGESTOES = 3
+
 /** Balão da conversa: ou da usuária, ou do assistente. */
 interface MensagemUsuaria {
   id: number
@@ -55,6 +59,8 @@ function Bot() {
   const [sugestoes, setSugestoes] = useState<SugestaoAssistente[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+
+  const [mostrarTodasSugestoes, setMostrarTodasSugestoes] = useState(false)
 
   const [mensagens, setMensagens] = useState<Mensagem[]>([])
   const [pergunta, setPergunta] = useState('')
@@ -249,7 +255,10 @@ function Bot() {
         <div className="bot-sugestoes" data-cy="bot-sugestoes">
           <span className="bot-sugestoes__titulo">Perguntas frequentes</span>
           <div className="bot-sugestoes__lista">
-            {sugestoes.map((sugestao) => (
+            {(mostrarTodasSugestoes
+              ? sugestoes
+              : sugestoes.slice(0, LIMITE_SUGESTOES)
+            ).map((sugestao) => (
               <button
                 key={sugestao.intencao}
                 type="button"
@@ -262,6 +271,29 @@ function Bot() {
               </button>
             ))}
           </div>
+          {sugestoes.length > LIMITE_SUGESTOES ? (
+            <button
+              type="button"
+              className="bot-sugestoes__ver-mais"
+              onClick={() => setMostrarTodasSugestoes((atual) => !atual)}
+              aria-expanded={mostrarTodasSugestoes}
+              data-cy="bot-sugestoes-ver-mais"
+            >
+              {mostrarTodasSugestoes
+                ? 'Ver menos'
+                : `Ver mais ${sugestoes.length - LIMITE_SUGESTOES} pergunta${
+                    sugestoes.length - LIMITE_SUGESTOES > 1 ? 's' : ''
+                  }`}
+              <span
+                className={`bot-sugestoes__seta${
+                  mostrarTodasSugestoes ? ' bot-sugestoes__seta--aberta' : ''
+                }`}
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </button>
+          ) : null}
         </div>
       ) : null}
 

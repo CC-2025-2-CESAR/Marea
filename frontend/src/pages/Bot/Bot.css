@@ -239,6 +239,45 @@
   cursor: not-allowed;
 }
 
+.bot-sugestoes__ver-mais {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-xs);
+  min-height: 44px;
+  padding: 0 var(--espaco-sm);
+  border: none;
+  background: none;
+  color: var(--cor-azul-link);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bot-sugestoes__ver-mais:hover {
+  text-decoration: underline;
+}
+
+.bot-sugestoes__ver-mais:focus-visible {
+  outline: 2px solid var(--cor-rosa-secundario);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.bot-sugestoes__seta {
+  transition: transform 0.15s ease;
+}
+
+.bot-sugestoes__seta--aberta {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bot-sugestoes__seta {
+    transition: none;
+  }
+}
+
 /* --- Composição da pergunta --- */
 .bot-form {
   display: flex;
