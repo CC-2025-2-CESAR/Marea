@@ -31,6 +31,11 @@ const linksPaciente: LinkNav[] = [
     dataCy: 'nav-especialidades',
   },
   {
+    to: '/equipe-medica',
+    label: 'Equipe médica',
+    dataCy: 'nav-equipe-medica',
+  },
+  {
     to: '/linha-do-tempo',
     label: 'Linha do tempo',
     dataCy: 'nav-linha-do-tempo',
@@ -50,6 +55,11 @@ const linksMedica: LinkNav[] = [
     to: '/especialidades',
     label: 'Especialidades',
     dataCy: 'nav-especialidades',
+  },
+  {
+    to: '/equipe-medica',
+    label: 'Equipe médica',
+    dataCy: 'nav-equipe-medica',
   },
   { to: '/apoio', label: 'Apoio emocional', dataCy: 'nav-apoio' },
   { to: '/bot', label: 'Bot', dataCy: 'nav-bot' },

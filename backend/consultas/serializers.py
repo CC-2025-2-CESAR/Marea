@@ -3,6 +3,27 @@ from rest_framework import serializers
 from .models import Consulta, Especialidade, EventoTratamento
 
 
+def nome_da_medica(medica):
+    """Nome de exibição da médica: nome completo do perfil ou o username."""
+    return medica.perfil.nome_completo or medica.perfil.usuario.username
+
+
+def serializar_medica_publica(medica):
+    """Dados públicos de uma médica para o catálogo (perfil da equipe).
+
+    Conteúdo institucional, sem nada sensível: nome, especialidade, registros
+    profissionais (CRM/RQE) e a apresentação.
+    """
+    return {
+        'id': medica.id,
+        'nome': nome_da_medica(medica),
+        'especialidade': medica.especialidade,
+        'crm': medica.crm,
+        'rqe': medica.rqe,
+        'bio': medica.bio,
+    }
+
+
 class EspecialidadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Especialidade
@@ -19,14 +40,22 @@ class EspecialidadePublicaSerializer(serializers.ModelSerializer):
         fields = ('id', 'nome', 'descricao', 'medicas')
 
     def get_medicas(self, obj):
-        return [
-            {
-                'id': medica.id,
-                'nome': medica.perfil.nome_completo
-                or medica.perfil.usuario.username,
-            }
-            for medica in obj.medicas.all()
-        ]
+        return [serializar_medica_publica(medica) for medica in obj.medicas.all()]
+
+
+def serializar_membro_equipe(medica):
+    """Dados públicos de uma médica na página da equipe, com as especialidades.
+
+    Estende `serializar_medica_publica` com a lista de especialidades ativas a
+    que a médica está vinculada — para a página agrupar/exibir áreas de atuação.
+    """
+    dados = serializar_medica_publica(medica)
+    dados['especialidades'] = [
+        {'id': esp.id, 'nome': esp.nome}
+        for esp in medica.especialidades.all()
+        if esp.ativo
+    ]
+    return dados
 
 
 class ConsultaSerializer(serializers.ModelSerializer):

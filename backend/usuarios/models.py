@@ -118,7 +118,12 @@ class Medica(models.Model):
         verbose_name='Perfil',
     )
     crm = models.CharField('CRM', max_length=30, blank=True)
+    # Registro de Qualificação de Especialista (RQE): número público do CFM que
+    # certifica a especialidade da médica. Exibido no perfil da equipe.
+    rqe = models.CharField('RQE', max_length=30, blank=True)
     especialidade = models.CharField('Especialidade', max_length=120, blank=True)
+    # Apresentação curta da médica para a página pública de equipe/especialidades.
+    bio = models.TextField('Apresentação', blank=True)
 
     class Meta:
         verbose_name = 'Médica'

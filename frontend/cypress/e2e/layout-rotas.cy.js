@@ -34,6 +34,7 @@ describe('Rotas e layout base da Amare', () => {
     cy.intercept('GET', '**/api/tratamentos/**', { body: [] })
     cy.intercept('GET', '**/api/orientacoes/**', { body: [] })
     cy.intercept('GET', '**/api/especialidades/', { body: [] })
+    cy.intercept('GET', '**/api/equipe-medica/', { body: [] })
     cy.intercept('GET', '**/api/eventos/', { body: [] })
     cy.intercept('GET', '**/api/jornada/', { body: [] })
     cy.intercept('GET', '**/api/apoio/**', { body: [] })
@@ -169,6 +170,15 @@ describe('Rotas e layout base da Amare', () => {
     cy.get('[data-cy=nav-especialidades]').click()
     cy.location('pathname').should('eq', '/especialidades')
     cy.contains('h1', 'Especialidades').should('be.visible')
+
+    cy.get('[data-cy=nav-equipe-medica]').should(
+      'have.attr',
+      'href',
+      '/equipe-medica',
+    )
+    cy.get('[data-cy=nav-equipe-medica]').click()
+    cy.location('pathname').should('eq', '/equipe-medica')
+    cy.contains('h1', 'Equipe médica').should('be.visible')
 
     cy.get('[data-cy=nav-linha-do-tempo]').should(
       'have.attr',

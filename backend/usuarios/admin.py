@@ -50,11 +50,12 @@ class PacienteAdmin(admin.ModelAdmin):
 
 @admin.register(Medica)
 class MedicaAdmin(admin.ModelAdmin):
-    list_display = ('perfil', 'crm', 'especialidade')
+    list_display = ('perfil', 'crm', 'rqe', 'especialidade')
     search_fields = (
         'perfil__usuario__username',
         'perfil__nome_completo',
         'crm',
+        'rqe',
         'especialidade',
     )
 

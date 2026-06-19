@@ -68,10 +68,9 @@
 
 .especialidade-detalhe__medicas {
   margin: 0;
-  padding-left: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-xs);
+  gap: var(--espaco-sm);
 }
 
 .especialidade-detalhe__mensagem {

@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/dicionario/', include('dicionario.urls')),
     path('api/consultas/', include('consultas.urls')),
     path('api/especialidades/', include('consultas.urls_especialidades')),
+    path('api/equipe-medica/', include('consultas.urls_equipe')),
     path('api/eventos/', include('consultas.urls_eventos')),
     path('api/medicamentos/', include('medicamentos.urls')),
     path('api/apoio/', include('apoio.urls')),

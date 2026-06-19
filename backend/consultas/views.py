@@ -13,13 +13,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from usuarios.models import Paciente
+from usuarios.models import Medica, Paciente, PerfilUsuario
 
 from .models import Consulta, Especialidade, EventoTratamento
 from .serializers import (
     ConsultaSerializer,
     EspecialidadePublicaSerializer,
     EventoTratamentoSerializer,
+    serializar_membro_equipe,
 )
 
 
@@ -109,6 +110,26 @@ def detalhar_especialidade(request, pk):
         )
     serializer = EspecialidadePublicaSerializer(especialidade)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def listar_equipe_medica(request):
+    """Lista a equipe médica da clínica (conteúdo público).
+
+    Traz as médicas cadastradas com perfil de médica, com os dados públicos
+    (nome, especialidade, CRM, RQE, apresentação) e as especialidades ativas a
+    que cada uma está vinculada. Conteúdo institucional: dispensa login.
+    """
+    medicas = (
+        Medica.objects.filter(
+            perfil__tipo_usuario=PerfilUsuario.TIPO_MEDICA
+        )
+        .select_related('perfil__usuario')
+        .prefetch_related('especialidades')
+        .order_by('perfil__nome_completo', 'perfil__usuario__username')
+    )
+    return Response([serializar_membro_equipe(medica) for medica in medicas])
 
 
 @api_view(['GET'])

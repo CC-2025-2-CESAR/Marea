@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import EmptyState from '../../components/ui/EmptyState/EmptyState'
+import PerfilMedica from '../../components/PerfilMedica/PerfilMedica'
 import { obterEspecialidade } from '../../services/especialidadesService'
 import type { Especialidade } from '../../types'
 import './EspecialidadeDetalhe.css'
@@ -118,11 +119,15 @@ function EspecialidadeDetalhe() {
               <h2 className="especialidade-detalhe__subtitulo">
                 Médicas relacionadas
               </h2>
-              <ul className="especialidade-detalhe__medicas">
+              <div className="especialidade-detalhe__medicas">
                 {medicas.map((medica) => (
-                  <li key={medica.id}>{medica.nome}</li>
+                  <PerfilMedica
+                    key={medica.id}
+                    medica={medica}
+                    dataCy="especialidade-detalhe-medica"
+                  />
                 ))}
-              </ul>
+              </div>
             </div>
           ) : null}
         </article>

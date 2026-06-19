@@ -21,6 +21,7 @@ import Orientacoes from '../pages/Orientacoes/Orientacoes'
 import OrientacaoDetalhe from '../pages/Orientacoes/OrientacaoDetalhe'
 import Especialidades from '../pages/Especialidades/Especialidades'
 import EspecialidadeDetalhe from '../pages/Especialidades/EspecialidadeDetalhe'
+import EquipeMedica from '../pages/EquipeMedica/EquipeMedica'
 import LinhaDoTempo from '../pages/LinhaDoTempo/LinhaDoTempo'
 import ApoioEmocional from '../pages/ApoioEmocional/ApoioEmocional'
 import ApoioDetalhe from '../pages/ApoioEmocional/ApoioDetalhe'
@@ -73,6 +74,7 @@ function AppRoutes() {
             path="/especialidades/:id"
             element={<EspecialidadeDetalhe />}
           />
+          <Route path="/equipe-medica" element={<EquipeMedica />} />
           <Route path="/apoio" element={<ApoioEmocional />} />
           <Route path="/apoio/:id" element={<ApoioDetalhe />} />
           <Route path="/bot" element={<Bot />} />

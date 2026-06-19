@@ -835,3 +835,65 @@ class AlterarSenhaViewTests(APITestCase):
         )
         self.assertEqual(resposta.status_code, 200)
         self.assertIn('access', resposta.data)
+
+
+class SeedEquipeMedicaTests(TestCase):
+    """Seed da equipe médica real (conteúdo público, contas inativas)."""
+
+    def _rodar(self):
+        from io import StringIO
+
+        from django.core.management import call_command
+
+        call_command('seed_equipe_medica', stdout=StringIO())
+
+    def test_cria_as_tres_medicas_reais(self):
+        self._rodar()
+        nomes = set(
+            Medica.objects.values_list('perfil__nome_completo', flat=True)
+        )
+        self.assertIn('Adriana Leal Griz Notaro', nomes)
+        self.assertIn('Ana Caroline Paz Serafim', nomes)
+        self.assertIn('Mariana Corrêa Nunes', nomes)
+
+    def test_preenche_crm_rqe_e_vincula_especialidade(self):
+        self._rodar()
+        adriana = Medica.objects.get(
+            perfil__nome_completo='Adriana Leal Griz Notaro'
+        )
+        self.assertEqual(adriana.crm, 'CRM/PE 17733')
+        self.assertEqual(adriana.rqe, '12206')
+        self.assertTrue(adriana.bio)
+        self.assertIn(
+            'Reprodução humana',
+            adriana.especialidades.values_list('nome', flat=True),
+        )
+
+    def test_contas_sao_inativas_e_sem_senha_utilizavel(self):
+        self._rodar()
+        usuario = User.objects.get(username='adriana_notaro')
+        self.assertFalse(usuario.is_active)
+        self.assertFalse(usuario.has_usable_password())
+
+    def test_idempotente(self):
+        self._rodar()
+        self._rodar()
+        self.assertEqual(
+            Medica.objects.filter(
+                perfil__nome_completo='Adriana Leal Griz Notaro'
+            ).count(),
+            1,
+        )
+        # As especialidades reais não são duplicadas em re-execuções.
+        from consultas.models import Especialidade
+
+        self.assertEqual(
+            Especialidade.objects.filter(nome='Reprodução humana').count(), 1
+        )
+
+    def test_nao_remove_a_medica_de_teste(self):
+        medica_teste = _criar_medica('medica_teste')
+        self._rodar()
+        self.assertTrue(
+            Medica.objects.filter(pk=medica_teste.pk).exists()
+        )
