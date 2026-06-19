@@ -35,6 +35,10 @@ if [ "${SEED_DEMO}" = "true" ]; then
   # Respostas do Assistente Amare (conteúdo guiado do bot).
   python manage.py loaddata respostas_iniciais \
     || echo "[startup] aviso: loaddata respostas_iniciais falhou (seguindo mesmo assim)"
+  # Equipe médica real da clínica (conteúdo público, contas inativas). Roda
+  # antes de criar_usuarios_teste para as especialidades já existirem.
+  python manage.py seed_equipe_medica \
+    || echo "[startup] aviso: seed_equipe_medica falhou (seguindo mesmo assim)"
   python manage.py criar_usuarios_teste \
     || echo "[startup] aviso: criar_usuarios_teste falhou (seguindo mesmo assim)"
 fi

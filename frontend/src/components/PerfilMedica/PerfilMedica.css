@@ -1,0 +1,53 @@
+.perfil-medica {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--espaco-md);
+  background: var(--cor-fundo-suave, var(--cor-card));
+  border: 1px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-caramelo);
+  border-radius: var(--raio-medio);
+  font-family: var(--fonte-base);
+  color: var(--cor-texto);
+}
+
+.perfil-medica__nome {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--cor-marrom);
+}
+
+.perfil-medica__especialidade {
+  margin: 0;
+  font-weight: 600;
+  color: var(--cor-texto);
+}
+
+.perfil-medica__registros {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cor-texto-suave);
+}
+
+.perfil-medica__bio {
+  margin: 4px 0 0;
+  line-height: 1.55;
+}
+
+.perfil-medica__areas {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-xs);
+}
+
+.perfil-medica__area {
+  font-size: 0.85rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--cor-rosa-claro, var(--cor-card));
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-marrom);
+}

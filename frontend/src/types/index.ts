@@ -278,6 +278,24 @@ export interface Orientacao {
 export interface MedicaResumo {
   id: number
   nome: string
+  /** Especialidade (texto livre) declarada no cadastro da médica. */
+  especialidade?: string
+  /** Registro no Conselho (ex.: "CRM/PE 17733"). */
+  crm?: string
+  /** Registro de Qualificacao de Especialista (numero). */
+  rqe?: string
+  /** Apresentacao curta da medica. */
+  bio?: string
+}
+
+export interface EspecialidadeResumo {
+  id: number
+  nome: string
+}
+
+/** Membro da equipe medica (pagina /equipe-medica): perfil + areas de atuacao. */
+export interface MembroEquipe extends MedicaResumo {
+  especialidades?: EspecialidadeResumo[]
 }
 
 export interface Especialidade {

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { listarEspecialidades } from '../../services/especialidadesService'
 import InteractiveCard from '../../components/ui/InteractiveCard/InteractiveCard'
+import type { Especialidade } from '../../types'
 import './Especialidades.css'
 
 function Especialidades() {
-  const [especialidades, setEspecialidades] = useState([])
+  const [especialidades, setEspecialidades] = useState<Especialidade[]>([])
   const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelado = false

@@ -29,7 +29,16 @@ const especialidadesMock = [
     nome: 'Reprodução humana',
     descricao:
       'Acompanhamento de fertilidade e tratamentos de reprodução assistida.',
-    medicas: [{ id: 1, nome: 'Dra. Helena Costa' }],
+    medicas: [
+      {
+        id: 1,
+        nome: 'Dra. Helena Costa',
+        especialidade: 'Reprodução Assistida',
+        crm: 'CRM/PE 12345',
+        rqe: '12206',
+        bio: 'Apresentação da médica.',
+      },
+    ],
   },
   {
     id: 2,
@@ -141,6 +150,11 @@ describe('Detalhe da especialidade', () => {
     cy.get('[data-cy=especialidade-detalhe-medicas]')
       .should('contain', 'Médicas relacionadas')
       .and('contain', 'Dra. Helena Costa')
+    // Perfil enriquecido (PR8): especialidade + registros profissionais.
+    cy.get('[data-cy=especialidade-detalhe-medica]')
+      .should('contain', 'Reprodução Assistida')
+      .and('contain', 'CRM/PE 12345')
+      .and('contain', 'RQE 12206')
   })
 
   it('acessa o detalhe diretamente pela URL', () => {

@@ -22,7 +22,13 @@ class EspecialidadesAPITests(TestCase):
             tipo_usuario=PerfilUsuario.TIPO_MEDICA,
             nome_completo='Dra. Helena Costa',
         )
-        self.medica = Medica.objects.create(perfil=perfil)
+        self.medica = Medica.objects.create(
+            perfil=perfil,
+            crm='CRM/PE 12345',
+            rqe='12206',
+            especialidade='Reprodução Assistida',
+            bio='Apresentação da médica.',
+        )
 
         self.reproducao = Especialidade.objects.create(
             nome='Reprodução humana',
@@ -61,6 +67,17 @@ class EspecialidadesAPITests(TestCase):
         self.assertEqual(len(reproducao['medicas']), 1)
         self.assertEqual(reproducao['medicas'][0]['nome'], 'Dra. Helena Costa')
 
+    def test_medica_expoe_crm_rqe_especialidade_e_bio(self):
+        resp = self.client.get('/api/especialidades/')
+        reproducao = next(
+            e for e in resp.data if e['nome'] == 'Reprodução humana'
+        )
+        medica = reproducao['medicas'][0]
+        self.assertEqual(medica['crm'], 'CRM/PE 12345')
+        self.assertEqual(medica['rqe'], '12206')
+        self.assertEqual(medica['especialidade'], 'Reprodução Assistida')
+        self.assertEqual(medica['bio'], 'Apresentação da médica.')
+
     def test_especialidade_sem_medicas_tem_lista_vazia(self):
         resp = self.client.get('/api/especialidades/')
         psicologia = next(e for e in resp.data if e['nome'] == 'Psicologia')
@@ -90,6 +107,66 @@ class EspecialidadesAPITests(TestCase):
     def test_detalhe_especialidade_inexistente_404(self):
         resp = self.client.get('/api/especialidades/99999/')
         self.assertEqual(resp.status_code, 404)
+
+
+class EquipeMedicaAPITests(TestCase):
+    """API pública da equipe médica (/api/equipe-medica/)."""
+
+    def setUp(self):
+        self.client = APIClient()
+        User = get_user_model()
+
+        usuario = User.objects.create_user(username='dra_equipe', password='x')
+        perfil = PerfilUsuario.objects.create(
+            usuario=usuario,
+            tipo_usuario=PerfilUsuario.TIPO_MEDICA,
+            nome_completo='Dra. Equipe Amare',
+        )
+        self.medica = Medica.objects.create(
+            perfil=perfil,
+            crm='CRM/PE 99999',
+            rqe='4321',
+            especialidade='Reprodução Assistida',
+            bio='Apresentação.',
+        )
+        self.reproducao = Especialidade.objects.create(
+            nome='Reprodução humana', descricao='...'
+        )
+        self.reproducao.medicas.add(self.medica)
+
+    def test_lista_publica_sem_autenticacao(self):
+        resp = self.client.get('/api/equipe-medica/')
+        self.assertEqual(resp.status_code, 200)
+
+    def test_traz_dados_publicos_e_especialidades(self):
+        resp = self.client.get('/api/equipe-medica/')
+        self.assertEqual(len(resp.data), 1)
+        membro = resp.data[0]
+        self.assertEqual(membro['nome'], 'Dra. Equipe Amare')
+        self.assertEqual(membro['crm'], 'CRM/PE 99999')
+        self.assertEqual(membro['rqe'], '4321')
+        self.assertEqual(membro['especialidade'], 'Reprodução Assistida')
+        nomes = {e['nome'] for e in membro['especialidades']}
+        self.assertIn('Reprodução humana', nomes)
+
+    def test_nao_inclui_pacientes(self):
+        User = get_user_model()
+        usuario = User.objects.create_user(username='paciente_x', password='x')
+        perfil = PerfilUsuario.objects.create(
+            usuario=usuario,
+            tipo_usuario=PerfilUsuario.TIPO_PACIENTE,
+            nome_completo='Paciente X',
+        )
+        Paciente.objects.create(perfil=perfil)
+        resp = self.client.get('/api/equipe-medica/')
+        nomes = {m['nome'] for m in resp.data}
+        self.assertNotIn('Paciente X', nomes)
+
+    def test_lista_vazia_quando_nao_ha_medicas(self):
+        Medica.objects.all().delete()
+        resp = self.client.get('/api/equipe-medica/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(len(resp.data), 0)
 
 
 class EventosAPITests(TestCase):
