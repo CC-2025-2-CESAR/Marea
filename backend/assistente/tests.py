@@ -6,8 +6,11 @@ encaminhamento à clínica em temas sensíveis — que vence até uma resposta
 cadastrada — e o bloqueio de acesso anônimo.
 """
 
+from io import StringIO
+
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.test import TestCase
 from rest_framework.test import APITestCase
 
 from usuarios.models import PerfilUsuario
@@ -155,17 +158,72 @@ class AssistenteTests(APITestCase):
             401,
         )
 
-    # --- seed ---
 
-    def test_fixture_seed_e_valida(self):
-        call_command('loaddata', 'respostas_iniciais', verbosity=0)
+class SeedAssistenteTests(TestCase):
+    """O comando seed_assistente popula o conteúdo guiado do bot.
+
+    Substitui o antigo `loaddata respostas_iniciais`: como o conteúdo é editável
+    pela clínica e a produção já foi semeada, o seed precisa ser idempotente e
+    preservar edições — só cria o que falta.
+    """
+
+    def _rodar(self):
+        call_command('seed_assistente', stdout=StringIO())
+
+    def test_cria_respostas_e_acoes(self):
+        self._rodar()
         self.assertTrue(
             RespostaAssistente.objects.filter(intencao='consultas').exists()
         )
         # A resposta sobre FIV oferece dois atalhos (tratamentos e dicionário).
         fiv = RespostaAssistente.objects.get(intencao='sobre_fiv')
         self.assertEqual(fiv.acoes.count(), 2)
-        # Nenhuma resposta semeada deve orientar mudança de dose.
+
+    def test_inclui_intencoes_novas_ligadas_as_paginas(self):
+        self._rodar()
+        equipe = RespostaAssistente.objects.get(intencao='equipe_medica')
+        self.assertEqual(equipe.fonte_rota, '/equipe-medica')
+        self.assertEqual(equipe.acoes.first().rota, '/equipe-medica')
+        # As demais páginas do app também ganham porta de entrada pelo bot.
+        for intencao in ('agenda_hoje', 'meus_registros', 'privacidade',
+                         'tratamentos', 'dicionario', 'contato'):
+            self.assertTrue(
+                RespostaAssistente.objects.filter(intencao=intencao).exists(),
+                intencao,
+            )
+
+    def test_idempotente(self):
+        self._rodar()
+        total = RespostaAssistente.objects.count()
+        acoes = sum(r.acoes.count() for r in RespostaAssistente.objects.all())
+        self._rodar()
+        self.assertEqual(RespostaAssistente.objects.count(), total)
+        self.assertEqual(
+            sum(r.acoes.count() for r in RespostaAssistente.objects.all()),
+            acoes,
+        )
+
+    def test_nao_sobrescreve_edicao_da_clinica(self):
+        # Simula uma resposta já existente (produção/edição no painel).
+        RespostaAssistente.objects.create(
+            intencao='consultas',
+            pergunta_exemplo='Pergunta editada pela clinica',
+            palavras_chave='consulta',
+            resposta='TEXTO EDITADO PELA CLINICA',
+            prioridade=10,
+        )
+        self._rodar()
+        consultas = RespostaAssistente.objects.get(intencao='consultas')
+        self.assertEqual(consultas.resposta, 'TEXTO EDITADO PELA CLINICA')
+        # Sem duplicar a intenção (é unique, mas confirma o get_or_create).
+        self.assertEqual(
+            RespostaAssistente.objects.filter(intencao='consultas').count(), 1
+        )
+
+    def test_nenhuma_resposta_orienta_mudanca_de_dose(self):
+        self._rodar()
         for resposta in RespostaAssistente.objects.all():
-            self.assertNotIn('aumente a dose', resposta.resposta.lower())
-            self.assertNotIn('pare de tomar', resposta.resposta.lower())
+            texto = resposta.resposta.lower()
+            self.assertNotIn('aumente a dose', texto)
+            self.assertNotIn('pare de tomar', texto)
+            self.assertFalse(resposta.sensivel)
