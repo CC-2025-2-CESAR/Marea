@@ -36,18 +36,30 @@ SENHA_PADRAO = 'amare123'
 # que a área da médica passe a refletir apenas as pacientes de demonstração.
 USUARIO_LEGADO = 'paciente_teste'
 
+# Especialidades reais da clínica (clinicaamare.com). As descrições espelham as
+# de `seed_equipe_medica` para manter o conteúdo consistente, independentemente
+# da ordem em que os seeds rodam.
 ESPECIALIDADES = [
     {
         'nome': 'Reprodução humana',
-        'descricao': 'Acompanhamento de fertilidade e tratamentos de reprodução assistida.',
+        'descricao': (
+            'Acompanhamento da fertilidade e tratamentos de reprodução '
+            'assistida, do planejamento ao acompanhamento de cada etapa.'
+        ),
     },
     {
-        'nome': 'Endocrinologia',
-        'descricao': 'Avaliação hormonal e função da tireoide.',
+        'nome': 'Ginecologia',
+        'descricao': (
+            'Cuidado integral da saúde da mulher em todas as fases da vida, '
+            'com prevenção, diagnóstico e acompanhamento.'
+        ),
     },
     {
-        'nome': 'Psicologia',
-        'descricao': 'Apoio emocional durante o tratamento.',
+        'nome': 'Cirurgia Ginecológica',
+        'descricao': (
+            'Procedimentos cirúrgicos ginecológicos, com foco em técnicas '
+            'minimamente invasivas (videolaparoscopia e histeroscopia).'
+        ),
     },
 ]
 
@@ -89,13 +101,13 @@ PACIENTES = [
                 'observacoes': 'Ultrassom de acompanhamento folicular durante o estímulo ovariano.',
             },
             {
-                'especialidade': 'Endocrinologia',
+                'especialidade': 'Ginecologia',
                 'com_medica': False,
                 'dias': 20,
                 'hora': (11, 0),
                 'local': 'Clínica Amare - Sala 1',
                 'status': Consulta.STATUS_AGENDADA,
-                'observacoes': 'Avaliação de exames hormonais e do perfil nutricional vegetariano.',
+                'observacoes': 'Consulta de acompanhamento, com avaliação de exames e orientações sobre o perfil nutricional vegetariano.',
             },
         ],
         'medicamentos': [
@@ -215,22 +227,22 @@ PACIENTES = [
                 'observacoes': 'Revisão do histórico gestacional e plano de suporte da fase lútea.',
             },
             {
-                'especialidade': 'Psicologia',
+                'especialidade': 'Reprodução humana',
                 'com_medica': False,
                 'dias': 8,
                 'hora': (14, 0),
                 'local': 'Online (videochamada)',
                 'status': Consulta.STATUS_AGENDADA,
-                'observacoes': 'Acompanhamento psicológico para reduzir a ansiedade durante o tratamento.',
+                'observacoes': 'Consulta de acompanhamento do tratamento, com orientações para a fase de espera.',
             },
             {
-                'especialidade': 'Endocrinologia',
+                'especialidade': 'Reprodução humana',
                 'com_medica': False,
                 'dias': 23,
                 'hora': (8, 30),
                 'local': 'Clínica Amare - Sala 1',
                 'status': Consulta.STATUS_AGENDADA,
-                'observacoes': 'Avaliação hormonal e da tireoide antes da próxima transferência.',
+                'observacoes': 'Avaliação hormonal antes da próxima transferência.',
             },
         ],
         'medicamentos': [
@@ -270,8 +282,8 @@ PACIENTES = [
                 'tipo': EventoTratamento.TIPO_MEDICACAO,
             },
             {
-                'titulo': 'Sessão de acompanhamento psicológico',
-                'descricao': 'Apoio emocional durante a fase de espera.',
+                'titulo': 'Conversa de acompanhamento na clínica',
+                'descricao': 'Espaço de escuta e apoio durante a fase de espera.',
                 'dias': 8,
                 'hora': (14, 0),
                 'tipo': EventoTratamento.TIPO_OUTRO,
